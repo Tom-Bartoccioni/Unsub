@@ -11,6 +11,13 @@ const EnvSchema = z.object({
     .string()
     .min(1, 'FIREBASE_PRIVATE_KEY is required')
     .transform((value) => value.replace(/\\n/g, '\n')),
+  GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
+  GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_OAUTH_REDIRECT_URL: z.string().url().optional(),
+  ENCRYPTION_KEY: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/i, 'ENCRYPTION_KEY must be 32 bytes (64 hex chars)')
+    .optional(),
   GIT_SHA: z.string().default('dev'),
 });
 
