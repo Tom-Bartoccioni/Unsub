@@ -52,9 +52,14 @@
 - DB: Neon project `unsub`, branch `staging`
 - Auth: Firebase project `unsub-dev`
 
+**Deferred (not blocking — revisit when forcing factors hit):**
+- `[ ]` `P0-D01` EAS Android preview build (`pnpm dlx eas-cli init` + `eas build --profile preview --platform android`). Pull in when you want a shareable APK for real-device testing or before Phase 2's dev-client switch.
+- `[ ]` `P0-D02` Render free-tier cold-start mitigation. Forcing factors: Stripe webhook retries in Phase 2, or scheduled jobs in Phase 3. Options at that point: (a) GitHub Actions keep-warm cron pinging `/health` every 10 min, (b) upgrade to Render Starter ($7/mo per service, no spin-down).
+- `[ ]` `P0-D03` iOS build. Requires Apple Developer Program ($99/yr). Defer until mobile distribution is real.
+
 ---
 
-## Phase 1 — Email scan + manual tracker `[ ]`
+## Phase 1 — Email scan + manual tracker `[~]`
 
 **Goal:** User connects Gmail, sees a list of detected subscriptions, and can edit/add entries manually.
 
