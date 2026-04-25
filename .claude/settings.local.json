@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sL \"https://ui-ux-pro-max-skill.nextlevelbuilder.io/\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -sL \"https://ui-ux-pro-max-skill.nextlevelbuilder.io/assets/index-DybJ-FQd.js\" -H \"User-Agent: Mozilla/5.0\" -o /tmp/site.js)",
+      "Read(//tmp/**)",
+      "WebFetch(domain:github.com)",
+      "Bash(git config *)",
+      "Bash(npm --version)",
+      "Read(//c/Users/tomba/.claude/plugins/**)",
+      "Read(//c/Users/tomba/.claude/plugins/marketplaces/**)",
+      "Read(//c/Users/tomba/.claude/**)",
+      "Bash(npx -y skills add emilkowalski/skill)",
+      "Bash(npx -y skills --help)",
+      "Bash(npx -y skills add --help)",
+      "Bash(npx -y skills add emilkowalski/skill -y -g --agent claude-code)",
+      "Bash(npx -y skills add obra/superpowers --list)",
+      "Bash(npx -y skills add obra/superpowers -y -g --agent claude-code --skill '*')",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/obra/superpowers-marketplace/main/.claude-plugin/marketplace.json\")",
+      "Bash(npx -y skills add obra/the-elements-of-style -y -g --agent claude-code --skill '*')",
+      "Bash(npx -y skills add obra/superpowers-developing-for-claude-code -y -g --agent claude-code --skill '*')"
+    ]
+  }
+}

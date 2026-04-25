@@ -1,0 +1,19 @@
+node_modules
+dist
+build
+coverage
+.expo
+.turbo
+pnpm-lock.yaml
+
+# Drizzle-generated artifacts
+**/db/migrations/meta/**
+**/db/migrations/*.sql
+
+# User-authored product docs (don't reformat)
+PRD.md
+ROADMAP.md
+
+# Native scaffolding
+android
+ios
