@@ -16,14 +16,14 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://REPLACE-WITH-RENDER-URL.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://unsub-api.onrender.com"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://REPLACE-WITH-RENDER-URL.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://unsub-api.onrender.com"
       }
     }
   },

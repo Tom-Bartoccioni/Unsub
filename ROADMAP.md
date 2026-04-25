@@ -19,13 +19,13 @@
 
 ## Current Focus
 
-- **Active phase:** Phase 0 — Foundations
-- **Next task:** `P0-T02` — Initialize repo structure
+- **Active phase:** Phase 1 — Email scan + manual tracker
+- **Next task:** `P1-T01` — Register Gmail OAuth app with `gmail.readonly` scope only
 - **Last updated:** 2026-04-25
 
 ---
 
-## Phase 0 — Foundations `[ ]`
+## Phase 0 — Foundations `[x]`
 
 **Goal:** A runnable empty app shell with auth, database, and CI. No product features yet.
 
@@ -39,13 +39,18 @@
 
 **Tasks:**
 - `[x]` `P0-T01` Resolve `D-01`–`D-04`; record each in the Decision Log.
-- `[ ]` `P0-T02` Initialize repo structure (`/app` frontend, `/api` backend, `/packages/shared` types).
-- `[ ]` `P0-T03` Scaffold frontend with a placeholder `Dashboard` screen and app navigation.
-- `[ ]` `P0-T04` Scaffold backend with a `/health` endpoint returning `{ status: "ok" }`.
-- `[ ]` `P0-T05` Provision Postgres; add initial schema (`users`, `sessions`) with a migration tool (Prisma / Drizzle / Alembic).
-- `[ ]` `P0-T06` Integrate chosen auth provider: sign-up, sign-in, sign-out, protected route.
-- `[ ]` `P0-T07` GitHub Actions CI: lint + typecheck + unit tests on every push.
-- `[ ]` `P0-T08` Deploy staging environment; staging URL documented in README.
+- `[x]` `P0-T02` Initialize repo structure (`/app` frontend, `/api` backend, `/packages/shared` types).
+- `[x]` `P0-T03` Scaffold frontend with a placeholder `Dashboard` screen and app navigation.
+- `[x]` `P0-T04` Scaffold backend with a `/health` endpoint returning `{ status: "ok" }`.
+- `[x]` `P0-T05` Provision Postgres; add initial schema (`users`) with Drizzle migrations (`sessions` deferred — Firebase owns session state).
+- `[x]` `P0-T06` Integrate chosen auth provider: sign-up, sign-in, sign-out, protected route.
+- `[x]` `P0-T07` GitHub Actions CI: lint + typecheck + unit tests on every push.
+- `[x]` `P0-T08` Deploy staging environment; staging URL documented in README.
+
+**Staging URLs:**
+- API: https://unsub-api.onrender.com (`/health`, `/me`)
+- DB: Neon project `unsub`, branch `staging`
+- Auth: Firebase project `unsub-dev`
 
 ---
 
