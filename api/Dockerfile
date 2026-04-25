@@ -16,6 +16,7 @@ FROM base AS build
 COPY --from=deps /repo/node_modules ./node_modules
 COPY --from=deps /repo/api/node_modules ./api/node_modules
 COPY --from=deps /repo/packages/shared/node_modules ./packages/shared/node_modules
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared ./packages/shared
 COPY api ./api

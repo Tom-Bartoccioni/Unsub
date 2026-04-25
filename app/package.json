@@ -29,6 +29,7 @@
     "@expo/metro-runtime": "~6.1.2"
   },
   "devDependencies": {
+    "@types/node": "^24.7.0",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   }
