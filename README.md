@@ -107,9 +107,11 @@ EXPO_PUBLIC_API_URL=http://localhost:3000
    - **Name:** `unsub-api`
    - **Region:** closest to you
    - **Branch:** `main`
-   - **Root Directory:** `api`
-   - **Runtime:** **Docker** (auto-detected from `api/Dockerfile`)
-   - **Instance type:** Free
+   - **Root Directory:** _(leave blank)_ — the Dockerfile needs the repo root as its build context to access `pnpm-workspace.yaml` + `packages/shared/`.
+   - **Runtime:** **Docker**
+   - **Dockerfile Path:** `./api/Dockerfile`
+   - **Docker Build Context Directory:** `.` _(the repo root, default)_
+   - **Instance Type:** Free
    - **Health Check Path:** `/health`
 3. **Environment** tab — add the same keys as `api/.env`, but point `DATABASE_URL` at the Neon `staging` branch and set `NODE_ENV=staging`. Render auto-injects `RENDER_GIT_COMMIT`; if you want it surfaced via `/health`, also add `GITHUB_SHA` with value `${RENDER_GIT_COMMIT}` (Render supports variable references), otherwise `/health` reports `commit: "dev"`.
 4. Click **Create Web Service**. The Dockerfile's `CMD` runs `node dist/db/migrate.js && node dist/index.js`, so migrations apply on every container boot. First build takes ~5 min. When it goes green, copy the public URL (`https://unsub-api.onrender.com`). Smoke test: `curl https://unsub-api.onrender.com/health` → `{"status":"ok","commit":"<sha>"}`.
