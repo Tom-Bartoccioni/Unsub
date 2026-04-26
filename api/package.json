@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "kill-port 3000 && tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/db/migrate.js && node dist/index.js",
     "lint": "eslint src",
@@ -33,6 +33,7 @@
     "@types/node": "^24.7.0",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.31.5",
+    "kill-port": "^2.0.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^3.2.4"
