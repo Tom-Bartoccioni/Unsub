@@ -5,6 +5,7 @@ import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './routes/health.js';
 import { meRoutes } from './routes/me.js';
 import { makeGoogleOAuthRoutes, type OAuthGoogleDeps } from './routes/oauth-google.js';
+import { makeScanRoutes, type ScanRouteDeps } from './routes/scan.js';
 import type { TokenVerifier } from './firebase.js';
 import type { UserStore } from './db/users.js';
 
@@ -13,6 +14,7 @@ export type BuildOptions = {
   verifier?: TokenVerifier;
   users?: UserStore;
   googleOAuth?: OAuthGoogleDeps;
+  scan?: ScanRouteDeps;
 };
 
 const stubVerifier: TokenVerifier = async () => {
@@ -47,6 +49,9 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await fastify.register(meRoutes);
   if (opts.googleOAuth) {
     await fastify.register(makeGoogleOAuthRoutes(opts.googleOAuth));
+  }
+  if (opts.scan) {
+    await fastify.register(makeScanRoutes(opts.scan));
   }
 
   return fastify;

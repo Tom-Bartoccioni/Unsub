@@ -16,12 +16,24 @@ type MeResponse = {
 
 type ConnectStartResponse = { url: string };
 
+type ScanResponse = {
+  totalFetched: number;
+  accounts: Array<{
+    googleEmail: string;
+    fetchedCount: number;
+    sampleSubjects: string[];
+  }>;
+};
+
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -44,6 +56,26 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [user]);
+
+  const onScan = async () => {
+    setScanError(null);
+    setScanning(true);
+    setScanResult(null);
+    try {
+      const res = await apiFetch<ScanResponse>('/scan/run', { method: 'POST' });
+      setScanResult(res);
+    } catch (e) {
+      const msg =
+        e instanceof ApiError
+          ? `API ${e.status}: ${e.message}`
+          : e instanceof Error
+            ? e.message
+            : 'Scan failed';
+      setScanError(msg);
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const onConnectGmail = async () => {
     setConnectError(null);
@@ -91,9 +123,33 @@ export default function Dashboard() {
           </Text>
         </Pressable>
         {connectError ? <Text style={styles.error}>{connectError}</Text> : null}
+
+        <Pressable
+          style={[styles.secondaryButton, scanning && styles.buttonDisabled]}
+          onPress={onScan}
+          disabled={scanning}
+        >
+          <Text style={styles.secondaryButtonText}>{scanning ? 'Scanning…' : 'Scan inbox'}</Text>
+        </Pressable>
+        {scanError ? <Text style={styles.error}>{scanError}</Text> : null}
+        {scanResult ? (
+          <View style={styles.scanResult}>
+            <Text style={styles.scanCount}>
+              Fetched {scanResult.totalFetched} matching email
+              {scanResult.totalFetched === 1 ? '' : 's'}
+            </Text>
+            {scanResult.accounts.flatMap((a) =>
+              a.sampleSubjects.map((s, i) => (
+                <Text key={`${a.googleEmail}-${i}`} style={styles.scanSample} numberOfLines={1}>
+                  • {s}
+                </Text>
+              )),
+            )}
+          </View>
+        ) : null}
       </View>
 
-      <Text style={styles.empty}>No subscriptions yet. They&apos;ll appear here after a scan.</Text>
+      <Text style={styles.empty}>No subscriptions yet. Parsing arrives in P1-T04.</Text>
 
       <Pressable style={styles.signOutButton} onPress={signOut}>
         <Text style={styles.signOutText}>Sign out</Text>
@@ -130,6 +186,17 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.6 },
   primaryButtonText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
+  secondaryButton: {
+    backgroundColor: '#f4f4f5',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  secondaryButtonText: { color: '#111827', fontSize: 14, fontWeight: '600' },
+  scanResult: { marginTop: 8, gap: 4 },
+  scanCount: { fontSize: 13, fontWeight: '600', color: '#111827' },
+  scanSample: { fontSize: 12, color: '#52525b' },
   signOutButton: {
     backgroundColor: '#dc2626',
     paddingVertical: 12,

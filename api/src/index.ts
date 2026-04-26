@@ -31,6 +31,15 @@ async function main(): Promise<void> {
           store: googleStore,
         }
       : undefined,
+    scan: oauthConfigured
+      ? {
+          refreshConfig: {
+            clientId: env.GOOGLE_OAUTH_CLIENT_ID!,
+            clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET!,
+          },
+          store: googleStore,
+        }
+      : undefined,
   });
   if (!oauthConfigured) {
     app.log.warn(
