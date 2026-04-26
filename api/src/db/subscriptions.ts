@@ -1,0 +1,71 @@
+import { desc, eq } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { subscriptions, type SubscriptionRow } from './schema.js';
+
+export type SubscriptionInput = {
+  userId: string;
+  provider: string;
+  providerKey: string;
+  amountMinor: number;
+  currency: string;
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
+  nextRenewalDate: Date | null;
+  confidence: number;
+  sourceMessageId: string | null;
+  sourceDate: Date | null;
+};
+
+export type SubscriptionStore = {
+  upsert: (input: SubscriptionInput) => Promise<SubscriptionRow>;
+  listByUserId: (userId: string) => Promise<SubscriptionRow[]>;
+};
+
+export function createDrizzleSubscriptionStore(
+  db: NodePgDatabase<{ subscriptions: typeof subscriptions }>,
+): SubscriptionStore {
+  return {
+    async upsert(input) {
+      const [row] = await db
+        .insert(subscriptions)
+        .values({
+          userId: input.userId,
+          provider: input.provider,
+          providerKey: input.providerKey,
+          amountMinor: input.amountMinor,
+          currency: input.currency,
+          frequency: input.frequency,
+          nextRenewalDate: input.nextRenewalDate,
+          confidence: input.confidence,
+          sourceMessageId: input.sourceMessageId,
+          sourceDate: input.sourceDate,
+        })
+        .onConflictDoUpdate({
+          target: [
+            subscriptions.userId,
+            subscriptions.providerKey,
+            subscriptions.amountMinor,
+            subscriptions.currency,
+            subscriptions.frequency,
+          ],
+          set: {
+            provider: input.provider,
+            nextRenewalDate: input.nextRenewalDate,
+            confidence: input.confidence,
+            sourceMessageId: input.sourceMessageId,
+            sourceDate: input.sourceDate,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      if (!row) throw new Error('subscriptions.upsert returned no row');
+      return row;
+    },
+    async listByUserId(userId) {
+      return db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, userId))
+        .orderBy(desc(subscriptions.updatedAt));
+    },
+  };
+}

@@ -3,6 +3,7 @@ import { loadEnv } from './env.js';
 import { getDb } from './db/client.js';
 import { createDrizzleUserStore } from './db/users.js';
 import { createDrizzleGoogleAccountStore } from './db/google-accounts.js';
+import { createDrizzleSubscriptionStore } from './db/subscriptions.js';
 import { createFirebaseVerifier } from './firebase.js';
 
 async function main(): Promise<void> {
@@ -10,6 +11,7 @@ async function main(): Promise<void> {
   const db = getDb(env.DATABASE_URL);
   const users = createDrizzleUserStore(db);
   const googleStore = createDrizzleGoogleAccountStore(db);
+  const subscriptionStore = createDrizzleSubscriptionStore(db);
   const verifier = createFirebaseVerifier(env);
 
   const oauthConfigured =
@@ -38,8 +40,10 @@ async function main(): Promise<void> {
             clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET!,
           },
           store: googleStore,
+          subscriptions: subscriptionStore,
         }
       : undefined,
+    subscriptions: { store: subscriptionStore },
   });
   if (!oauthConfigured) {
     app.log.warn(

@@ -9,6 +9,8 @@ import {
 } from './gmail.js';
 import { dedupSubscriptions, parseSubscription, type ParsedSubscription } from './parser.js';
 import type { GoogleAccountStore } from '../db/google-accounts.js';
+import type { SubscriptionStore } from '../db/subscriptions.js';
+import type { SubscriptionRow } from '../db/schema.js';
 
 export type ScanResult = {
   googleEmail: string;
@@ -20,14 +22,46 @@ export type ScanResult = {
 export type ScanDeps = {
   refreshConfig: GmailRefreshConfig;
   store: GoogleAccountStore;
+  subscriptions: SubscriptionStore;
   fetcher?: Fetcher;
   query?: string;
   maxMessages?: number;
 };
 
-export async function scanInboxesForUser(userId: string, deps: ScanDeps): Promise<ScanResult[]> {
+function firstProviderToken(provider: string): string {
+  return provider.split(/\s+/)[0]?.toLowerCase() ?? '';
+}
+
+async function persistParsed(
+  userId: string,
+  parsed: ParsedSubscription[],
+  store: SubscriptionStore,
+): Promise<SubscriptionRow[]> {
+  const rows: SubscriptionRow[] = [];
+  for (const p of parsed) {
+    const row = await store.upsert({
+      userId,
+      provider: p.provider,
+      providerKey: firstProviderToken(p.provider),
+      amountMinor: Math.round(p.amount * 100),
+      currency: p.currency,
+      frequency: p.frequency,
+      nextRenewalDate: p.nextRenewalDate,
+      confidence: p.confidence,
+      sourceMessageId: p.sourceMessageId,
+      sourceDate: p.sourceDate,
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
+export async function scanInboxesForUser(
+  userId: string,
+  deps: ScanDeps,
+): Promise<{ accounts: ScanResult[]; persisted: SubscriptionRow[] }> {
   const accounts = await deps.store.findByUserId(userId);
-  if (accounts.length === 0) return [];
+  if (accounts.length === 0) return { accounts: [], persisted: [] };
 
   const fetcher = deps.fetcher ?? fetch;
   const query = deps.query ?? SUBSCRIPTION_KEYWORDS_QUERY;
@@ -65,5 +99,9 @@ export async function scanInboxesForUser(userId: string, deps: ScanDeps): Promis
       parsed,
     });
   }
-  return results;
+
+  const allParsed = results.flatMap((r) => r.parsed);
+  const persisted = await persistParsed(userId, allParsed, deps.subscriptions);
+
+  return { accounts: results, persisted };
 }

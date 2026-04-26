@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { scanInboxesForUser, type ScanDeps } from '../lib/email-scan.js';
+import { toDTO } from './subscriptions.js';
 
 export type ScanRouteDeps = ScanDeps;
 
@@ -8,25 +9,14 @@ export function makeScanRoutes(deps: ScanRouteDeps) {
     fastify.post('/scan/run', async (req, reply) => {
       const auth = await fastify.requireAuth(req);
       try {
-        const results = await scanInboxesForUser(auth.row.id, deps);
-        const accounts = results.map((r) => ({
-          googleEmail: r.googleEmail,
-          fetchedCount: r.fetchedCount,
-          sampleSubjects: r.emails.slice(0, 3).map((e) => e.subject),
-          parsed: r.parsed.map((p) => ({
-            provider: p.provider,
-            amount: p.amount,
-            currency: p.currency,
-            frequency: p.frequency,
-            nextRenewalDate: p.nextRenewalDate?.toISOString() ?? null,
-            confidence: p.confidence,
-            sourceMessageId: p.sourceMessageId,
-            sourceDate: p.sourceDate.toISOString(),
-          })),
-        }));
-        const totalFetched = results.reduce((acc, r) => acc + r.fetchedCount, 0);
-        const totalParsed = results.reduce((acc, r) => acc + r.parsed.length, 0);
-        return { totalFetched, totalParsed, accounts };
+        const { accounts, persisted } = await scanInboxesForUser(auth.row.id, deps);
+        const totalFetched = accounts.reduce((acc, r) => acc + r.fetchedCount, 0);
+        const totalParsed = accounts.reduce((acc, r) => acc + r.parsed.length, 0);
+        return {
+          totalFetched,
+          totalParsed,
+          subscriptions: persisted.map(toDTO),
+        };
       } catch (err) {
         req.log.error({ err }, 'scan failed');
         const message = err instanceof Error ? err.message : 'scan failed';

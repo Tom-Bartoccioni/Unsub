@@ -6,6 +6,7 @@ import { healthRoutes } from './routes/health.js';
 import { meRoutes } from './routes/me.js';
 import { makeGoogleOAuthRoutes, type OAuthGoogleDeps } from './routes/oauth-google.js';
 import { makeScanRoutes, type ScanRouteDeps } from './routes/scan.js';
+import { makeSubscriptionsRoutes, type SubscriptionsRouteDeps } from './routes/subscriptions.js';
 import type { TokenVerifier } from './firebase.js';
 import type { UserStore } from './db/users.js';
 
@@ -15,6 +16,7 @@ export type BuildOptions = {
   users?: UserStore;
   googleOAuth?: OAuthGoogleDeps;
   scan?: ScanRouteDeps;
+  subscriptions?: SubscriptionsRouteDeps;
 };
 
 const stubVerifier: TokenVerifier = async () => {
@@ -52,6 +54,9 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   }
   if (opts.scan) {
     await fastify.register(makeScanRoutes(opts.scan));
+  }
+  if (opts.subscriptions) {
+    await fastify.register(makeSubscriptionsRoutes(opts.subscriptions));
   }
 
   return fastify;

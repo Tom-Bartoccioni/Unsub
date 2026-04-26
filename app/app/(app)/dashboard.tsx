@@ -16,26 +16,25 @@ type MeResponse = {
 
 type ConnectStartResponse = { url: string };
 
-type ParsedCandidate = {
+type Subscription = {
+  id: string;
   provider: string;
   amount: number;
   currency: string;
-  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown' | string;
   nextRenewalDate: string | null;
   confidence: number;
-  sourceMessageId: string;
-  sourceDate: string;
+  status: string;
+  sourceDate: string | null;
+  updatedAt: string;
 };
+
+type SubscriptionsResponse = { subscriptions: Subscription[] };
 
 type ScanResponse = {
   totalFetched: number;
   totalParsed: number;
-  accounts: Array<{
-    googleEmail: string;
-    fetchedCount: number;
-    sampleSubjects: string[];
-    parsed: ParsedCandidate[];
-  }>;
+  subscriptions: Subscription[];
 };
 
 function formatMoney(amount: number, currency: string): string {
@@ -48,7 +47,12 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
-  const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
+  const [subs, setSubs] = useState<Subscription[]>([]);
+  const [subsLoading, setSubsLoading] = useState(true);
+  const [scanSummary, setScanSummary] = useState<{
+    totalFetched: number;
+    totalParsed: number;
+  } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
 
@@ -74,13 +78,32 @@ export default function Dashboard() {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setSubsLoading(true);
+    apiFetch<SubscriptionsResponse>('/subscriptions')
+      .then((res) => {
+        if (!cancelled) setSubs(res.subscriptions);
+      })
+      .catch(() => {
+        // Non-fatal — empty list is acceptable on first load.
+      })
+      .finally(() => {
+        if (!cancelled) setSubsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   const onScan = async () => {
     setScanError(null);
     setScanning(true);
-    setScanResult(null);
     try {
       const res = await apiFetch<ScanResponse>('/scan/run', { method: 'POST' });
-      setScanResult(res);
+      setScanSummary({ totalFetched: res.totalFetched, totalParsed: res.totalParsed });
+      setSubs(res.subscriptions);
     } catch (e) {
       const msg =
         e instanceof ApiError
@@ -149,32 +172,39 @@ export default function Dashboard() {
           <Text style={styles.secondaryButtonText}>{scanning ? 'Scanning…' : 'Scan inbox'}</Text>
         </Pressable>
         {scanError ? <Text style={styles.error}>{scanError}</Text> : null}
-        {scanResult ? (
-          <View style={styles.scanResult}>
-            <Text style={styles.scanCount}>
-              Fetched {scanResult.totalFetched} email
-              {scanResult.totalFetched === 1 ? '' : 's'} • {scanResult.totalParsed} parsed as
-              subscriptions
-            </Text>
-            {scanResult.accounts.flatMap((a) =>
-              a.parsed.map((p) => (
-                <View key={p.sourceMessageId} style={styles.candidate}>
-                  <Text style={styles.candidateProvider} numberOfLines={1}>
-                    {p.provider}
-                  </Text>
-                  <Text style={styles.candidateMeta} numberOfLines={1}>
-                    {formatMoney(p.amount, p.currency)}
-                    {p.frequency !== 'unknown' ? ` · ${p.frequency}` : ''}
-                    {p.nextRenewalDate ? ` · next ${p.nextRenewalDate.slice(0, 10)}` : ''}
-                  </Text>
-                </View>
-              )),
-            )}
-          </View>
+        {scanSummary ? (
+          <Text style={styles.scanCount}>
+            Fetched {scanSummary.totalFetched} email
+            {scanSummary.totalFetched === 1 ? '' : 's'} • {scanSummary.totalParsed} parsed
+          </Text>
         ) : null}
       </View>
 
-      <Text style={styles.empty}>No subscriptions yet. Parsing arrives in P1-T04.</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          Your subscriptions {subs.length > 0 ? `(${subs.length})` : ''}
+        </Text>
+        {subsLoading && subs.length === 0 ? (
+          <ActivityIndicator />
+        ) : subs.length === 0 ? (
+          <Text style={styles.sectionBody}>
+            None yet. Connect Gmail and run a scan to populate this list.
+          </Text>
+        ) : (
+          subs.map((s) => (
+            <View key={s.id} style={styles.candidate}>
+              <Text style={styles.candidateProvider} numberOfLines={1}>
+                {s.provider}
+              </Text>
+              <Text style={styles.candidateMeta} numberOfLines={1}>
+                {formatMoney(s.amount, s.currency)}
+                {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
+                {s.nextRenewalDate ? ` · next ${s.nextRenewalDate.slice(0, 10)}` : ''}
+              </Text>
+            </View>
+          ))
+        )}
+      </View>
 
       <Pressable style={styles.signOutButton} onPress={signOut}>
         <Text style={styles.signOutText}>Sign out</Text>
@@ -188,12 +218,11 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '600' },
   subtitle: { fontSize: 16, color: '#52525b' },
   meta: { fontSize: 13, color: '#71717a' },
-  empty: { fontSize: 14, color: '#71717a', marginTop: 16, marginBottom: 24, textAlign: 'center' },
   error: { fontSize: 13, color: '#dc2626', textAlign: 'center' },
   section: {
     width: '100%',
     maxWidth: 360,
-    marginTop: 24,
+    marginTop: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#e4e4e7',
@@ -219,9 +248,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   secondaryButtonText: { color: '#111827', fontSize: 14, fontWeight: '600' },
-  scanResult: { marginTop: 8, gap: 6 },
-  scanCount: { fontSize: 13, fontWeight: '600', color: '#111827' },
-  scanSample: { fontSize: 12, color: '#52525b' },
+  scanCount: { fontSize: 13, color: '#52525b' },
   candidate: {
     paddingVertical: 6,
     paddingHorizontal: 8,
@@ -237,6 +264,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+    marginTop: 16,
   },
   signOutText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
 });
