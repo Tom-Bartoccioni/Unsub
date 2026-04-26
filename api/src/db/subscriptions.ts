@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { subscriptions, type SubscriptionRow } from './schema.js';
 
@@ -18,6 +18,7 @@ export type SubscriptionInput = {
 export type SubscriptionStore = {
   upsert: (input: SubscriptionInput) => Promise<SubscriptionRow>;
   listByUserId: (userId: string) => Promise<SubscriptionRow[]>;
+  deleteById: (id: string, userId: string) => Promise<boolean>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -66,6 +67,13 @@ export function createDrizzleSubscriptionStore(
         .from(subscriptions)
         .where(eq(subscriptions.userId, userId))
         .orderBy(desc(subscriptions.updatedAt));
+    },
+    async deleteById(id, userId) {
+      const out = await db
+        .delete(subscriptions)
+        .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
+        .returning({ id: subscriptions.id });
+      return out.length > 0;
     },
   };
 }
