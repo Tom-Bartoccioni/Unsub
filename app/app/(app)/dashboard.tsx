@@ -16,14 +16,32 @@ type MeResponse = {
 
 type ConnectStartResponse = { url: string };
 
+type ParsedCandidate = {
+  provider: string;
+  amount: number | null;
+  currency: string | null;
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
+  nextRenewalDate: string | null;
+  confidence: number;
+  sourceMessageId: string;
+};
+
 type ScanResponse = {
   totalFetched: number;
+  totalParsed: number;
   accounts: Array<{
     googleEmail: string;
     fetchedCount: number;
     sampleSubjects: string[];
+    parsed: ParsedCandidate[];
   }>;
 };
+
+function formatMoney(amount: number | null, currency: string | null): string {
+  if (amount == null) return '—';
+  const code = currency ?? '';
+  return `${amount.toFixed(2)} ${code}`.trim();
+}
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -135,14 +153,22 @@ export default function Dashboard() {
         {scanResult ? (
           <View style={styles.scanResult}>
             <Text style={styles.scanCount}>
-              Fetched {scanResult.totalFetched} matching email
-              {scanResult.totalFetched === 1 ? '' : 's'}
+              Fetched {scanResult.totalFetched} email
+              {scanResult.totalFetched === 1 ? '' : 's'} • {scanResult.totalParsed} parsed as
+              subscriptions
             </Text>
             {scanResult.accounts.flatMap((a) =>
-              a.sampleSubjects.map((s, i) => (
-                <Text key={`${a.googleEmail}-${i}`} style={styles.scanSample} numberOfLines={1}>
-                  • {s}
-                </Text>
+              a.parsed.map((p) => (
+                <View key={p.sourceMessageId} style={styles.candidate}>
+                  <Text style={styles.candidateProvider} numberOfLines={1}>
+                    {p.provider}
+                  </Text>
+                  <Text style={styles.candidateMeta} numberOfLines={1}>
+                    {formatMoney(p.amount, p.currency)}
+                    {p.frequency !== 'unknown' ? ` · ${p.frequency}` : ''}
+                    {p.nextRenewalDate ? ` · next ${p.nextRenewalDate.slice(0, 10)}` : ''}
+                  </Text>
+                </View>
               )),
             )}
           </View>
@@ -194,9 +220,19 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   secondaryButtonText: { color: '#111827', fontSize: 14, fontWeight: '600' },
-  scanResult: { marginTop: 8, gap: 4 },
+  scanResult: { marginTop: 8, gap: 6 },
   scanCount: { fontSize: 13, fontWeight: '600', color: '#111827' },
   scanSample: { fontSize: 12, color: '#52525b' },
+  candidate: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    backgroundColor: '#fafafa',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+  },
+  candidateProvider: { fontSize: 13, fontWeight: '600', color: '#111827' },
+  candidateMeta: { fontSize: 11, color: '#52525b', marginTop: 2 },
   signOutButton: {
     backgroundColor: '#dc2626',
     paddingVertical: 12,

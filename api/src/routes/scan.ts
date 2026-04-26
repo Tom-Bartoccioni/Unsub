@@ -9,13 +9,23 @@ export function makeScanRoutes(deps: ScanRouteDeps) {
       const auth = await fastify.requireAuth(req);
       try {
         const results = await scanInboxesForUser(auth.row.id, deps);
-        const summary = results.map((r) => ({
+        const accounts = results.map((r) => ({
           googleEmail: r.googleEmail,
           fetchedCount: r.fetchedCount,
           sampleSubjects: r.emails.slice(0, 3).map((e) => e.subject),
+          parsed: r.parsed.map((p) => ({
+            provider: p.provider,
+            amount: p.amount,
+            currency: p.currency,
+            frequency: p.frequency,
+            nextRenewalDate: p.nextRenewalDate?.toISOString() ?? null,
+            confidence: p.confidence,
+            sourceMessageId: p.sourceMessageId,
+          })),
         }));
-        const total = results.reduce((acc, r) => acc + r.fetchedCount, 0);
-        return { totalFetched: total, accounts: summary };
+        const totalFetched = results.reduce((acc, r) => acc + r.fetchedCount, 0);
+        const totalParsed = results.reduce((acc, r) => acc + r.parsed.length, 0);
+        return { totalFetched, totalParsed, accounts };
       } catch (err) {
         req.log.error({ err }, 'scan failed');
         const message = err instanceof Error ? err.message : 'scan failed';
