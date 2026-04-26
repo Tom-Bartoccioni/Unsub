@@ -93,10 +93,14 @@ export function parseSubscription(email: NormalizedEmail): ParsedSubscription | 
   const frequency = extractFrequency(subjectAndBody);
   const nextRenewalDate = extractNextRenewalDate(subjectAndBody, email.internalDate);
 
-  let confidence = 0.4; // we have an amount
+  // Require an explicit recurring signal. Without one (no "monthly"/"yearly"
+  // cue and no "next renewal: ..." date), the email is far more likely a
+  // one-off purchase that happens to mention an amount.
+  if (frequency === 'unknown' && !nextRenewalDate) return null;
+
+  let confidence = 0.5;
   if (frequency !== 'unknown') confidence += 0.25;
   if (nextRenewalDate) confidence += 0.25;
-  if (provider) confidence += 0.1;
 
   return {
     provider,
@@ -110,13 +114,19 @@ export function parseSubscription(email: NormalizedEmail): ParsedSubscription | 
   };
 }
 
+function firstProviderToken(provider: string): string {
+  return provider.split(/\s+/)[0]?.toLowerCase() ?? '';
+}
+
 // Collapse same-subscription emails (3 monthly Loom receipts → 1 entry).
 // Key: lowercased provider + amount + currency + frequency. Keep the one with
 // the latest sourceDate (typically the most recent receipt).
 export function dedupSubscriptions(items: ParsedSubscription[]): ParsedSubscription[] {
+  // Dedup key uses the first provider token only, so 'Atlassian' and 'Atlassian
+  // Loom' (same vendor, different product label) collapse when amount+freq match.
   const byKey = new Map<string, ParsedSubscription>();
   for (const item of items) {
-    const key = `${item.provider.toLowerCase()}|${item.amount}|${item.currency}|${item.frequency}`;
+    const key = `${firstProviderToken(item.provider)}|${item.amount}|${item.currency}|${item.frequency}`;
     const existing = byKey.get(key);
     if (!existing || item.sourceDate.getTime() > existing.sourceDate.getTime()) {
       byKey.set(key, item);

@@ -160,17 +160,27 @@ describe('parseSubscription (end-to-end)', () => {
     expect(out).toBeNull();
   });
 
-  it('falls back to lower confidence when only the amount is present', () => {
+  it('drops emails with an amount but no recurring cue (could be a one-off)', () => {
     const out = parseSubscription({
       ...baseEmail,
       from: 'Acme <billing@acme.io>',
       subject: 'Your invoice',
       textBody: 'Charged: $42.00',
     });
+    expect(out).toBeNull();
+  });
+
+  it('keeps a candidate when a renewal date is present even without a frequency cue', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Acme <billing@acme.io>',
+      subject: 'Your invoice',
+      textBody: 'Charged: $42.00\nNext billing date: 2026-05-26',
+    });
     expect(out).not.toBeNull();
     expect(out!.amount).toBe(42);
     expect(out!.frequency).toBe('unknown');
-    expect(out!.confidence).toBeLessThan(0.7);
+    expect(out!.nextRenewalDate?.toISOString().slice(0, 10)).toBe('2026-05-26');
   });
 });
 
@@ -210,5 +220,16 @@ describe('dedupSubscriptions', () => {
       }),
     ];
     expect(dedupSubscriptions(items)).toHaveLength(2);
+  });
+
+  it('collapses sibling product labels (Atlassian vs Atlassian Loom) when amount+freq match', () => {
+    const items = [
+      make({ provider: 'Atlassian Loom', sourceDate: new Date('2026-04-15') }),
+      make({ provider: 'Atlassian', sourceDate: new Date('2026-04-10') }),
+    ];
+    const out = dedupSubscriptions(items);
+    expect(out).toHaveLength(1);
+    // Newest wins: 'Atlassian Loom' on 2026-04-15.
+    expect(out[0]!.provider).toBe('Atlassian Loom');
   });
 });
