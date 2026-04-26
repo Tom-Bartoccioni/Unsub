@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useAuth } from '@/state/auth';
 import { ApiError, apiFetch } from '@/lib/api';
 import { AddSubscriptionForm } from '@/components/AddSubscriptionForm';
@@ -129,6 +138,9 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
+  const { width } = useWindowDimensions();
+  const isWide = width >= 720;
+  const cardWidthPct = width >= 1100 ? '32%' : width >= 760 ? '48%' : '100%';
 
   useEffect(() => {
     if (!user) return;
@@ -223,247 +235,281 @@ export default function Dashboard() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Unsub</Text>
-      <Text style={styles.subtitle}>Signed in as {user?.email ?? '—'}</Text>
-      {me ? (
-        <Text style={styles.meta}>Backend user id: {me.user.id.slice(0, 8)}…</Text>
-      ) : error ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : (
-        <ActivityIndicator />
-      )}
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Connect your inbox</Text>
-        <Text style={styles.sectionBody}>
-          Unsub scans for invoices and renewals. We only read messages — never send anything.
-        </Text>
-        <Pressable
-          style={[styles.primaryButton, connecting && styles.buttonDisabled]}
-          onPress={onConnectGmail}
-          disabled={connecting}
-        >
-          <Text style={styles.primaryButtonText}>
-            {connecting ? 'Opening Google…' : 'Connect Gmail'}
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator
+    >
+      <View style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome to Unsub</Text>
+          <Text style={styles.subtitle}>
+            Signed in as {user?.email ?? '—'}
+            {me ? `  ·  id ${me.user.id.slice(0, 8)}` : ''}
           </Text>
-        </Pressable>
-        {connectError ? <Text style={styles.error}>{connectError}</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+        </View>
 
-        <Pressable
-          style={[styles.secondaryButton, scanning && styles.buttonDisabled]}
-          onPress={onScan}
-          disabled={scanning}
-        >
-          <Text style={styles.secondaryButtonText}>{scanning ? 'Scanning…' : 'Scan inbox'}</Text>
-        </Pressable>
-        {scanError ? <Text style={styles.error}>{scanError}</Text> : null}
-        {scanSummary ? (
-          <Text style={styles.scanCount}>
-            Fetched {scanSummary.totalFetched} email
-            {scanSummary.totalFetched === 1 ? '' : 's'} • {scanSummary.totalParsed} parsed
-          </Text>
-        ) : null}
-      </View>
+        <View style={[styles.topRow, isWide && styles.topRowWide]}>
+          <View style={[styles.section, isWide && styles.sectionFlex]}>
+            <Text style={styles.sectionTitle}>Connect your inbox</Text>
+            <Text style={styles.sectionBody}>
+              Unsub scans for invoices and renewals. We only read messages — never send anything.
+            </Text>
+            <Pressable
+              style={[styles.primaryButton, connecting && styles.buttonDisabled]}
+              onPress={onConnectGmail}
+              disabled={connecting}
+            >
+              <Text style={styles.primaryButtonText}>
+                {connecting ? 'Opening Google…' : 'Connect Gmail'}
+              </Text>
+            </Pressable>
+            {connectError ? <Text style={styles.error}>{connectError}</Text> : null}
 
-      {(() => {
-        const upcoming = subs
-          .filter(
-            (s) =>
-              s.status !== 'cancelled' && s.nextRenewalDate && daysFromNow(s.nextRenewalDate) <= 7,
-          )
-          .sort((a, b) => daysFromNow(a.nextRenewalDate!) - daysFromNow(b.nextRenewalDate!));
-        if (upcoming.length === 0) return null;
-        return (
-          <View style={[styles.section, styles.upcomingSection]}>
-            <Text style={styles.sectionTitle}>Charges this week</Text>
-            {upcoming.map((s) => {
-              const days = daysFromNow(s.nextRenewalDate!);
-              const urgent = days <= 2;
-              return (
-                <View key={`u-${s.id}`} style={styles.upcomingRow}>
-                  <Text
-                    style={[styles.upcomingProvider, urgent && styles.upcomingProviderUrgent]}
-                    numberOfLines={1}
-                  >
-                    {s.provider}
+            <Pressable
+              style={[styles.secondaryButton, scanning && styles.buttonDisabled]}
+              onPress={onScan}
+              disabled={scanning}
+            >
+              <Text style={styles.secondaryButtonText}>
+                {scanning ? 'Scanning…' : 'Scan inbox'}
+              </Text>
+            </Pressable>
+            {scanError ? <Text style={styles.error}>{scanError}</Text> : null}
+            {scanSummary ? (
+              <Text style={styles.scanCount}>
+                Fetched {scanSummary.totalFetched} email
+                {scanSummary.totalFetched === 1 ? '' : 's'} • {scanSummary.totalParsed} parsed
+              </Text>
+            ) : null}
+          </View>
+
+          {(() => {
+            const upcoming = subs
+              .filter(
+                (s) =>
+                  s.status !== 'cancelled' &&
+                  s.nextRenewalDate &&
+                  daysFromNow(s.nextRenewalDate) <= 7,
+              )
+              .sort((a, b) => daysFromNow(a.nextRenewalDate!) - daysFromNow(b.nextRenewalDate!));
+            if (upcoming.length === 0) return null;
+            return (
+              <View style={[styles.section, styles.upcomingSection, isWide && styles.sectionFlex]}>
+                <Text style={styles.sectionTitle}>Charges this week</Text>
+                {upcoming.map((s) => {
+                  const days = daysFromNow(s.nextRenewalDate!);
+                  const urgent = days <= 2;
+                  return (
+                    <View key={`u-${s.id}`} style={styles.upcomingRow}>
+                      <Text
+                        style={[styles.upcomingProvider, urgent && styles.upcomingProviderUrgent]}
+                        numberOfLines={1}
+                      >
+                        {s.provider}
+                      </Text>
+                      <Text style={[styles.upcomingMeta, urgent && styles.upcomingMetaUrgent]}>
+                        {formatRelative(s.nextRenewalDate)} · {formatMoney(s.amount, s.currency)}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            );
+          })()}
+
+          {subs.length > 0 ? (
+            <View style={[styles.section, isWide && styles.sectionFlex]}>
+              <Text style={styles.sectionTitle}>Totals</Text>
+              {Object.entries(computeTotals(subs)).map(([currency, t]) => (
+                <View key={currency} style={styles.totalsRow}>
+                  <Text style={styles.totalsLabel}>
+                    {t.count} active · {currency}
                   </Text>
-                  <Text style={[styles.upcomingMeta, urgent && styles.upcomingMetaUrgent]}>
-                    {formatRelative(s.nextRenewalDate)} · {formatMoney(s.amount, s.currency)}
+                  <Text style={styles.totalsAmounts}>
+                    {t.monthly.toFixed(2)} / mo · {t.yearly.toFixed(2)} / yr
                   </Text>
                 </View>
-              );
-            })}
-          </View>
-        );
-      })()}
-
-      {subs.length > 0 ? (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Totals</Text>
-          {Object.entries(computeTotals(subs)).map(([currency, t]) => (
-            <View key={currency} style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>
-                {t.count} active · {currency}
-              </Text>
-              <Text style={styles.totalsAmounts}>
-                {t.monthly.toFixed(2)} / mo · {t.yearly.toFixed(2)} / yr
-              </Text>
+              ))}
+              {(() => {
+                const skipped = subs.filter(
+                  (s) => s.status === 'active' && monthlyAmount(s.amount, s.frequency) == null,
+                ).length;
+                return skipped > 0 ? (
+                  <Text style={styles.totalsHint}>
+                    {skipped} subscription{skipped === 1 ? '' : 's'} excluded (unknown frequency)
+                  </Text>
+                ) : null;
+              })()}
             </View>
-          ))}
-          {(() => {
-            const skipped = subs.filter(
-              (s) => s.status === 'active' && monthlyAmount(s.amount, s.frequency) == null,
-            ).length;
-            return skipped > 0 ? (
-              <Text style={styles.totalsHint}>
-                {skipped} subscription{skipped === 1 ? '' : 's'} excluded (unknown frequency)
-              </Text>
-            ) : null;
-          })()}
-        </View>
-      ) : null}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            Your subscriptions{' '}
-            {subs.length > 0 ? `(${subs.filter((s) => s.status !== 'cancelled').length})` : ''}
-          </Text>
-          {!addingManual ? (
-            <Pressable onPress={() => setAddingManual(true)} style={styles.addButton}>
-              <Text style={styles.addButtonText}>+ Add</Text>
-            </Pressable>
           ) : null}
         </View>
-        {addingManual ? (
-          <AddSubscriptionForm
-            onSaved={(sub) => {
-              setSubs((prev) => {
-                const without = prev.filter((p) => p.id !== sub.id);
-                return [sub, ...without];
-              });
-              setAddingManual(false);
-            }}
-            onCancel={() => setAddingManual(false)}
-          />
-        ) : null}
-        {subsLoading && subs.length === 0 ? (
-          <ActivityIndicator />
-        ) : subs.length === 0 && !addingManual ? (
-          <Text style={styles.sectionBody}>
-            None yet. Connect Gmail and run a scan, or add one manually.
-          </Text>
-        ) : (
-          (() => {
-            const visible = [...subs]
-              .filter((s) => showCancelled || s.status !== 'cancelled')
-              .sort(compareSubs);
-            const cancelledCount = subs.filter((s) => s.status === 'cancelled').length;
-            return (
-              <>
-                {visible.map((s) =>
-                  editingId === s.id ? (
-                    <AddSubscriptionForm
-                      key={s.id}
-                      initial={s}
-                      onSaved={(updated) => {
-                        setSubs((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-                        setEditingId(null);
-                      }}
-                      onCancel={() => setEditingId(null)}
-                    />
-                  ) : (
-                    <View key={s.id} style={styles.candidateRow}>
-                      <Pressable
-                        style={[
-                          styles.candidate,
-                          s.nextRenewalDate &&
-                            daysFromNow(s.nextRenewalDate) <= 2 &&
-                            s.status === 'active' &&
-                            styles.candidateUrgent,
-                          s.status === 'cancelled' && styles.candidateCancelled,
-                        ]}
-                        onPress={() => setEditingId(s.id)}
-                        accessibilityLabel={`Edit ${s.provider}`}
-                      >
-                        <View style={styles.candidateHeader}>
-                          <Text style={styles.candidateProvider} numberOfLines={1}>
-                            {s.provider}
-                          </Text>
-                          {s.status === 'trial' ? (
-                            <View style={styles.trialBadge}>
-                              <Text style={styles.trialBadgeText}>TRIAL</Text>
-                            </View>
-                          ) : null}
-                          {s.status === 'cancelled' ? (
-                            <View style={styles.cancelledBadge}>
-                              <Text style={styles.cancelledBadgeText}>CANCELLED</Text>
-                            </View>
-                          ) : null}
-                        </View>
-                        <Text style={styles.candidateMeta} numberOfLines={1}>
-                          {formatMoney(s.amount, s.currency)}
-                          {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
-                          {s.nextRenewalDate
-                            ? ` · ${formatRelative(s.nextRenewalDate)} (${formatShortDate(s.nextRenewalDate)})`
-                            : ''}
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => onDelete(s.id)}
-                        disabled={deletingId === s.id}
-                        style={styles.deleteButton}
-                        accessibilityLabel={`Delete ${s.provider}`}
-                      >
-                        <Text style={styles.deleteButtonText}>
-                          {deletingId === s.id ? '…' : '✕'}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  ),
-                )}
-                {cancelledCount > 0 ? (
-                  <Pressable
-                    onPress={() => setShowCancelled((v) => !v)}
-                    style={styles.toggleCancelled}
-                  >
-                    <Text style={styles.toggleCancelledText}>
-                      {showCancelled
-                        ? `Hide cancelled (${cancelledCount})`
-                        : `Show cancelled (${cancelledCount})`}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </>
-            );
-          })()
-        )}
-      </View>
 
-      <Pressable style={styles.signOutButton} onPress={signOut}>
-        <Text style={styles.signOutText}>Sign out</Text>
-      </Pressable>
-    </View>
+        <View style={[styles.section, styles.subsSection]}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              Your subscriptions{' '}
+              {subs.length > 0 ? `(${subs.filter((s) => s.status !== 'cancelled').length})` : ''}
+            </Text>
+            {!addingManual ? (
+              <Pressable onPress={() => setAddingManual(true)} style={styles.addButton}>
+                <Text style={styles.addButtonText}>+ Add</Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {addingManual ? (
+            <AddSubscriptionForm
+              onSaved={(sub) => {
+                setSubs((prev) => {
+                  const without = prev.filter((p) => p.id !== sub.id);
+                  return [sub, ...without];
+                });
+                setAddingManual(false);
+              }}
+              onCancel={() => setAddingManual(false)}
+            />
+          ) : null}
+          {subsLoading && subs.length === 0 ? (
+            <ActivityIndicator />
+          ) : subs.length === 0 && !addingManual ? (
+            <Text style={styles.sectionBody}>
+              None yet. Connect Gmail and run a scan, or add one manually.
+            </Text>
+          ) : (
+            (() => {
+              const visible = [...subs]
+                .filter((s) => showCancelled || s.status !== 'cancelled')
+                .sort(compareSubs);
+              const cancelledCount = subs.filter((s) => s.status === 'cancelled').length;
+              return (
+                <>
+                  <View style={styles.subsGrid}>
+                    {visible.map((s) =>
+                      editingId === s.id ? (
+                        <View
+                          key={s.id}
+                          style={[styles.subCardWrap, { width: cardWidthPct as `${number}%` }]}
+                        >
+                          <AddSubscriptionForm
+                            initial={s}
+                            onSaved={(updated) => {
+                              setSubs((prev) =>
+                                prev.map((p) => (p.id === updated.id ? updated : p)),
+                              );
+                              setEditingId(null);
+                            }}
+                            onCancel={() => setEditingId(null)}
+                          />
+                        </View>
+                      ) : (
+                        <View
+                          key={s.id}
+                          style={[
+                            styles.subCardWrap,
+                            styles.candidateRow,
+                            { width: cardWidthPct as `${number}%` },
+                          ]}
+                        >
+                          <Pressable
+                            style={[
+                              styles.candidate,
+                              s.nextRenewalDate &&
+                                daysFromNow(s.nextRenewalDate) <= 2 &&
+                                s.status === 'active' &&
+                                styles.candidateUrgent,
+                              s.status === 'cancelled' && styles.candidateCancelled,
+                            ]}
+                            onPress={() => setEditingId(s.id)}
+                            accessibilityLabel={`Edit ${s.provider}`}
+                          >
+                            <View style={styles.candidateHeader}>
+                              <Text style={styles.candidateProvider} numberOfLines={1}>
+                                {s.provider}
+                              </Text>
+                              {s.status === 'trial' ? (
+                                <View style={styles.trialBadge}>
+                                  <Text style={styles.trialBadgeText}>TRIAL</Text>
+                                </View>
+                              ) : null}
+                              {s.status === 'cancelled' ? (
+                                <View style={styles.cancelledBadge}>
+                                  <Text style={styles.cancelledBadgeText}>CANCELLED</Text>
+                                </View>
+                              ) : null}
+                            </View>
+                            <Text style={styles.candidateMeta} numberOfLines={1}>
+                              {formatMoney(s.amount, s.currency)}
+                              {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
+                              {s.nextRenewalDate
+                                ? ` · ${formatRelative(s.nextRenewalDate)} (${formatShortDate(s.nextRenewalDate)})`
+                                : ''}
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => onDelete(s.id)}
+                            disabled={deletingId === s.id}
+                            style={styles.deleteButton}
+                            accessibilityLabel={`Delete ${s.provider}`}
+                          >
+                            <Text style={styles.deleteButtonText}>
+                              {deletingId === s.id ? '…' : '✕'}
+                            </Text>
+                          </Pressable>
+                        </View>
+                      ),
+                    )}
+                  </View>
+                  {cancelledCount > 0 ? (
+                    <Pressable
+                      onPress={() => setShowCancelled((v) => !v)}
+                      style={styles.toggleCancelled}
+                    >
+                      <Text style={styles.toggleCancelledText}>
+                        {showCancelled
+                          ? `Hide cancelled (${cancelledCount})`
+                          : `Show cancelled (${cancelledCount})`}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+                </>
+              );
+            })()
+          )}
+        </View>
+
+        <Pressable style={styles.signOutButton} onPress={signOut}>
+          <Text style={styles.signOutText}>Sign out</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
+  scroll: { flex: 1, backgroundColor: '#fafafa' },
+  scrollContent: { alignItems: 'center', padding: 24, paddingBottom: 64 },
+  page: { width: '100%', maxWidth: 1200, gap: 16 },
+  header: { gap: 4, marginBottom: 8 },
   title: { fontSize: 28, fontWeight: '600' },
-  subtitle: { fontSize: 16, color: '#52525b' },
+  subtitle: { fontSize: 14, color: '#52525b' },
   meta: { fontSize: 13, color: '#71717a' },
-  error: { fontSize: 13, color: '#dc2626', textAlign: 'center' },
+  error: { fontSize: 13, color: '#dc2626' },
+  topRow: { gap: 16 },
+  topRowWide: { flexDirection: 'row', alignItems: 'flex-start' },
+  sectionFlex: { flex: 1, minWidth: 280 },
   section: {
     width: '100%',
-    maxWidth: 360,
-    marginTop: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#e4e4e7',
     borderRadius: 12,
     gap: 8,
+    backgroundColor: '#ffffff',
   },
+  subsSection: { width: '100%' },
+  subsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  subCardWrap: {},
   sectionTitle: { fontSize: 16, fontWeight: '600' },
   sectionBody: { fontSize: 13, color: '#52525b' },
   primaryButton: {
@@ -567,6 +613,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 16,
+    alignSelf: 'flex-start',
   },
   signOutText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
 });
