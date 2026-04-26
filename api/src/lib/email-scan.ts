@@ -7,7 +7,7 @@ import {
   type GmailRefreshConfig,
   type NormalizedEmail,
 } from './gmail.js';
-import { parseSubscription, type ParsedSubscription } from './parser.js';
+import { dedupSubscriptions, parseSubscription, type ParsedSubscription } from './parser.js';
 import type { GoogleAccountStore } from '../db/google-accounts.js';
 
 export type ScanResult = {
@@ -51,11 +51,12 @@ export async function scanInboxesForUser(userId: string, deps: ScanDeps): Promis
         console.error(`failed to fetch message ${id}:`, err);
       }
     }
-    const parsed: ParsedSubscription[] = [];
+    const candidates: ParsedSubscription[] = [];
     for (const email of emails) {
       const candidate = parseSubscription(email);
-      if (candidate) parsed.push(candidate);
+      if (candidate) candidates.push(candidate);
     }
+    const parsed = dedupSubscriptions(candidates);
 
     results.push({
       googleEmail: account.googleEmail,

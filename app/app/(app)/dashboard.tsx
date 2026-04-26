@@ -18,12 +18,13 @@ type ConnectStartResponse = { url: string };
 
 type ParsedCandidate = {
   provider: string;
-  amount: number | null;
-  currency: string | null;
+  amount: number;
+  currency: string;
   frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
   nextRenewalDate: string | null;
   confidence: number;
   sourceMessageId: string;
+  sourceDate: string;
 };
 
 type ScanResponse = {
@@ -37,10 +38,8 @@ type ScanResponse = {
   }>;
 };
 
-function formatMoney(amount: number | null, currency: string | null): string {
-  if (amount == null) return '—';
-  const code = currency ?? '';
-  return `${amount.toFixed(2)} ${code}`.trim();
+function formatMoney(amount: number, currency: string): string {
+  return `${amount.toFixed(2)} ${currency}`.trim();
 }
 
 export default function Dashboard() {

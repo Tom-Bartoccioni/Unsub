@@ -4,13 +4,18 @@ export type Frequency = 'weekly' | 'monthly' | 'yearly' | 'unknown';
 
 export type ParsedSubscription = {
   provider: string;
-  amount: number | null;
-  currency: string | null;
+  amount: number;
+  currency: string;
   frequency: Frequency;
   nextRenewalDate: Date | null;
   confidence: number; // 0..1
   sourceMessageId: string;
+  sourceDate: Date;
 };
+
+// Subjects that strongly indicate a one-off transaction rather than a subscription.
+const ONE_OFF_SUBJECT_RX =
+  /\b(booking|reservation|your\s+(trip|ride|stay|order|delivery)|order\s*(?:#|number|confirmation)|check[-\s]?in|shipped|tracking)\b/i;
 
 const SYMBOL_TO_CODE: Record<string, string> = {
   $: 'USD',
@@ -70,8 +75,11 @@ const PROVIDER_DOMAIN_OVERRIDES: Record<string, string> = {
 };
 
 export function parseSubscription(email: NormalizedEmail): ParsedSubscription | null {
+  // Reject obvious one-off transactional emails (hotel bookings, e-commerce orders, ride receipts).
+  if (ONE_OFF_SUBJECT_RX.test(email.subject)) return null;
+
   const provider = extractProvider(email);
-  if (!provider) return null;
+  if (!provider || provider === 'Unknown') return null;
 
   const text = preferText(email);
   const subjectAndBody = `${email.subject}\n${text}`;
@@ -79,27 +87,42 @@ export function parseSubscription(email: NormalizedEmail): ParsedSubscription | 
   const amounts = extractAmounts(subjectAndBody);
   const best = pickBestAmount(amounts, subjectAndBody);
 
+  // No amount → we can't represent this as a subscription. Drop it.
+  if (!best) return null;
+
   const frequency = extractFrequency(subjectAndBody);
   const nextRenewalDate = extractNextRenewalDate(subjectAndBody, email.internalDate);
 
-  let confidence = 0;
-  if (best) confidence += 0.4;
+  let confidence = 0.4; // we have an amount
   if (frequency !== 'unknown') confidence += 0.25;
   if (nextRenewalDate) confidence += 0.25;
-  if (provider !== 'Unknown') confidence += 0.1;
-
-  // If we can't even find an amount, the email probably isn't a real receipt.
-  if (!best && frequency === 'unknown' && !nextRenewalDate) return null;
+  if (provider) confidence += 0.1;
 
   return {
     provider,
-    amount: best?.amount ?? null,
-    currency: best?.currency ?? null,
+    amount: best.amount,
+    currency: best.currency,
     frequency,
     nextRenewalDate,
     confidence: Math.min(1, confidence),
     sourceMessageId: email.id,
+    sourceDate: email.internalDate,
   };
+}
+
+// Collapse same-subscription emails (3 monthly Loom receipts → 1 entry).
+// Key: lowercased provider + amount + currency + frequency. Keep the one with
+// the latest sourceDate (typically the most recent receipt).
+export function dedupSubscriptions(items: ParsedSubscription[]): ParsedSubscription[] {
+  const byKey = new Map<string, ParsedSubscription>();
+  for (const item of items) {
+    const key = `${item.provider.toLowerCase()}|${item.amount}|${item.currency}|${item.frequency}`;
+    const existing = byKey.get(key);
+    if (!existing || item.sourceDate.getTime() > existing.sourceDate.getTime()) {
+      byKey.set(key, item);
+    }
+  }
+  return [...byKey.values()].sort((a, b) => b.sourceDate.getTime() - a.sourceDate.getTime());
 }
 
 function preferText(email: NormalizedEmail): string {

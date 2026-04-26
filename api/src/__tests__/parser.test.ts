@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  dedupSubscriptions,
   extractAmounts,
   extractFrequency,
   extractNextRenewalDate,
   extractProvider,
   parseSubscription,
   providerFromDomain,
+  type ParsedSubscription,
 } from '../lib/parser.js';
 import type { NormalizedEmail } from '../lib/gmail.js';
 
@@ -115,6 +117,7 @@ describe('parseSubscription (end-to-end)', () => {
     expect(out!.frequency).toBe('monthly');
     expect(out!.nextRenewalDate?.toISOString().slice(0, 10)).toBe('2026-05-26');
     expect(out!.confidence).toBeGreaterThanOrEqual(0.9);
+    expect(out!.sourceDate).toEqual(baseEmail.internalDate);
   });
 
   it('returns null when the email has nothing actionable', () => {
@@ -123,6 +126,36 @@ describe('parseSubscription (end-to-end)', () => {
       from: 'Friend <friend@example.com>',
       subject: 'Lunch tomorrow?',
       textBody: 'Pick a place and let me know.',
+    });
+    expect(out).toBeNull();
+  });
+
+  it('drops emails with no amount (workspace notifications, etc.)', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Atlassian <noreply@atlassian.com>',
+      subject: 'Your monthly digest',
+      textBody: 'Here is what happened in your workspace this month.',
+    });
+    expect(out).toBeNull();
+  });
+
+  it('rejects one-off Booking.com payments even when amount + provider parse', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Booking.com <noreply@booking.com>',
+      subject: 'Booking Confirmation: Hotel Lutetia, Paris',
+      textBody: 'Total: €83.39\nCheck-in: May 1, 2026',
+    });
+    expect(out).toBeNull();
+  });
+
+  it('rejects e-commerce order confirmations', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Amazon <auto-confirm@amazon.com>',
+      subject: 'Your order #123-456 has shipped',
+      textBody: 'Total: $42.00',
     });
     expect(out).toBeNull();
   });
@@ -138,5 +171,44 @@ describe('parseSubscription (end-to-end)', () => {
     expect(out!.amount).toBe(42);
     expect(out!.frequency).toBe('unknown');
     expect(out!.confidence).toBeLessThan(0.7);
+  });
+});
+
+describe('dedupSubscriptions', () => {
+  const make = (
+    overrides: Partial<ParsedSubscription> & Pick<ParsedSubscription, 'sourceDate'>,
+  ): ParsedSubscription => ({
+    provider: 'Atlassian Loom',
+    amount: 24,
+    currency: 'USD',
+    frequency: 'monthly',
+    nextRenewalDate: null,
+    confidence: 0.65,
+    sourceMessageId: `m-${overrides.sourceDate.getTime()}`,
+    ...overrides,
+  });
+
+  it('collapses three identical receipts into one (newest wins)', () => {
+    const items = [
+      make({ sourceDate: new Date('2026-02-15') }),
+      make({ sourceDate: new Date('2026-04-15') }),
+      make({ sourceDate: new Date('2026-03-15') }),
+    ];
+    const out = dedupSubscriptions(items);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.sourceDate.toISOString().slice(0, 10)).toBe('2026-04-15');
+  });
+
+  it('keeps separate entries for different (provider, amount) tuples', () => {
+    const items = [
+      make({ sourceDate: new Date('2026-04-15') }),
+      make({
+        provider: 'Spotify',
+        amount: 9.99,
+        currency: 'EUR',
+        sourceDate: new Date('2026-04-10'),
+      }),
+    ];
+    expect(dedupSubscriptions(items)).toHaveLength(2);
   });
 });

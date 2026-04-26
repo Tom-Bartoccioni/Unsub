@@ -21,6 +21,7 @@ export function makeScanRoutes(deps: ScanRouteDeps) {
             nextRenewalDate: p.nextRenewalDate?.toISOString() ?? null,
             confidence: p.confidence,
             sourceMessageId: p.sourceMessageId,
+            sourceDate: p.sourceDate.toISOString(),
           })),
         }));
         const totalFetched = results.reduce((acc, r) => acc + r.fetchedCount, 0);
