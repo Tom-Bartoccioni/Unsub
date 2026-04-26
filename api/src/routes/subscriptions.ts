@@ -15,6 +15,22 @@ const CreateBody = z.object({
   nextRenewalDate: z.string().datetime().nullable().optional(),
 });
 
+const PatchBody = z
+  .object({
+    provider: z.string().trim().min(1).max(120).optional(),
+    amount: z.number().positive().max(1_000_000).optional(),
+    currency: z
+      .string()
+      .trim()
+      .length(3)
+      .transform((s) => s.toUpperCase())
+      .optional(),
+    frequency: z.enum(['monthly', 'yearly', 'weekly', 'unknown']).optional(),
+    nextRenewalDate: z.string().datetime().nullable().optional(),
+    status: z.enum(['active', 'trial', 'cancelled']).optional(),
+  })
+  .strict();
+
 const IdParam = z.object({ id: z.string().uuid() });
 
 function firstProviderToken(provider: string): string {
@@ -81,6 +97,32 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         sourceDate: null,
       });
       return reply.code(201).send({ subscription: toDTO(row) });
+    });
+
+    fastify.patch('/subscriptions/:id', async (req, reply) => {
+      const auth = await fastify.requireAuth(req);
+      const idParsed = IdParam.safeParse(req.params);
+      if (!idParsed.success) return reply.code(400).send({ error: 'invalid_id' });
+      const bodyParsed = PatchBody.safeParse(req.body);
+      if (!bodyParsed.success) {
+        return reply.code(400).send({ error: 'invalid_body', issues: bodyParsed.error.issues });
+      }
+      const body = bodyParsed.data;
+      const patch: Parameters<typeof deps.store.updateById>[2] = {};
+      if (body.provider !== undefined) {
+        patch.provider = body.provider;
+        patch.providerKey = body.provider.split(/\s+/)[0]?.toLowerCase() ?? '';
+      }
+      if (body.amount !== undefined) patch.amountMinor = Math.round(body.amount * 100);
+      if (body.currency !== undefined) patch.currency = body.currency;
+      if (body.frequency !== undefined) patch.frequency = body.frequency;
+      if (body.nextRenewalDate !== undefined) {
+        patch.nextRenewalDate = body.nextRenewalDate ? new Date(body.nextRenewalDate) : null;
+      }
+      if (body.status !== undefined) patch.status = body.status;
+      const row = await deps.store.updateById(idParsed.data.id, auth.row.id, patch);
+      if (!row) return reply.code(404).send({ error: 'not_found' });
+      return { subscription: toDTO(row) };
     });
 
     fastify.delete('/subscriptions/:id', async (req, reply) => {

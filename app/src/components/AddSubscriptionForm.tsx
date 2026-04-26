@@ -24,18 +24,22 @@ const FREQUENCIES: { label: string; value: Frequency }[] = [
   { label: 'One-off', value: 'unknown' },
 ];
 
-export function AddSubscriptionForm({
-  onCreated,
-  onCancel,
-}: {
-  onCreated: (sub: Subscription) => void;
+export type SubscriptionFormProps = {
+  onSaved: (sub: Subscription) => void;
   onCancel: () => void;
-}) {
-  const [provider, setProvider] = useState('');
-  const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('EUR');
-  const [frequency, setFrequency] = useState<Frequency>('monthly');
-  const [nextRenewalDate, setNextRenewalDate] = useState('');
+  initial?: Subscription; // when present, the form edits via PATCH instead of POST
+};
+
+export function AddSubscriptionForm({ onSaved, onCancel, initial }: SubscriptionFormProps) {
+  const [provider, setProvider] = useState(initial?.provider ?? '');
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : '');
+  const [currency, setCurrency] = useState(initial?.currency ?? 'EUR');
+  const [frequency, setFrequency] = useState<Frequency>(
+    (initial?.frequency as Frequency) ?? 'monthly',
+  );
+  const [nextRenewalDate, setNextRenewalDate] = useState(
+    initial?.nextRenewalDate?.slice(0, 10) ?? '',
+  );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -64,24 +68,32 @@ export function AddSubscriptionForm({
 
     setSubmitting(true);
     try {
-      const res = await apiFetch<{ subscription: Subscription }>('/subscriptions', {
-        method: 'POST',
-        body: JSON.stringify({
-          provider: provider.trim(),
-          amount: amountNum,
-          currency: currency.trim().toUpperCase(),
-          frequency,
-          nextRenewalDate: renewalIso ?? null,
-        }),
-      });
-      onCreated(res.subscription);
+      const body = {
+        provider: provider.trim(),
+        amount: amountNum,
+        currency: currency.trim().toUpperCase(),
+        frequency,
+        nextRenewalDate: renewalIso ?? null,
+      };
+      const res = initial
+        ? await apiFetch<{ subscription: Subscription }>(`/subscriptions/${initial.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+          })
+        : await apiFetch<{ subscription: Subscription }>('/subscriptions', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          });
+      onSaved(res.subscription);
     } catch (e) {
       const msg =
         e instanceof ApiError
           ? `API ${e.status}: ${e.message}`
           : e instanceof Error
             ? e.message
-            : 'Failed to add subscription';
+            : initial
+              ? 'Failed to save changes'
+              : 'Failed to add subscription';
       setError(msg);
     } finally {
       setSubmitting(false);

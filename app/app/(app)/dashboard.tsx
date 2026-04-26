@@ -54,7 +54,7 @@ function monthlyAmount(amount: number, frequency: string): number | null {
 function computeTotals(subs: Subscription[]): Totals {
   const out: Totals = {};
   for (const s of subs) {
-    if (s.status !== 'active') continue;
+    if (s.status !== 'active') continue; // 'trial' / 'cancelled' / 'dismissed' excluded
     const monthly = monthlyAmount(s.amount, s.frequency);
     if (monthly == null) continue;
     const bucket = out[s.currency] ?? { monthly: 0, yearly: 0, count: 0 };
@@ -64,6 +64,19 @@ function computeTotals(subs: Subscription[]): Totals {
     out[s.currency] = bucket;
   }
   return out;
+}
+
+function compareSubs(a: Subscription, b: Subscription): number {
+  // Active first, trials after.
+  const statusRank = (s: string) => (s === 'active' ? 0 : s === 'trial' ? 1 : 2);
+  const sr = statusRank(a.status) - statusRank(b.status);
+  if (sr !== 0) return sr;
+  // Then by upcoming renewal date (sooner first); nulls last.
+  const at = a.nextRenewalDate ? new Date(a.nextRenewalDate).getTime() : Number.POSITIVE_INFINITY;
+  const bt = b.nextRenewalDate ? new Date(b.nextRenewalDate).getTime() : Number.POSITIVE_INFINITY;
+  if (at !== bt) return at - bt;
+  // Tiebreaker: most recently updated first.
+  return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 }
 
 export default function Dashboard() {
@@ -81,6 +94,7 @@ export default function Dashboard() {
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [addingManual, setAddingManual] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -258,7 +272,7 @@ export default function Dashboard() {
         </View>
         {addingManual ? (
           <AddSubscriptionForm
-            onCreated={(sub) => {
+            onSaved={(sub) => {
               setSubs((prev) => {
                 const without = prev.filter((p) => p.id !== sub.id);
                 return [sub, ...without];
@@ -275,28 +289,51 @@ export default function Dashboard() {
             None yet. Connect Gmail and run a scan, or add one manually.
           </Text>
         ) : (
-          subs.map((s) => (
-            <View key={s.id} style={styles.candidateRow}>
-              <View style={styles.candidate}>
-                <Text style={styles.candidateProvider} numberOfLines={1}>
-                  {s.provider}
-                </Text>
-                <Text style={styles.candidateMeta} numberOfLines={1}>
-                  {formatMoney(s.amount, s.currency)}
-                  {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
-                  {s.nextRenewalDate ? ` · next ${s.nextRenewalDate.slice(0, 10)}` : ''}
-                </Text>
+          [...subs].sort(compareSubs).map((s) =>
+            editingId === s.id ? (
+              <AddSubscriptionForm
+                key={s.id}
+                initial={s}
+                onSaved={(updated) => {
+                  setSubs((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+                  setEditingId(null);
+                }}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <View key={s.id} style={styles.candidateRow}>
+                <Pressable
+                  style={styles.candidate}
+                  onPress={() => setEditingId(s.id)}
+                  accessibilityLabel={`Edit ${s.provider}`}
+                >
+                  <View style={styles.candidateHeader}>
+                    <Text style={styles.candidateProvider} numberOfLines={1}>
+                      {s.provider}
+                    </Text>
+                    {s.status === 'trial' ? (
+                      <View style={styles.trialBadge}>
+                        <Text style={styles.trialBadgeText}>TRIAL</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text style={styles.candidateMeta} numberOfLines={1}>
+                    {formatMoney(s.amount, s.currency)}
+                    {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
+                    {s.nextRenewalDate ? ` · next ${s.nextRenewalDate.slice(0, 10)}` : ''}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => onDelete(s.id)}
+                  disabled={deletingId === s.id}
+                  style={styles.deleteButton}
+                  accessibilityLabel={`Delete ${s.provider}`}
+                >
+                  <Text style={styles.deleteButtonText}>{deletingId === s.id ? '…' : '✕'}</Text>
+                </Pressable>
               </View>
-              <Pressable
-                onPress={() => onDelete(s.id)}
-                disabled={deletingId === s.id}
-                style={styles.deleteButton}
-                accessibilityLabel={`Delete ${s.provider}`}
-              >
-                <Text style={styles.deleteButtonText}>{deletingId === s.id ? '…' : '✕'}</Text>
-              </Pressable>
-            </View>
-          ))
+            ),
+          )
         )}
       </View>
 
@@ -375,8 +412,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fef2f2',
   },
   deleteButtonText: { fontSize: 14, color: '#dc2626', fontWeight: '700' },
-  candidateProvider: { fontSize: 13, fontWeight: '600', color: '#111827' },
+  candidateHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  candidateProvider: { fontSize: 13, fontWeight: '600', color: '#111827', flexShrink: 1 },
   candidateMeta: { fontSize: 11, color: '#52525b', marginTop: 2 },
+  trialBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: '#fef3c7',
+    borderWidth: 1,
+    borderColor: '#fcd34d',
+  },
+  trialBadgeText: { fontSize: 9, fontWeight: '700', color: '#92400e', letterSpacing: 0.5 },
   totalsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

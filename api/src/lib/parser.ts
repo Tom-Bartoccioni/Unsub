@@ -2,6 +2,8 @@ import type { NormalizedEmail } from './gmail.js';
 
 export type Frequency = 'weekly' | 'monthly' | 'yearly' | 'unknown';
 
+export type SubscriptionStatus = 'active' | 'trial';
+
 export type ParsedSubscription = {
   provider: string;
   amount: number;
@@ -9,6 +11,7 @@ export type ParsedSubscription = {
   frequency: Frequency;
   nextRenewalDate: Date | null;
   confidence: number; // 0..1
+  status: SubscriptionStatus;
   sourceMessageId: string;
   sourceDate: Date;
 };
@@ -16,6 +19,14 @@ export type ParsedSubscription = {
 // Subjects that strongly indicate a one-off transaction rather than a subscription.
 const ONE_OFF_SUBJECT_RX =
   /\b(booking|reservation|your\s+(trip|ride|stay|order|delivery)|order\s*(?:#|number|confirmation)|check[-\s]?in|shipped|tracking)\b/i;
+
+// Phrases that indicate the subscription is currently a free trial (no charge yet).
+const TRIAL_RX =
+  /\b(free\s+trial|trial\s+(?:period|ends?|expires?)|trial\s+(?:will\s+)?(?:end|expire)|in\s+your\s+trial|essai\s+gratuit|p[ée]riode\s+d[''\s]essai|your\s+trial)\b/i;
+
+// Indicators that *no* card is on file / no charge has happened yet.
+const NO_CHARGE_RX =
+  /\b(no\s+(?:card|payment\s+method)\s+on\s+file|add\s+a\s+payment\s+method|haven['']?t\s+been\s+charged|you\s+won['']?t\s+be\s+charged|no\s+charge\s+yet)\b/i;
 
 const SYMBOL_TO_CODE: Record<string, string> = {
   $: 'USD',
@@ -102,6 +113,8 @@ export function parseSubscription(email: NormalizedEmail): ParsedSubscription | 
   if (frequency !== 'unknown') confidence += 0.25;
   if (nextRenewalDate) confidence += 0.25;
 
+  const status: SubscriptionStatus = detectTrial(subjectAndBody) ? 'trial' : 'active';
+
   return {
     provider,
     amount: best.amount,
@@ -109,9 +122,16 @@ export function parseSubscription(email: NormalizedEmail): ParsedSubscription | 
     frequency,
     nextRenewalDate,
     confidence: Math.min(1, confidence),
+    status,
     sourceMessageId: email.id,
     sourceDate: email.internalDate,
   };
+}
+
+export function detectTrial(text: string): boolean {
+  if (TRIAL_RX.test(text)) return true;
+  if (NO_CHARGE_RX.test(text)) return true;
+  return false;
 }
 
 function firstProviderToken(provider: string): string {

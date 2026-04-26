@@ -48,6 +48,7 @@ async function persistParsed(
       frequency: p.frequency,
       nextRenewalDate: p.nextRenewalDate,
       confidence: p.confidence,
+      status: p.status,
       sourceMessageId: p.sourceMessageId,
       sourceDate: p.sourceDate,
     });

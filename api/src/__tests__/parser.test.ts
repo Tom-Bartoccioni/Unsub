@@ -117,7 +117,37 @@ describe('parseSubscription (end-to-end)', () => {
     expect(out!.frequency).toBe('monthly');
     expect(out!.nextRenewalDate?.toISOString().slice(0, 10)).toBe('2026-05-26');
     expect(out!.confidence).toBeGreaterThanOrEqual(0.9);
+    expect(out!.status).toBe('active');
     expect(out!.sourceDate).toEqual(baseEmail.internalDate);
+  });
+
+  it('marks status="trial" when the body mentions a free trial', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Loom <no-reply@loom.com>',
+      subject: 'Your Loom monthly plan',
+      textBody: [
+        'You started a free trial of Loom Business.',
+        'Plan: monthly',
+        'Amount: $24.00',
+        'Next billing date: May 26, 2026',
+      ].join('\n'),
+    });
+    expect(out).not.toBeNull();
+    expect(out!.status).toBe('trial');
+    expect(out!.amount).toBe(24);
+  });
+
+  it('marks status="trial" when no payment method is on file', () => {
+    const out = parseSubscription({
+      ...baseEmail,
+      from: 'Acme <billing@acme.com>',
+      subject: 'Your monthly plan',
+      textBody:
+        'Plan: monthly $42.00\nAdd a payment method to keep your subscription active.\nNext renewal: 2026-05-26',
+    });
+    expect(out).not.toBeNull();
+    expect(out!.status).toBe('trial');
   });
 
   it('returns null when the email has nothing actionable', () => {
