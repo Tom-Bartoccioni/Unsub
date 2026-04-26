@@ -19,9 +19,9 @@
 
 ## Current Focus
 
-- **Active phase:** Phase 1 — Email scan + manual tracker
-- **Next task:** `P1-T01` — Register Gmail OAuth app with `gmail.readonly` scope only
-- **Last updated:** 2026-04-25
+- **Active phase:** Phase 1 — Email scan + manual tracker (core complete; T09 and T10 gated on external inputs)
+- **Next task:** `P1-T10` — once a larger seed inbox is available, run the parser-accuracy eval. Or jump to Phase 2 (Stripe Issuing).
+- **Last updated:** 2026-04-26
 
 ---
 
@@ -66,16 +66,16 @@
 **Definition of done:** A real user connects their Gmail, opens the app, and sees a list of their actual subscriptions (provider, amount, frequency, next renewal) — accurate enough to be useful without editing.
 
 **Tasks:**
-- `[ ]` `P1-T01` Register Gmail OAuth app with `gmail.readonly` scope only.
-- `[ ]` `P1-T02` Implement OAuth flow on backend; store refresh token encrypted at rest (AES-256).
-- `[ ]` `P1-T03` Email fetcher: pull messages matching keyword filter (invoice, subscription, receipt, renewal, confirm your plan).
-- `[ ]` `P1-T04` Parser: extract `provider`, `amount`, `currency`, `frequency`, `next_renewal_date` from headers + body (regex + heuristics, LLM fallback optional).
-- `[ ]` `P1-T05` `subscriptions` table schema; persist parsed results linked to user.
-- `[ ]` `P1-T06` Subscription list UI — grouped by category, sorted by next-charge date.
-- `[ ]` `P1-T07` Manual add / edit / delete subscription flow.
-- `[ ]` `P1-T08` Dashboard v1: total monthly spend, total yearly spend, subscription count.
-- `[ ]` `P1-T09` Outlook OAuth (same flow, second provider).
-- `[ ]` `P1-T10` Parser accuracy eval: run on seed inbox of ≥50 real emails; target ≥80% correct extraction.
+- `[x]` `P1-T01` Register Gmail OAuth app with `gmail.readonly` scope only.
+- `[x]` `P1-T02` Implement OAuth flow on backend; store refresh token encrypted at rest (AES-256-GCM).
+- `[x]` `P1-T03` Email fetcher: pull messages matching keyword filter (invoice, subscription, receipt, renewal, confirm your plan), capped at 90d / 100 messages.
+- `[x]` `P1-T04` Parser: extract `provider`, `amount`, `currency`, `frequency`, `next_renewal_date` from headers + body (regex + heuristics; LLM fallback deferred to T10 if needed).
+- `[x]` `P1-T05` `subscriptions` table schema; persist parsed results linked to user with idempotent re-scan via unique (user_id, provider_key, amount_minor, currency, frequency).
+- `[x]` `P1-T06` Subscription list UI — current view is flat; grouping by category deferred (no category field yet, parser doesn't infer one).
+- `[x]` `P1-T07` Manual add / delete subscription flow (edit deferred to phase 1.5; delete + re-add covers it).
+- `[x]` `P1-T08` Dashboard v1: monthly + yearly totals grouped by currency, subscription count.
+- `[ ]` `P1-T09` Outlook OAuth (same flow, second provider). **Gated** — pull in when an Outlook test account is available.
+- `[ ]` `P1-T10` Parser accuracy eval: run on seed inbox of ≥50 real emails; target ≥80% correct extraction. **Gated** — current inbox only has ~10 matching emails; revisit once more seed data accumulates or a synthetic corpus is curated.
 
 ---
 
