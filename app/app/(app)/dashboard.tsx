@@ -42,6 +42,38 @@ function formatMoney(amount: number, currency: string): string {
   return `${amount.toFixed(2)} ${currency}`.trim();
 }
 
+const MS_PER_DAY = 86_400_000;
+
+function daysFromNow(iso: string): number {
+  const target = new Date(iso).setUTCHours(0, 0, 0, 0);
+  const today = new Date().setUTCHours(0, 0, 0, 0);
+  return Math.round((target - today) / MS_PER_DAY);
+}
+
+function formatRelative(iso: string | null): string | null {
+  if (!iso) return null;
+  const days = daysFromNow(iso);
+  if (days < 0) return days === -1 ? 'yesterday' : `${-days} days ago`;
+  if (days === 0) return 'today';
+  if (days === 1) return 'tomorrow';
+  if (days < 7) return `in ${days} days`;
+  if (days < 14) return 'next week';
+  if (days < 31) return `in ${Math.round(days / 7)} weeks`;
+  if (days < 365) return `in ${Math.round(days / 30)} months`;
+  return `in ${Math.round(days / 365)} years`;
+}
+
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  });
+}
+
 type Totals = Record<string, { monthly: number; yearly: number; count: number }>;
 
 function monthlyAmount(amount: number, frequency: string): number | null {
@@ -96,6 +128,7 @@ export default function Dashboard() {
   const [addingManual, setAddingManual] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showCancelled, setShowCancelled] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -233,6 +266,38 @@ export default function Dashboard() {
         ) : null}
       </View>
 
+      {(() => {
+        const upcoming = subs
+          .filter(
+            (s) =>
+              s.status !== 'cancelled' && s.nextRenewalDate && daysFromNow(s.nextRenewalDate) <= 7,
+          )
+          .sort((a, b) => daysFromNow(a.nextRenewalDate!) - daysFromNow(b.nextRenewalDate!));
+        if (upcoming.length === 0) return null;
+        return (
+          <View style={[styles.section, styles.upcomingSection]}>
+            <Text style={styles.sectionTitle}>Charges this week</Text>
+            {upcoming.map((s) => {
+              const days = daysFromNow(s.nextRenewalDate!);
+              const urgent = days <= 2;
+              return (
+                <View key={`u-${s.id}`} style={styles.upcomingRow}>
+                  <Text
+                    style={[styles.upcomingProvider, urgent && styles.upcomingProviderUrgent]}
+                    numberOfLines={1}
+                  >
+                    {s.provider}
+                  </Text>
+                  <Text style={[styles.upcomingMeta, urgent && styles.upcomingMetaUrgent]}>
+                    {formatRelative(s.nextRenewalDate)} · {formatMoney(s.amount, s.currency)}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        );
+      })()}
+
       {subs.length > 0 ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Totals</Text>
@@ -262,7 +327,8 @@ export default function Dashboard() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            Your subscriptions {subs.length > 0 ? `(${subs.length})` : ''}
+            Your subscriptions{' '}
+            {subs.length > 0 ? `(${subs.filter((s) => s.status !== 'cancelled').length})` : ''}
           </Text>
           {!addingManual ? (
             <Pressable onPress={() => setAddingManual(true)} style={styles.addButton}>
@@ -289,51 +355,89 @@ export default function Dashboard() {
             None yet. Connect Gmail and run a scan, or add one manually.
           </Text>
         ) : (
-          [...subs].sort(compareSubs).map((s) =>
-            editingId === s.id ? (
-              <AddSubscriptionForm
-                key={s.id}
-                initial={s}
-                onSaved={(updated) => {
-                  setSubs((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-                  setEditingId(null);
-                }}
-                onCancel={() => setEditingId(null)}
-              />
-            ) : (
-              <View key={s.id} style={styles.candidateRow}>
-                <Pressable
-                  style={styles.candidate}
-                  onPress={() => setEditingId(s.id)}
-                  accessibilityLabel={`Edit ${s.provider}`}
-                >
-                  <View style={styles.candidateHeader}>
-                    <Text style={styles.candidateProvider} numberOfLines={1}>
-                      {s.provider}
+          (() => {
+            const visible = [...subs]
+              .filter((s) => showCancelled || s.status !== 'cancelled')
+              .sort(compareSubs);
+            const cancelledCount = subs.filter((s) => s.status === 'cancelled').length;
+            return (
+              <>
+                {visible.map((s) =>
+                  editingId === s.id ? (
+                    <AddSubscriptionForm
+                      key={s.id}
+                      initial={s}
+                      onSaved={(updated) => {
+                        setSubs((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+                        setEditingId(null);
+                      }}
+                      onCancel={() => setEditingId(null)}
+                    />
+                  ) : (
+                    <View key={s.id} style={styles.candidateRow}>
+                      <Pressable
+                        style={[
+                          styles.candidate,
+                          s.nextRenewalDate &&
+                            daysFromNow(s.nextRenewalDate) <= 2 &&
+                            s.status === 'active' &&
+                            styles.candidateUrgent,
+                          s.status === 'cancelled' && styles.candidateCancelled,
+                        ]}
+                        onPress={() => setEditingId(s.id)}
+                        accessibilityLabel={`Edit ${s.provider}`}
+                      >
+                        <View style={styles.candidateHeader}>
+                          <Text style={styles.candidateProvider} numberOfLines={1}>
+                            {s.provider}
+                          </Text>
+                          {s.status === 'trial' ? (
+                            <View style={styles.trialBadge}>
+                              <Text style={styles.trialBadgeText}>TRIAL</Text>
+                            </View>
+                          ) : null}
+                          {s.status === 'cancelled' ? (
+                            <View style={styles.cancelledBadge}>
+                              <Text style={styles.cancelledBadgeText}>CANCELLED</Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        <Text style={styles.candidateMeta} numberOfLines={1}>
+                          {formatMoney(s.amount, s.currency)}
+                          {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
+                          {s.nextRenewalDate
+                            ? ` · ${formatRelative(s.nextRenewalDate)} (${formatShortDate(s.nextRenewalDate)})`
+                            : ''}
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => onDelete(s.id)}
+                        disabled={deletingId === s.id}
+                        style={styles.deleteButton}
+                        accessibilityLabel={`Delete ${s.provider}`}
+                      >
+                        <Text style={styles.deleteButtonText}>
+                          {deletingId === s.id ? '…' : '✕'}
+                        </Text>
+                      </Pressable>
+                    </View>
+                  ),
+                )}
+                {cancelledCount > 0 ? (
+                  <Pressable
+                    onPress={() => setShowCancelled((v) => !v)}
+                    style={styles.toggleCancelled}
+                  >
+                    <Text style={styles.toggleCancelledText}>
+                      {showCancelled
+                        ? `Hide cancelled (${cancelledCount})`
+                        : `Show cancelled (${cancelledCount})`}
                     </Text>
-                    {s.status === 'trial' ? (
-                      <View style={styles.trialBadge}>
-                        <Text style={styles.trialBadgeText}>TRIAL</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                  <Text style={styles.candidateMeta} numberOfLines={1}>
-                    {formatMoney(s.amount, s.currency)}
-                    {s.frequency !== 'unknown' ? ` · ${s.frequency}` : ''}
-                    {s.nextRenewalDate ? ` · next ${s.nextRenewalDate.slice(0, 10)}` : ''}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => onDelete(s.id)}
-                  disabled={deletingId === s.id}
-                  style={styles.deleteButton}
-                  accessibilityLabel={`Delete ${s.provider}`}
-                >
-                  <Text style={styles.deleteButtonText}>{deletingId === s.id ? '…' : '✕'}</Text>
-                </Pressable>
-              </View>
-            ),
-          )
+                  </Pressable>
+                ) : null}
+              </>
+            );
+          })()
         )}
       </View>
 
@@ -424,6 +528,30 @@ const styles = StyleSheet.create({
     borderColor: '#fcd34d',
   },
   trialBadgeText: { fontSize: 9, fontWeight: '700', color: '#92400e', letterSpacing: 0.5 },
+  cancelledBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: '#f4f4f5',
+    borderWidth: 1,
+    borderColor: '#d4d4d8',
+  },
+  cancelledBadgeText: { fontSize: 9, fontWeight: '700', color: '#71717a', letterSpacing: 0.5 },
+  candidateUrgent: { borderLeftWidth: 3, borderLeftColor: '#f97316' },
+  candidateCancelled: { opacity: 0.6 },
+  toggleCancelled: { paddingVertical: 8, alignItems: 'center' },
+  toggleCancelledText: { fontSize: 12, color: '#52525b', textDecorationLine: 'underline' },
+  upcomingSection: { borderColor: '#fde68a', backgroundColor: '#fffbeb' },
+  upcomingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  upcomingProvider: { fontSize: 13, fontWeight: '600', color: '#111827', flexShrink: 1 },
+  upcomingProviderUrgent: { color: '#9a3412' },
+  upcomingMeta: { fontSize: 12, color: '#52525b' },
+  upcomingMetaUrgent: { color: '#9a3412', fontWeight: '600' },
   totalsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
