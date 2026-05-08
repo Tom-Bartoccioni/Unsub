@@ -19,8 +19,8 @@
 
 ## Current Focus
 
-- **Active phase:** Phase 1 — Email scan + manual tracker (core complete; T09 and T10 gated on external inputs)
-- **Next task:** `P1-T10` — once a larger seed inbox is available, run the parser-accuracy eval. Or jump to Phase 2 (Stripe Issuing).
+- **Pivot (2026-04-26):** delivery refocused on a free MVP. Mail scraping (P1 work) is **kept but UI-gated**; virtual cards / ghost detection / browser extension stay deferred behind a future premium tier. Active plan now lives in [free_roadmap.md](free_roadmap.md). This file remains the historical record + premium reference.
+- **Active phase:** see [free_roadmap.md](free_roadmap.md) — Phase F0 (UI rollback).
 - **Last updated:** 2026-04-26
 
 ---

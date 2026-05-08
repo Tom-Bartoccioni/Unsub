@@ -131,6 +131,8 @@ EXPO_PUBLIC_API_URL=http://localhost:3000
 4. `pnpm dlx eas-cli build --profile preview --platform android` — cloud build (~10–20 min). Returns an install link for the APK.
 5. Add Firebase **Authorized domains** for the Expo dev URL if testing via `expo start --web` (`localhost` is allowed by default).
 
-## Phase status
+## Status
 
-Currently building **Phase 0 — Foundations**. See [ROADMAP.md](ROADMAP.md) for the live task board.
+**Free MVP in progress.** Manual subscription tracker + cost rollups + (soon) pre-charge notifications. See [free_roadmap.md](free_roadmap.md) for the live task board.
+
+The Gmail scraping pipeline shipped in Phase 1 (OAuth, parser, persistence) is **kept but UI-gated** — backend routes exist, frontend doesn't expose them. It will resurface in a future premium tier alongside virtual cards. Historical context in [ROADMAP.md](ROADMAP.md).

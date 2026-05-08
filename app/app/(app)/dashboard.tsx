@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -24,8 +23,6 @@ type MeResponse = {
   };
 };
 
-type ConnectStartResponse = { url: string };
-
 type Subscription = {
   id: string;
   provider: string;
@@ -40,12 +37,6 @@ type Subscription = {
 };
 
 type SubscriptionsResponse = { subscriptions: Subscription[] };
-
-type ScanResponse = {
-  totalFetched: number;
-  totalParsed: number;
-  subscriptions: Subscription[];
-};
 
 function formatMoney(amount: number, currency: string): string {
   return `${amount.toFixed(2)} ${currency}`.trim();
@@ -124,16 +115,8 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [connectError, setConnectError] = useState<string | null>(null);
-  const [connecting, setConnecting] = useState(false);
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [subsLoading, setSubsLoading] = useState(true);
-  const [scanSummary, setScanSummary] = useState<{
-    totalFetched: number;
-    totalParsed: number;
-  } | null>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
-  const [scanning, setScanning] = useState(false);
   const [addingManual, setAddingManual] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -183,29 +166,6 @@ export default function Dashboard() {
     };
   }, [user]);
 
-  const onScan = async () => {
-    setScanError(null);
-    setScanning(true);
-    try {
-      const res = await apiFetch<ScanResponse>('/scan/run', { method: 'POST' });
-      setScanSummary({ totalFetched: res.totalFetched, totalParsed: res.totalParsed });
-      setSubs(res.subscriptions);
-    } catch (e) {
-      const msg =
-        e instanceof ApiError ? e.message : e instanceof Error ? e.message : 'Scan failed';
-      setScanError(msg);
-    } finally {
-      setScanning(false);
-    }
-  };
-
-  const scanNeedsReconnect =
-    scanError != null &&
-    (/insufficient/i.test(scanError) ||
-      /invalid_grant/i.test(scanError) ||
-      /403/.test(scanError) ||
-      /401/.test(scanError));
-
   const onDelete = async (id: string) => {
     setDeletingId(id);
     try {
@@ -215,25 +175,6 @@ export default function Dashboard() {
       // Best-effort: leave row in UI on failure (user can retry).
     } finally {
       setDeletingId(null);
-    }
-  };
-
-  const onConnectGmail = async () => {
-    setConnectError(null);
-    setConnecting(true);
-    try {
-      const { url } = await apiFetch<ConnectStartResponse>('/auth/google/start');
-      await Linking.openURL(url);
-    } catch (e) {
-      const msg =
-        e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
-          : e instanceof Error
-            ? e.message
-            : 'Failed to start Google connect';
-      setConnectError(msg);
-    } finally {
-      setConnecting(false);
     }
   };
 
@@ -254,59 +195,6 @@ export default function Dashboard() {
         </View>
 
         <View style={[styles.topRow, isWide && styles.topRowWide]}>
-          <View style={[styles.section, isWide && styles.sectionFlex]}>
-            <Text style={styles.sectionTitle}>Connect your inbox</Text>
-            <Text style={styles.sectionBody}>
-              Unsub scans for invoices and renewals. We only read messages — never send anything.
-            </Text>
-            <Pressable
-              style={[styles.primaryButton, connecting && styles.buttonDisabled]}
-              onPress={onConnectGmail}
-              disabled={connecting}
-            >
-              <Text style={styles.primaryButtonText}>
-                {connecting ? 'Opening Google…' : 'Connect Gmail'}
-              </Text>
-            </Pressable>
-            {connectError ? <Text style={styles.error}>{connectError}</Text> : null}
-
-            <Pressable
-              style={[styles.secondaryButton, scanning && styles.buttonDisabled]}
-              onPress={onScan}
-              disabled={scanning}
-            >
-              <Text style={styles.secondaryButtonText}>
-                {scanning ? 'Scanning…' : 'Scan inbox'}
-              </Text>
-            </Pressable>
-            {scanError ? (
-              <View style={styles.scanErrorBox}>
-                <Text style={styles.scanErrorText}>
-                  {scanNeedsReconnect
-                    ? 'Gmail rejected the request — your token is missing the gmail.readonly scope. Reconnect to fix.'
-                    : scanError}
-                </Text>
-                {scanNeedsReconnect ? (
-                  <Pressable
-                    style={styles.reconnectButton}
-                    onPress={onConnectGmail}
-                    disabled={connecting}
-                  >
-                    <Text style={styles.reconnectButtonText}>
-                      {connecting ? 'Opening Google…' : 'Reconnect Gmail'}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            ) : null}
-            {scanSummary ? (
-              <Text style={styles.scanCount}>
-                Fetched {scanSummary.totalFetched} email
-                {scanSummary.totalFetched === 1 ? '' : 's'} • {scanSummary.totalParsed} parsed
-              </Text>
-            ) : null}
-          </View>
-
           {(() => {
             const upcoming = subs
               .filter(
@@ -534,41 +422,6 @@ const styles = StyleSheet.create({
   subCardWrap: {},
   sectionTitle: { fontSize: 16, fontWeight: '600' },
   sectionBody: { fontSize: 13, color: '#52525b' },
-  primaryButton: {
-    backgroundColor: '#111827',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  buttonDisabled: { opacity: 0.6 },
-  primaryButtonText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
-  secondaryButton: {
-    backgroundColor: '#f4f4f5',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  secondaryButtonText: { color: '#111827', fontSize: 14, fontWeight: '600' },
-  scanCount: { fontSize: 13, color: '#52525b' },
-  scanErrorBox: {
-    backgroundColor: '#fef2f2',
-    borderWidth: 1,
-    borderColor: '#fca5a5',
-    borderRadius: 8,
-    padding: 10,
-    gap: 8,
-    marginTop: 4,
-  },
-  scanErrorText: { fontSize: 12, color: '#991b1b' },
-  reconnectButton: {
-    backgroundColor: '#dc2626',
-    paddingVertical: 8,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  reconnectButtonText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

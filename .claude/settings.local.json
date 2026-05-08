@@ -24,7 +24,9 @@
       "Bash(pnpm --filter @unsub/app lint)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm --filter @unsub/app typecheck)"
     ]
   }
 }
