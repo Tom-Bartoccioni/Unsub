@@ -22,6 +22,25 @@ export type AuthPluginOptions = {
   users: UserStore;
 };
 
+// Errors that indicate a stale/dead connection — safe to retry once.
+const TRANSIENT_PG_ERRORS = [
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'ECONNREFUSED',
+  'EPIPE',
+  'connection terminated',
+  'Connection terminated',
+  'Client has encountered a connection error',
+];
+
+function isTransientError(err: unknown): boolean {
+  const msg =
+    err instanceof Error
+      ? `${err.message} ${(err as { code?: string }).code ?? ''}`
+      : String(err);
+  return TRANSIENT_PG_ERRORS.some((needle) => msg.includes(needle));
+}
+
 const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (fastify, opts) => {
   fastify.decorate(
     'requireAuth',
@@ -44,10 +63,36 @@ const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (fastify, opts) 
         throw fastify.httpErrors.unauthorized('Invalid ID token');
       }
 
-      const row = await opts.users.upsertByFirebaseUid({
-        firebaseUid: payload.uid,
-        email: payload.email,
-      });
+      // Try to find the user first — most requests are repeat sign-ins where
+      // nothing has changed, so we avoid the upsert (and its connection
+      // sensitivity) entirely.
+      let row: UserRow | null;
+      try {
+        row = await opts.users.findByFirebaseUid(payload.uid);
+      } catch (err) {
+        req.log.error({ err }, 'auth: findByFirebaseUid failed');
+        if (!isTransientError(err)) throw err;
+        // Retry once on transient connection errors.
+        row = await opts.users.findByFirebaseUid(payload.uid);
+      }
+
+      // Only write when the user is new or their email changed at the IdP.
+      if (!row || row.email !== payload.email) {
+        try {
+          row = await opts.users.upsertByFirebaseUid({
+            firebaseUid: payload.uid,
+            email: payload.email,
+          });
+        } catch (err) {
+          req.log.error({ err }, 'auth: upsertByFirebaseUid failed');
+          if (!isTransientError(err)) throw err;
+          row = await opts.users.upsertByFirebaseUid({
+            firebaseUid: payload.uid,
+            email: payload.email,
+          });
+        }
+      }
+
       const authUser = { uid: payload.uid, email: payload.email, row };
       req.authUser = authUser;
       return authUser;

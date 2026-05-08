@@ -27,7 +27,9 @@
       "Bash(git push *)",
       "Bash(pnpm exec *)",
       "Bash(pnpm --filter @unsub/app typecheck)",
-      "Bash(pnpm dlx *)"
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm --filter @unsub/api typecheck)",
+      "Bash(pnpm --filter @unsub/api test)"
     ]
   }
 }
