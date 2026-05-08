@@ -192,16 +192,19 @@ export default function Dashboard() {
       setSubs(res.subscriptions);
     } catch (e) {
       const msg =
-        e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
-          : e instanceof Error
-            ? e.message
-            : 'Scan failed';
+        e instanceof ApiError ? e.message : e instanceof Error ? e.message : 'Scan failed';
       setScanError(msg);
     } finally {
       setScanning(false);
     }
   };
+
+  const scanNeedsReconnect =
+    scanError != null &&
+    (/insufficient/i.test(scanError) ||
+      /invalid_grant/i.test(scanError) ||
+      /403/.test(scanError) ||
+      /401/.test(scanError));
 
   const onDelete = async (id: string) => {
     setDeletingId(id);
@@ -276,7 +279,26 @@ export default function Dashboard() {
                 {scanning ? 'Scanning…' : 'Scan inbox'}
               </Text>
             </Pressable>
-            {scanError ? <Text style={styles.error}>{scanError}</Text> : null}
+            {scanError ? (
+              <View style={styles.scanErrorBox}>
+                <Text style={styles.scanErrorText}>
+                  {scanNeedsReconnect
+                    ? 'Gmail rejected the request — your token is missing the gmail.readonly scope. Reconnect to fix.'
+                    : scanError}
+                </Text>
+                {scanNeedsReconnect ? (
+                  <Pressable
+                    style={styles.reconnectButton}
+                    onPress={onConnectGmail}
+                    disabled={connecting}
+                  >
+                    <Text style={styles.reconnectButtonText}>
+                      {connecting ? 'Opening Google…' : 'Reconnect Gmail'}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
             {scanSummary ? (
               <Text style={styles.scanCount}>
                 Fetched {scanSummary.totalFetched} email
@@ -530,6 +552,23 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { color: '#111827', fontSize: 14, fontWeight: '600' },
   scanCount: { fontSize: 13, color: '#52525b' },
+  scanErrorBox: {
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    borderRadius: 8,
+    padding: 10,
+    gap: 8,
+    marginTop: 4,
+  },
+  scanErrorText: { fontSize: 12, color: '#991b1b' },
+  reconnectButton: {
+    backgroundColor: '#dc2626',
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  reconnectButtonText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
