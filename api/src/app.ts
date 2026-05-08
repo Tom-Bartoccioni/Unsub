@@ -40,7 +40,11 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
     },
   });
 
-  await fastify.register(cors, { origin: true });
+  await fastify.register(cors, {
+    origin: true,
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
+  });
   await fastify.register(sensible);
   await fastify.register(authPlugin, {
     verifier: opts.verifier ?? stubVerifier,

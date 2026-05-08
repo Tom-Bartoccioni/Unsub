@@ -29,7 +29,14 @@
       "Bash(pnpm --filter @unsub/app typecheck)",
       "Bash(pnpm dlx *)",
       "Bash(pnpm --filter @unsub/api typecheck)",
-      "Bash(pnpm --filter @unsub/api test)"
+      "Bash(pnpm --filter @unsub/api test)",
+      "Bash(netstat -ano)",
+      "Bash(curl -isS http://localhost:3000/health)",
+      "Bash(curl -isS -X OPTIONS http://localhost:3000/subscriptions/test -H 'Origin: http://localhost:8081' -H 'Access-Control-Request-Method: PATCH' -H 'Access-Control-Request-Headers: authorization,content-type')",
+      "Bash(awk '{print $NF}')",
+      "Bash(xargs -I {} taskkill //PID {} //F)",
+      "Bash(pnpm --filter @unsub/api dev)",
+      "Bash(curl -fsS http://localhost:3000/health)"
     ]
   }
 }
