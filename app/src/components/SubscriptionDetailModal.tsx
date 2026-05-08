@@ -38,6 +38,7 @@ export function SubscriptionDetailModal({
       onUpdated(res.subscription);
       onClose();
     } catch (e) {
+      console.error('Ghost subscription failed:', e);
       const msg =
         e instanceof ApiError
           ? `API ${e.status}: ${e.message}`
@@ -58,6 +59,7 @@ export function SubscriptionDetailModal({
       onDeleted(sub.id);
       onClose();
     } catch (e) {
+      console.error('Delete subscription failed:', e);
       const msg =
         e instanceof ApiError
           ? `API ${e.status}: ${e.message}`
@@ -72,8 +74,13 @@ export function SubscriptionDetailModal({
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+      <View style={styles.modalRoot}>
+        <Pressable
+          style={StyleSheet.absoluteFillObject}
+          onPress={onClose}
+          accessibilityLabel="Close"
+        />
+        <View style={styles.sheet}>
           <Pressable style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeText}>×</Text>
           </Pressable>
@@ -119,8 +126,8 @@ export function SubscriptionDetailModal({
           <Pressable style={styles.cancelLink} onPress={onClose}>
             <Text style={styles.cancelLinkText}>Close</Text>
           </Pressable>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -174,7 +181,7 @@ function monthsBetween(start: Date, end: Date): number {
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+  modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.bg,
     borderTopLeftRadius: radius.xl,

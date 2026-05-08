@@ -57,8 +57,13 @@ export function AddSubscriptionModal({
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={close}>
-      <Pressable style={styles.backdrop} onPress={close}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+      <View style={styles.modalRoot}>
+        <Pressable
+          style={StyleSheet.absoluteFillObject}
+          onPress={close}
+          accessibilityLabel="Close"
+        />
+        <View style={styles.sheet}>
           {step === 'library' ? (
             <Library
               search={search}
@@ -79,8 +84,8 @@ export function AddSubscriptionModal({
               onClose={close}
             />
           )}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -329,7 +334,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+  modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.bg,
     borderTopLeftRadius: radius.xl,
