@@ -1,4 +1,25 @@
-export const colors = {
+export type ColorSet = {
+  bg: string;
+  bgElevated: string;
+  card: string;
+  cardElevated: string;
+  border: string;
+  borderStrong: string;
+  textPrimary: string;
+  textSecondary: string;
+  textTertiary: string;
+  textMuted: string;
+  accentBlue: string;
+  accentBlueLight: string;
+  danger: string;
+  dangerSoft: string;
+  warning: string;
+  success: string;
+  overlay: string;
+  donutTrack: string;
+};
+
+export const darkColors: ColorSet = {
   bg: '#0a0a0a',
   bgElevated: '#141416',
   card: '#1c1c1e',
@@ -16,8 +37,38 @@ export const colors = {
   warning: '#f59e0b',
   success: '#10b981',
   overlay: 'rgba(0,0,0,0.7)',
-} as const;
+  donutTrack: '#2a2a2c',
+};
 
+export const lightColors: ColorSet = {
+  bg: '#f5f5f7',
+  bgElevated: '#ffffff',
+  card: '#ffffff',
+  cardElevated: '#f2f2f5',
+  border: '#e5e5e7',
+  borderStrong: '#d1d1d6',
+  textPrimary: '#0a0a0a',
+  textSecondary: '#3a3a3c',
+  textTertiary: '#8e8e93',
+  textMuted: '#aeaeb2',
+  accentBlue: '#3b82f6',
+  accentBlueLight: '#60a5fa',
+  danger: '#dc2626',
+  dangerSoft: '#fee2e2',
+  warning: '#d97706',
+  success: '#059669',
+  overlay: 'rgba(0,0,0,0.4)',
+  donutTrack: '#e5e5e7',
+};
+
+export type ThemeName = 'light' | 'dark';
+export const colorsByTheme: Record<ThemeName, ColorSet> = {
+  light: lightColors,
+  dark: darkColors,
+};
+
+// Category palette is intentionally the same across themes — it's the brand
+// signal for each subscription category, not a UI surface.
 export const categoryColors: Record<string, string> = {
   Entertainment: '#ec4899',
   Productivity: '#3b82f6',

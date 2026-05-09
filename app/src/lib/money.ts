@@ -1,5 +1,7 @@
-// Hardcoded approximate FX rates for the donut total. The list itself shows
-// each subscription in its native currency. Real FX rates are a follow-up.
+// Hardcoded approximate FX rates. Real currency conversion is a follow-up.
+// Rate definition: 1 unit of `<key>` = `<value>` EUR (so to convert any
+// currency to EUR multiply by the rate; to convert EUR to any other
+// currency, divide).
 const FX_TO_EUR: Record<string, number> = {
   EUR: 1,
   USD: 0.92,
@@ -10,11 +12,11 @@ const FX_TO_EUR: Record<string, number> = {
   JPY: 0.0062,
 };
 
-export const DISPLAY_CURRENCY = 'EUR';
-export const DISPLAY_CURRENCY_SYMBOL = '€';
-
-export function toDisplayCurrency(amount: number, currency: string): number {
-  return amount * (FX_TO_EUR[currency] ?? 1);
+export function convert(amount: number, from: string, to: string): number {
+  if (from === to) return amount;
+  const fromRate = FX_TO_EUR[from] ?? 1;
+  const toRate = FX_TO_EUR[to] ?? 1;
+  return (amount * fromRate) / toRate;
 }
 
 export function monthlyAmount(amount: number, frequency: string): number | null {
@@ -37,13 +39,11 @@ export function formatPrice(amount: number, currency: string): string {
   }
 }
 
-export function formatDisplayTotal(amount: number): string {
-  return formatPrice(amount, DISPLAY_CURRENCY);
-}
-
 export function frequencyLabel(frequency: string): string {
   if (frequency === 'monthly') return 'Month';
   if (frequency === 'yearly') return 'Year';
   if (frequency === 'weekly') return 'Week';
   return 'One-off';
 }
+
+export const SUPPORTED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD', 'AUD', 'JPY'] as const;

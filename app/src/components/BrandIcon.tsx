@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { brandInitial, categoryFor } from '@/lib/categories';
 import { radius } from '@/theme';
@@ -6,6 +7,7 @@ export function BrandIcon({ provider, size = 40 }: { provider: string; size?: nu
   const { brandColor } = categoryFor(provider);
   const initial = brandInitial(provider);
   const fontSize = Math.round(size * 0.42);
+  const textColor = useMemo(() => pickContrast(brandColor), [brandColor]);
 
   return (
     <View
@@ -19,12 +21,7 @@ export function BrandIcon({ provider, size = 40 }: { provider: string; size?: nu
         },
       ]}
     >
-      <Text
-        style={[
-          styles.initial,
-          { color: pickContrast(brandColor), fontSize, lineHeight: fontSize + 2 },
-        ]}
-      >
+      <Text style={[styles.initial, { color: textColor, fontSize, lineHeight: fontSize + 2 }]}>
         {initial}
       </Text>
     </View>
@@ -32,7 +29,6 @@ export function BrandIcon({ provider, size = 40 }: { provider: string; size?: nu
 }
 
 function pickContrast(hex: string): string {
-  // Quick relative-luminance check; light backgrounds get dark text and vice versa.
   const m = /^#?([0-9a-f]{6})$/i.exec(hex);
   if (!m) return '#ffffff';
   const v = parseInt(m[1]!, 16);

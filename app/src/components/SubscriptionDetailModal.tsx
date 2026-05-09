@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandIcon } from './BrandIcon';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice, frequencyLabel, monthlyAmount } from '@/lib/money';
-import { colors, radius, spacing } from '@/theme';
+import { radius, spacing, type ColorSet } from '@/theme';
+import { useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 export function SubscriptionDetailModal({
@@ -19,6 +20,8 @@ export function SubscriptionDetailModal({
   onUpdated: (s: Subscription) => void;
   onDeleted: (id: string) => void;
 }) {
+  const colors = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,11 +98,15 @@ export function SubscriptionDetailModal({
             </View>
           </View>
 
-          <CostSinceJoin sub={sub} joinedAt={joinedAt} />
+          <CostSinceJoin sub={sub} joinedAt={joinedAt} styles={styles} />
 
           <View style={styles.metaRow}>
-            <MetaCard label="Renewal Date" value={fmtDate(sub.nextRenewalDate) ?? '—'} />
-            <MetaCard label="Billing Cycle" value={frequencyLabel(sub.frequency)} />
+            <MetaCard
+              label="Renewal Date"
+              value={fmtDate(sub.nextRenewalDate) ?? '—'}
+              styles={styles}
+            />
+            <MetaCard label="Billing Cycle" value={frequencyLabel(sub.frequency)} styles={styles} />
           </View>
 
           <View style={styles.metaSingle}>
@@ -132,7 +139,15 @@ export function SubscriptionDetailModal({
   );
 }
 
-function CostSinceJoin({ sub, joinedAt }: { sub: Subscription; joinedAt: string }) {
+function CostSinceJoin({
+  sub,
+  joinedAt,
+  styles,
+}: {
+  sub: Subscription;
+  joinedAt: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const monthly = monthlyAmount(sub.amount, sub.frequency);
   const months = monthsBetween(new Date(joinedAt), new Date());
   const total = monthly != null ? monthly * Math.max(0, months) : null;
@@ -150,7 +165,15 @@ function CostSinceJoin({ sub, joinedAt }: { sub: Subscription; joinedAt: string 
   );
 }
 
-function MetaCard({ label, value }: { label: string; value: string }) {
+function MetaCard({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View style={styles.metaCard}>
       <Text style={styles.metaLabel}>{label}</Text>
@@ -180,72 +203,80 @@ function monthsBetween(start: Date, end: Date): number {
   return Math.max(1, Math.round(ms / (30.44 * 86_400_000)));
 }
 
-const styles = StyleSheet.create({
-  modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: colors.bg,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    paddingTop: spacing.lg,
-    gap: spacing.md,
-    maxHeight: '85%',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 16,
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  closeText: { color: colors.textSecondary, fontSize: 28, lineHeight: 28 },
-  heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.sm },
-  title: { color: colors.textPrimary, fontSize: 22, fontWeight: '700' },
-  subtitle: { color: colors.textSecondary, fontSize: 14, marginTop: 2 },
-  heroCost: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: 4,
-    marginTop: spacing.sm,
-  },
-  heroCostLabel: { color: colors.textTertiary, fontSize: 12 },
-  heroCostValue: { color: colors.textPrimary, fontSize: 28, fontWeight: '700' },
-  heroCostHint: { color: colors.textTertiary, fontSize: 11 },
-  metaRow: { flexDirection: 'row', gap: spacing.sm },
-  metaCard: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    gap: 4,
-  },
-  metaSingle: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    gap: 4,
-  },
-  metaLabel: { color: colors.textTertiary, fontSize: 11 },
-  metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
-  error: { color: colors.danger, fontSize: 12, textAlign: 'center' },
-  ghostButton: {
-    backgroundColor: colors.cardElevated,
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    marginTop: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-  },
-  ghostButtonText: { color: colors.textPrimary, fontSize: 15, fontWeight: '700' },
-  deleteLink: { paddingVertical: 8, alignItems: 'center' },
-  deleteLinkText: { color: colors.danger, fontSize: 13 },
-  cancelLink: { paddingVertical: 6, alignItems: 'center' },
-  cancelLinkText: { color: colors.textTertiary, fontSize: 14 },
-  disabled: { opacity: 0.6 },
-});
+function makeStyles(colors: ColorSet) {
+  return StyleSheet.create({
+    modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+    sheet: {
+      backgroundColor: colors.bg,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.xl,
+      paddingTop: spacing.lg,
+      gap: spacing.md,
+      maxHeight: '85%',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 12,
+      right: 16,
+      width: 32,
+      height: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1,
+    },
+    closeText: { color: colors.textSecondary, fontSize: 28, lineHeight: 28 },
+    heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.sm },
+    title: { color: colors.textPrimary, fontSize: 22, fontWeight: '700' },
+    subtitle: { color: colors.textSecondary, fontSize: 14, marginTop: 2 },
+    heroCost: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: 4,
+      marginTop: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    heroCostLabel: { color: colors.textTertiary, fontSize: 12 },
+    heroCostValue: { color: colors.textPrimary, fontSize: 28, fontWeight: '700' },
+    heroCostHint: { color: colors.textTertiary, fontSize: 11 },
+    metaRow: { flexDirection: 'row', gap: spacing.sm },
+    metaCard: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.md,
+      gap: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    metaSingle: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.md,
+      gap: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    metaLabel: { color: colors.textTertiary, fontSize: 11 },
+    metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
+    error: { color: colors.danger, fontSize: 12, textAlign: 'center' },
+    ghostButton: {
+      backgroundColor: colors.cardElevated,
+      paddingVertical: 14,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+    },
+    ghostButtonText: { color: colors.textPrimary, fontSize: 15, fontWeight: '700' },
+    deleteLink: { paddingVertical: 8, alignItems: 'center' },
+    deleteLinkText: { color: colors.danger, fontSize: 13 },
+    cancelLink: { paddingVertical: 6, alignItems: 'center' },
+    cancelLinkText: { color: colors.textTertiary, fontSize: 14 },
+    disabled: { opacity: 0.6 },
+  });
+}

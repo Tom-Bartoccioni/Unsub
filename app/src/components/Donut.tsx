@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { colors } from '@/theme';
+import { useTheme } from '@/state/preferences';
 
 export type DonutSegment = {
   key: string;
@@ -19,6 +19,7 @@ export function Donut({
   strokeWidth?: number;
   children?: React.ReactNode;
 }) {
+  const colors = useTheme();
   const radius = (size - strokeWidth) / 2;
   const cx = size / 2;
   const cy = size / 2;
@@ -32,16 +33,14 @@ export function Donut({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size}>
-        {/* Track */}
         <Circle
           cx={cx}
           cy={cy}
           r={radius}
-          stroke={colors.cardElevated}
+          stroke={colors.donutTrack}
           strokeWidth={strokeWidth}
           fill="none"
         />
-        {/* Segments — rotated so first segment starts at 12 o'clock */}
         <G rotation={-90} originX={cx} originY={cy}>
           {filtered.map((seg) => {
             const fraction = total > 0 ? seg.value / total : 0;

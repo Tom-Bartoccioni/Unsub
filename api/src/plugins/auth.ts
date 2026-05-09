@@ -35,9 +35,7 @@ const TRANSIENT_PG_ERRORS = [
 
 function isTransientError(err: unknown): boolean {
   const msg =
-    err instanceof Error
-      ? `${err.message} ${(err as { code?: string }).code ?? ''}`
-      : String(err);
+    err instanceof Error ? `${err.message} ${(err as { code?: string }).code ?? ''}` : String(err);
   return TRANSIENT_PG_ERRORS.some((needle) => msg.includes(needle));
 }
 

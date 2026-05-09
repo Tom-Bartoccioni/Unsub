@@ -4,7 +4,8 @@ import { BrandIcon } from './BrandIcon';
 import { POPULAR_SERVICES, type PopularService } from '@/data/popularServices';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice } from '@/lib/money';
-import { colors, radius, spacing } from '@/theme';
+import { radius, spacing, type ColorSet } from '@/theme';
+import { useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 type Frequency = 'monthly' | 'yearly' | 'weekly' | 'unknown';
@@ -24,6 +25,8 @@ export function AddSubscriptionModal({
   onClose: () => void;
   onCreated: (sub: Subscription) => void;
 }) {
+  const colors = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [step, setStep] = useState<'library' | 'form'>('library');
   const [search, setSearch] = useState('');
   const [seed, setSeed] = useState<PopularService | null>(null);
@@ -72,6 +75,7 @@ export function AddSubscriptionModal({
               onPick={onPickService}
               onCustom={onPickCustom}
               onClose={close}
+              styles={styles}
             />
           ) : (
             <CustomForm
@@ -82,6 +86,7 @@ export function AddSubscriptionModal({
               }}
               onBack={() => setStep('library')}
               onClose={close}
+              styles={styles}
             />
           )}
         </View>
@@ -90,6 +95,8 @@ export function AddSubscriptionModal({
   );
 }
 
+type Styles = ReturnType<typeof makeStyles>;
+
 function Library({
   search,
   setSearch,
@@ -97,6 +104,7 @@ function Library({
   onPick,
   onCustom,
   onClose,
+  styles,
 }: {
   search: string;
   setSearch: (s: string) => void;
@@ -104,7 +112,9 @@ function Library({
   onPick: (svc: PopularService) => void;
   onCustom: () => void;
   onClose: () => void;
+  styles: Styles;
 }) {
+  const colors = useTheme();
   return (
     <View style={{ flex: 1, gap: spacing.md }}>
       <View style={styles.header}>
@@ -167,12 +177,15 @@ function CustomForm({
   onCreated,
   onBack,
   onClose,
+  styles,
 }: {
   seed: PopularService | null;
   onCreated: (sub: Subscription) => void;
   onBack: () => void;
   onClose: () => void;
+  styles: Styles;
 }) {
+  const colors = useTheme();
   const [provider, setProvider] = useState(seed?.name ?? '');
   const [amount, setAmount] = useState(seed ? String(seed.defaultAmount) : '');
   const [currency, setCurrency] = useState(seed?.defaultCurrency ?? 'EUR');
@@ -240,7 +253,7 @@ function CustomForm({
       </View>
 
       <ScrollView contentContainerStyle={{ gap: spacing.md, paddingBottom: spacing.xl }}>
-        <Field label="Service">
+        <Field label="Service" styles={styles}>
           <TextInput
             style={styles.input}
             placeholder="e.g. Netflix"
@@ -252,7 +265,7 @@ function CustomForm({
 
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <View style={{ flex: 1 }}>
-            <Field label="Amount">
+            <Field label="Amount" styles={styles}>
               <TextInput
                 style={styles.input}
                 placeholder="9.99"
@@ -264,7 +277,7 @@ function CustomForm({
             </Field>
           </View>
           <View style={{ width: 96 }}>
-            <Field label="Currency">
+            <Field label="Currency" styles={styles}>
               <TextInput
                 style={styles.input}
                 placeholder="EUR"
@@ -278,7 +291,7 @@ function CustomForm({
           </View>
         </View>
 
-        <Field label="Billing cycle">
+        <Field label="Billing cycle" styles={styles}>
           <View style={styles.freqRow}>
             {FREQUENCIES.map((f) => (
               <Pressable
@@ -299,7 +312,7 @@ function CustomForm({
           </View>
         </Field>
 
-        <Field label="Next renewal (optional)">
+        <Field label="Next renewal (optional)" styles={styles}>
           <TextInput
             style={styles.input}
             placeholder="YYYY-MM-DD"
@@ -324,7 +337,15 @@ function CustomForm({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+  styles,
+}: {
+  label: string;
+  children: React.ReactNode;
+  styles: Styles;
+}) {
   return (
     <View style={{ gap: 6 }}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -333,111 +354,111 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const styles = StyleSheet.create({
-  modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: colors.bg,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.lg,
-    paddingTop: spacing.md,
-    height: '85%',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-  },
-  headerButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerButtonText: { color: colors.textPrimary, fontSize: 24 },
-  headerTitle: { color: colors.textPrimary, fontSize: 17, fontWeight: '700' },
-  search: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  searchIcon: { color: colors.textTertiary, fontSize: 16 },
-  searchInput: { flex: 1, color: colors.textPrimary, fontSize: 15, padding: 0 },
-  sectionLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
-  gridScrollContent: { paddingBottom: spacing.xl },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  tile: {
-    width: '31%',
-    aspectRatio: 1,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  tilePressed: { backgroundColor: colors.cardElevated },
-  customTile: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderStyle: 'dashed',
-    backgroundColor: 'transparent',
-  },
-  customIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  customIconText: { color: colors.textSecondary, fontSize: 24 },
-  tileName: {
-    color: colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  tilePrice: { color: colors.textTertiary, fontSize: 10, textAlign: 'center' },
-  fieldLabel: { color: colors.textSecondary, fontSize: 12, fontWeight: '600' },
-  input: {
-    backgroundColor: colors.card,
-    color: colors.textPrimary,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 10,
-    fontSize: 15,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  freqRow: { flexDirection: 'row', gap: 6 },
-  freqButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  freqButtonActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
-  freqButtonText: { color: colors.textSecondary, fontSize: 13 },
-  freqButtonTextActive: { color: '#ffffff', fontWeight: '700' },
-  formError: { color: colors.danger, fontSize: 12 },
-  saveButton: {
-    backgroundColor: colors.accentBlue,
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    marginTop: spacing.sm,
-  },
-  saveButtonText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
-  disabled: { opacity: 0.6 },
-});
+function makeStyles(colors: ColorSet) {
+  return StyleSheet.create({
+    modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+    sheet: {
+      backgroundColor: colors.bg,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.lg,
+      paddingTop: spacing.md,
+      height: '85%',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+    },
+    headerButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+    headerButtonText: { color: colors.textPrimary, fontSize: 24 },
+    headerTitle: { color: colors.textPrimary, fontSize: 17, fontWeight: '700' },
+    search: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      gap: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    searchIcon: { color: colors.textTertiary, fontSize: 16 },
+    searchInput: { flex: 1, color: colors.textPrimary, fontSize: 15, padding: 0 },
+    sectionLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
+    gridScrollContent: { paddingBottom: spacing.xl },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    tile: {
+      width: '31%',
+      aspectRatio: 1,
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tilePressed: { backgroundColor: colors.cardElevated },
+    customTile: {
+      borderColor: colors.borderStrong,
+      borderStyle: 'dashed',
+      backgroundColor: 'transparent',
+    },
+    customIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    customIconText: { color: colors.textSecondary, fontSize: 24 },
+    tileName: {
+      color: colors.textPrimary,
+      fontSize: 12,
+      fontWeight: '600',
+      marginTop: 4,
+      textAlign: 'center',
+    },
+    tilePrice: { color: colors.textTertiary, fontSize: 10, textAlign: 'center' },
+    fieldLabel: { color: colors.textSecondary, fontSize: 12, fontWeight: '600' },
+    input: {
+      backgroundColor: colors.card,
+      color: colors.textPrimary,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 10,
+      fontSize: 15,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    freqRow: { flexDirection: 'row', gap: 6 },
+    freqButton: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    freqButtonActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    freqButtonText: { color: colors.textSecondary, fontSize: 13 },
+    freqButtonTextActive: { color: '#ffffff', fontWeight: '700' },
+    formError: { color: colors.danger, fontSize: 12 },
+    saveButton: {
+      backgroundColor: colors.accentBlue,
+      paddingVertical: 14,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    saveButtonText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
+    disabled: { opacity: 0.6 },
+  });
+}

@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandIcon } from './BrandIcon';
-import { colors, radius, spacing } from '@/theme';
+import { radius, spacing, type ColorSet } from '@/theme';
+import { useTheme } from '@/state/preferences';
 import { formatPrice, frequencyLabel } from '@/lib/money';
 
 export type SubscriptionCardData = {
@@ -20,6 +22,8 @@ export function SubscriptionCard({
   sub: SubscriptionCardData;
   onPress: () => void;
 }) {
+  const colors = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const isGhost = sub.status === 'cancelled';
   const isTrial = sub.status === 'trial';
   return (
@@ -61,26 +65,28 @@ function formatRenewalDate(iso: string): string {
   });
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardPressed: { backgroundColor: colors.cardElevated },
-  cardGhost: { opacity: 0.55 },
-  body: { flex: 1, gap: 2 },
-  title: { fontSize: 15, fontWeight: '600', color: colors.textPrimary },
-  subtitle: { fontSize: 12, color: colors.textTertiary },
-  trialTag: { color: colors.warning, fontWeight: '600' },
-  ghostTag: { color: colors.danger, fontWeight: '600' },
-  priceCol: { alignItems: 'flex-end' },
-  price: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
-  cycle: { fontSize: 11, color: colors.textTertiary },
-});
+function makeStyles(colors: ColorSet) {
+  return StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderRadius: radius.lg,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    cardPressed: { backgroundColor: colors.cardElevated },
+    cardGhost: { opacity: 0.55 },
+    body: { flex: 1, gap: 2 },
+    title: { fontSize: 15, fontWeight: '600', color: colors.textPrimary },
+    subtitle: { fontSize: 12, color: colors.textTertiary },
+    trialTag: { color: colors.warning, fontWeight: '600' },
+    ghostTag: { color: colors.danger, fontWeight: '600' },
+    priceCol: { alignItems: 'flex-end' },
+    price: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
+    cycle: { fontSize: 11, color: colors.textTertiary },
+  });
+}
