@@ -7,8 +7,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import { colorsByTheme, type ColorSet, type ThemeName } from '@/theme';
 
 export type Preferences = {
@@ -25,28 +23,23 @@ const DEFAULTS: Preferences = {
 
 const STORAGE_KEY = 'unsub.preferences.v1';
 
-// expo-secure-store doesn't work on web; fall back to localStorage there.
+// Preferences are non-sensitive (theme name, currency code, a boolean).
+// Keep storage simple: localStorage on web, in-memory on native (until we
+// add AsyncStorage later — secure-store would be overkill for these).
 const storage = {
-  async get(key: string): Promise<string | null> {
-    if (Platform.OS === 'web') {
-      try {
-        return globalThis.localStorage?.getItem(key) ?? null;
-      } catch {
-        return null;
-      }
+  get(key: string): string | null {
+    try {
+      return (globalThis as { localStorage?: Storage }).localStorage?.getItem(key) ?? null;
+    } catch {
+      return null;
     }
-    return SecureStore.getItemAsync(key);
   },
-  async set(key: string, value: string): Promise<void> {
-    if (Platform.OS === 'web') {
-      try {
-        globalThis.localStorage?.setItem(key, value);
-      } catch {
-        // ignore
-      }
-      return;
+  set(key: string, value: string): void {
+    try {
+      (globalThis as { localStorage?: Storage }).localStorage?.setItem(key, value);
+    } catch {
+      // ignore
     }
-    await SecureStore.setItemAsync(key, value);
   },
 };
 
@@ -65,29 +58,21 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    storage
-      .get(STORAGE_KEY)
-      .then((raw) => {
-        if (cancelled || !raw) return;
-        try {
-          const parsed = JSON.parse(raw) as Partial<Preferences>;
-          setPrefs((prev) => ({ ...prev, ...parsed }));
-        } catch {
-          // malformed value; ignore.
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
+    const raw = storage.get(STORAGE_KEY);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Partial<Preferences>;
+        setPrefs((prev) => ({ ...prev, ...parsed }));
+      } catch {
+        // malformed value; ignore.
+      }
+    }
+    setReady(true);
   }, []);
 
   const persist = useCallback((next: Preferences) => {
     setPrefs(next);
-    void storage.set(STORAGE_KEY, JSON.stringify(next));
+    storage.set(STORAGE_KEY, JSON.stringify(next));
   }, []);
 
   const value = useMemo<PreferencesContextValue>(
