@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onIdTokenChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth';
@@ -13,6 +15,7 @@ type AuthContextValue = {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -45,6 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       signUp: async (email, password) => {
         await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
+      },
+      // Default Google provider only requests profile + email scopes — no
+      // Gmail/scraping scopes. Those are requested separately later.
+      signInWithGoogle: async () => {
+        await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
       },
       signOut: async () => {
         await firebaseSignOut(getFirebaseAuth());

@@ -1,13 +1,45 @@
-import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { brandInitial, categoryFor } from '@/lib/categories';
+import { useMemo, useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { brandInitial, categoryFor, domainFor } from '@/lib/categories';
 import { radius } from '@/theme';
+
+// Clearbit's logo CDN is free, unauthenticated, and serves high-res PNGs
+// keyed by domain (e.g. https://logo.clearbit.com/spotify.com). When the
+// domain doesn't resolve we fall back to the colored-initial circle.
+const LOGO_BASE = 'https://logo.clearbit.com';
 
 export function BrandIcon({ provider, size = 40 }: { provider: string; size?: number }) {
   const { brandColor } = categoryFor(provider);
+  const domain = useMemo(() => domainFor(provider), [provider]);
+  const [failed, setFailed] = useState(false);
+
   const initial = brandInitial(provider);
   const fontSize = Math.round(size * 0.42);
   const textColor = useMemo(() => pickContrast(brandColor), [brandColor]);
+
+  const containerStyle = [
+    styles.circle,
+    {
+      width: size,
+      height: size,
+      borderRadius: radius.pill,
+      backgroundColor: '#ffffff',
+    },
+  ];
+
+  if (domain && !failed) {
+    return (
+      <View style={containerStyle}>
+        <Image
+          source={{ uri: `${LOGO_BASE}/${domain}?size=${Math.round(size * 2)}` }}
+          style={{ width: size, height: size, borderRadius: radius.pill }}
+          onError={() => setFailed(true)}
+          resizeMode="cover"
+          accessibilityLabel={`${provider} logo`}
+        />
+      </View>
+    );
+  }
 
   return (
     <View
@@ -40,6 +72,6 @@ function pickContrast(hex: string): string {
 }
 
 const styles = StyleSheet.create({
-  circle: { alignItems: 'center', justifyContent: 'center' },
+  circle: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   initial: { fontWeight: '700' },
 });
