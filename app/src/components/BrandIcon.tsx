@@ -3,10 +3,19 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { brandInitial, categoryFor, domainFor } from '@/lib/categories';
 import { radius } from '@/theme';
 
-// DuckDuckGo's icon service is free, unauthenticated, and serves brand
-// favicons keyed by domain (e.g. https://icons.duckduckgo.com/ip3/spotify.com.ico).
-// When the domain doesn't resolve we fall back to the colored-initial circle.
-const LOGO_BASE = 'https://icons.duckduckgo.com/ip3';
+// Logo.dev serves real brand logos keyed by domain. It needs a publishable
+// token (EXPO_PUBLIC_LOGO_DEV_TOKEN, safe to ship — it's a client-side key).
+// When the token is absent we fall back to DuckDuckGo's free favicon service,
+// and the colored-initial circle is the last resort if a logo fails to load.
+const LOGO_DEV_TOKEN = process.env.EXPO_PUBLIC_LOGO_DEV_TOKEN;
+
+function logoUrl(domain: string, size: number): string {
+  const px = Math.round(size * 2); // 2x for crisp rendering
+  if (LOGO_DEV_TOKEN) {
+    return `https://img.logo.dev/${domain}?token=${LOGO_DEV_TOKEN}&size=${px}&format=png`;
+  }
+  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+}
 
 export function BrandIcon({ provider, size = 40 }: { provider: string; size?: number }) {
   const { brandColor } = categoryFor(provider);
@@ -31,7 +40,7 @@ export function BrandIcon({ provider, size = 40 }: { provider: string; size?: nu
     return (
       <View style={containerStyle}>
         <Image
-          source={{ uri: `${LOGO_BASE}/${domain}.ico` }}
+          source={{ uri: logoUrl(domain, size) }}
           style={{ width: size, height: size, borderRadius: radius.pill }}
           onError={() => setFailed(true)}
           resizeMode="cover"
