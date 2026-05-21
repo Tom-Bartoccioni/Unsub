@@ -255,6 +255,11 @@ function ServiceStep({ draft, setDraft, onNext, styles }: StepProps) {
           onChangeText={setSearch}
           autoCapitalize="none"
         />
+        {search.length > 0 && (
+          <Pressable onPress={() => setSearch('')} hitSlop={8} accessibilityLabel="Clear search">
+            <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
+          </Pressable>
+        )}
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: spacing.sm }}>
