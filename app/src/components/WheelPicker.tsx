@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import {
   NativeSyntheticEvent,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,12 +13,13 @@ import { useTheme } from '@/state/preferences';
 
 const ITEM_HEIGHT = 40;
 const VISIBLE = 5; // odd so there's a clear center row
+const PAD = (VISIBLE - 1) / 2;
 
 export type WheelValue = { label: string; value: number };
 
-// A lightweight scroll-snap picker column. Not a native UIPickerView —
-// it's a ScrollView with snap intervals, which is enough for date/interval
-// selection and works identically on web and native.
+// A lightweight scroll-snap picker column. A ScrollView with snap intervals,
+// plus a forced scrollTo after any scroll ends so it can never rest between
+// two items — the nearest row always wins. Tapping a row also selects it.
 export function WheelPicker({
   values,
   selected,
@@ -42,14 +44,20 @@ export function WheelPicker({
     ref.current?.scrollTo({ y: selectedIndex * ITEM_HEIGHT, animated: false });
   }, [selectedIndex]);
 
-  const onMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT);
-    const clamped = Math.min(values.length - 1, Math.max(0, idx));
-    const next = values[clamped];
+  const settle = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const raw = e.nativeEvent.contentOffset.y / ITEM_HEIGHT;
+    const idx = Math.min(values.length - 1, Math.max(0, Math.round(raw)));
+    // Force the column onto the exact row — guards against resting between two.
+    ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated: true });
+    const next = values[idx];
     if (next && next.value !== selected) onChange(next.value);
   };
 
-  const pad = (VISIBLE - 1) / 2;
+  const selectIndex = (idx: number) => {
+    ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated: true });
+    const next = values[idx];
+    if (next && next.value !== selected) onChange(next.value);
+  };
 
   return (
     <View style={styles.wrap}>
@@ -58,16 +66,19 @@ export function WheelPicker({
         ref={ref}
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
+        snapToAlignment="start"
+        disableIntervalMomentum
         decelerationRate="fast"
-        onMomentumScrollEnd={onMomentumEnd}
-        contentContainerStyle={{ paddingVertical: pad * ITEM_HEIGHT }}
+        onMomentumScrollEnd={settle}
+        onScrollEndDrag={settle}
+        contentContainerStyle={{ paddingVertical: PAD * ITEM_HEIGHT }}
       >
         {values.map((v, i) => (
-          <View key={`${v.value}-${i}`} style={styles.item}>
+          <Pressable key={`${v.value}-${i}`} style={styles.item} onPress={() => selectIndex(i)}>
             <Text style={[styles.itemText, i === selectedIndex && styles.itemTextActive]}>
               {v.label}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
     </View>
@@ -85,7 +96,7 @@ function makeStyles(colors: ColorSet) {
       position: 'absolute',
       left: 0,
       right: 0,
-      top: ITEM_HEIGHT * 2,
+      top: ITEM_HEIGHT * PAD,
       height: ITEM_HEIGHT,
       borderRadius: radius.md,
       backgroundColor: colors.card,

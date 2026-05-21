@@ -41,7 +41,9 @@ function buildSegments(subs: Subscription[], displayCurrency: string) {
     if (monthly == null) continue;
     const inDisplay = convert(monthly, s.currency, displayCurrency);
     total += inDisplay;
-    const { category } = categoryFor(s.provider);
+    // Prefer the user-chosen category; fall back to the name heuristic for
+    // rows created before the category column existed (or scanned from email).
+    const category = s.category ?? categoryFor(s.provider).category;
     byCategory.set(category, (byCategory.get(category) ?? 0) + inDisplay);
   }
   const segments: DonutSegment[] = [...byCategory.entries()].map(([cat, value]) => ({

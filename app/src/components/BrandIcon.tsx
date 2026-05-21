@@ -3,10 +3,10 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { brandInitial, categoryFor, domainFor } from '@/lib/categories';
 import { radius } from '@/theme';
 
-// Clearbit's logo CDN is free, unauthenticated, and serves high-res PNGs
-// keyed by domain (e.g. https://logo.clearbit.com/spotify.com). When the
-// domain doesn't resolve we fall back to the colored-initial circle.
-const LOGO_BASE = 'https://logo.clearbit.com';
+// DuckDuckGo's icon service is free, unauthenticated, and serves brand
+// favicons keyed by domain (e.g. https://icons.duckduckgo.com/ip3/spotify.com.ico).
+// When the domain doesn't resolve we fall back to the colored-initial circle.
+const LOGO_BASE = 'https://icons.duckduckgo.com/ip3';
 
 export function BrandIcon({ provider, size = 40 }: { provider: string; size?: number }) {
   const { brandColor } = categoryFor(provider);
@@ -31,7 +31,7 @@ export function BrandIcon({ provider, size = 40 }: { provider: string; size?: nu
     return (
       <View style={containerStyle}>
         <Image
-          source={{ uri: `${LOGO_BASE}/${domain}?size=${Math.round(size * 2)}` }}
+          source={{ uri: `${LOGO_BASE}/${domain}.ico` }}
           style={{ width: size, height: size, borderRadius: radius.pill }}
           onError={() => setFailed(true)}
           resizeMode="cover"

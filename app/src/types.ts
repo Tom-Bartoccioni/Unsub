@@ -1,6 +1,7 @@
 export type Subscription = {
   id: string;
   provider: string;
+  category: string | null;
   amount: number;
   currency: string;
   frequency: string;

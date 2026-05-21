@@ -43,6 +43,9 @@ export const subscriptions = pgTable(
     // Lowercased first token of provider — used to dedup sibling product labels
     // (e.g. 'Atlassian' and 'Atlassian Loom' both -> 'atlassian').
     providerKey: text('provider_key').notNull(),
+    // User-chosen category (drives the dashboard donut). Nullable: rows created
+    // before this column existed fall back to a name-based heuristic client-side.
+    category: text('category'),
     // Amount in minor units (cents). Stored as integer to avoid float drift.
     amountMinor: integer('amount_minor').notNull(),
     currency: text('currency').notNull(),

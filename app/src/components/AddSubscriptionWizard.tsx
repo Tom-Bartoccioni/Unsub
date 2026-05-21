@@ -31,8 +31,9 @@ const FREQUENCIES: { label: string; value: Frequency }[] = [
 const CATEGORIES = Object.keys(categoryColors);
 
 // Wizard steps. `success` is terminal; `service` is the entry point.
-type Step = 'service' | 'category' | 'amount' | 'date' | 'interval' | 'success';
-const FLOW: Step[] = ['service', 'category', 'amount', 'date', 'interval'];
+// Billing interval lives on the `date` step (next-payment + cadence together).
+type Step = 'service' | 'category' | 'amount' | 'date' | 'success';
+const FLOW: Step[] = ['service', 'category', 'amount', 'date'];
 
 type Draft = {
   provider: string;
@@ -101,6 +102,7 @@ export function AddSubscriptionWizard({
         method: 'POST',
         body: JSON.stringify({
           provider: draft.provider.trim(),
+          category: draft.category,
           amount: draft.amount,
           currency: draft.currency.toUpperCase(),
           frequency: draft.frequency,
@@ -166,10 +168,7 @@ export function AddSubscriptionWizard({
             <AmountStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
           )}
           {step === 'date' && (
-            <DateStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
-          )}
-          {step === 'interval' && (
-            <IntervalStep
+            <DateStep
               draft={draft}
               setDraft={setDraft}
               onNext={goNext}
@@ -324,55 +323,86 @@ function CategoryStep({ draft, setDraft, onNext, styles }: StepProps) {
 
 // ---- Step 3: amount --------------------------------------------------------
 
+const AMOUNT_PRESETS = [4.99, 9.99, 15.99];
+
 function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
   const colors = useTheme();
-  const setAmount = (next: number) =>
-    setDraft((d) => ({ ...d, amount: Math.max(0, Math.round(next * 100) / 100) }));
+  const [editing, setEditing] = useState(false);
+  // Local text buffer while typing so partial input ("9.", "") is allowed.
+  const [text, setText] = useState(draft.amount.toFixed(2));
+
+  const commit = () => {
+    const n = Number(text.replace(',', '.'));
+    const valid = Number.isFinite(n) && n > 0;
+    setDraft((d) => ({ ...d, amount: valid ? Math.round(n * 100) / 100 : d.amount }));
+    if (!valid) setText(draft.amount.toFixed(2));
+    setEditing(false);
+  };
+
+  const pickPreset = (value: number) => {
+    setDraft((d) => ({ ...d, amount: value }));
+    setText(value.toFixed(2));
+    setEditing(false);
+  };
 
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>How much is it?</Text>
-      <Text style={styles.stepSubtitle}>Per billing cycle, before tax.</Text>
+      <Text style={styles.stepSubtitle}>Tap the amount to type an exact price.</Text>
 
-      <View style={styles.stepper}>
-        <Pressable
-          style={styles.stepperButton}
-          onPress={() => setAmount(draft.amount - 1)}
-          hitSlop={8}
-        >
-          <Ionicons name="remove" size={24} color={colors.textPrimary} />
-        </Pressable>
-        <View style={styles.amountCenter}>
+      <Pressable
+        style={styles.amountDisplay}
+        onPress={() => {
+          setText(draft.amount.toFixed(2));
+          setEditing(true);
+        }}
+      >
+        {editing ? (
+          <View style={styles.amountEditRow}>
+            <Text style={styles.amountCurrency}>{draft.currency}</Text>
+            <TextInput
+              style={styles.amountInput}
+              value={text}
+              onChangeText={setText}
+              onBlur={commit}
+              onSubmitEditing={commit}
+              keyboardType="decimal-pad"
+              autoFocus
+              selectTextOnFocus
+              placeholderTextColor={colors.textTertiary}
+            />
+          </View>
+        ) : (
           <Text style={styles.amountValue}>{formatPrice(draft.amount, draft.currency)}</Text>
-        </View>
-        <Pressable
-          style={styles.stepperButton}
-          onPress={() => setAmount(draft.amount + 1)}
-          hitSlop={8}
-        >
-          <Ionicons name="add" size={24} color={colors.textPrimary} />
-        </Pressable>
-      </View>
+        )}
+        {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
+      </Pressable>
 
-      <View style={styles.amountQuickRow}>
-        {[-5, -0.5, +0.5, +5].map((delta) => (
-          <Pressable
-            key={delta}
-            style={styles.amountQuick}
-            onPress={() => setAmount(draft.amount + delta)}
-          >
-            <Text style={styles.amountQuickText}>
-              {delta > 0 ? '+' : ''}
-              {delta}
-            </Text>
-          </Pressable>
-        ))}
+      <Text style={styles.amountSectionLabel}>Common prices</Text>
+      <View style={styles.presetRow}>
+        {AMOUNT_PRESETS.map((p) => {
+          const active = !editing && Math.abs(draft.amount - p) < 0.005;
+          return (
+            <Pressable
+              key={p}
+              style={[styles.preset, active && styles.presetActive]}
+              onPress={() => pickPreset(p)}
+            >
+              <Text style={[styles.presetText, active && styles.presetTextActive]}>
+                {formatPrice(p, draft.currency)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <View style={{ flex: 1 }} />
       <PrimaryButton
         label="Continue"
-        onPress={onNext}
+        onPress={() => {
+          if (editing) commit();
+          onNext();
+        }}
         disabled={draft.amount <= 0}
         styles={styles}
       />
@@ -380,15 +410,23 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
   );
 }
 
-// ---- Step 4: next payment date --------------------------------------------
+// ---- Step 4: next payment date + billing interval --------------------------
 
-function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function DateStep({
+  draft,
+  setDraft,
+  onNext,
+  submitting,
+  error,
+  styles,
+}: StepProps & { submitting: boolean; error: string | null }) {
   const now = new Date();
   const years = useMemo(
     () => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i),
     [now],
   );
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const d = draft.date;
   const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   const days = useMemo(
@@ -417,7 +455,7 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
 
       <View style={styles.wheelRow}>
         <WheelPicker
-          values={months.map((label, i) => ({ label, value: i }))}
+          values={MONTHS.map((label, i) => ({ label, value: i }))}
           selected={d.getMonth()}
           onChange={(v) => setPart('m', v)}
         />
@@ -433,40 +471,19 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
         />
       </View>
 
-      <View style={{ flex: 1 }} />
-      <PrimaryButton label="Continue" onPress={onNext} styles={styles} />
-    </View>
-  );
-}
-
-// ---- Step 5: interval ------------------------------------------------------
-
-function IntervalStep({
-  draft,
-  setDraft,
-  onNext,
-  submitting,
-  error,
-  styles,
-}: StepProps & { submitting: boolean; error: string | null }) {
-  return (
-    <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>How often is it billed?</Text>
-      <Text style={styles.stepSubtitle}>One last thing.</Text>
-
-      <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+      <Text style={styles.amountSectionLabel}>Billed every</Text>
+      <View style={styles.freqRow}>
         {FREQUENCIES.map((f) => {
           const active = draft.frequency === f.value;
           return (
             <Pressable
               key={f.value}
-              style={[styles.intervalRow, active && styles.intervalRowActive]}
-              onPress={() => setDraft((d) => ({ ...d, frequency: f.value }))}
+              style={[styles.freqPill, active && styles.freqPillActive]}
+              onPress={() => setDraft((dd) => ({ ...dd, frequency: f.value }))}
             >
-              <Text style={[styles.intervalText, active && styles.intervalTextActive]}>
+              <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
                 {f.label}
               </Text>
-              {active && <Ionicons name="checkmark-circle" size={20} color="#ffffff" />}
             </Pressable>
           );
         })}
@@ -498,15 +515,16 @@ function SuccessStep({
 }) {
   const colors = useTheme();
   return (
-    <View style={[styles.stepBody, { alignItems: 'center', justifyContent: 'center' }]}>
-      <View style={styles.successIcon}>
-        <Ionicons name="checkmark" size={44} color={colors.bg} />
+    <View style={styles.stepBody}>
+      <View style={styles.successCenter}>
+        <View style={styles.successIcon}>
+          <Ionicons name="checkmark" size={44} color={colors.bg} />
+        </View>
+        <Text style={styles.successTitle}>Subscription added</Text>
+        <Text style={styles.stepSubtitle}>
+          {sub.provider} · {formatPrice(sub.amount, sub.currency)}
+        </Text>
       </View>
-      <Text style={styles.successTitle}>Subscription added</Text>
-      <Text style={styles.stepSubtitle}>
-        {sub.provider} · {formatPrice(sub.amount, sub.currency)}
-      </Text>
-      <View style={{ height: spacing.xl }} />
       <PrimaryButton label="Done" onPress={onDone} styles={styles} />
     </View>
   );
@@ -623,35 +641,49 @@ function makeStyles(colors: ColorSet) {
     chipText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
     chipTextActive: { color: colors.bg },
 
-    stepper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginTop: spacing.xl,
-    },
-    stepperButton: {
-      width: 52,
-      height: 52,
-      borderRadius: radius.pill,
-      backgroundColor: colors.card,
-      borderWidth: 1,
-      borderColor: colors.borderStrong,
+    amountDisplay: {
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      paddingVertical: spacing.xl,
+      marginTop: spacing.md,
+      gap: 4,
     },
-    amountCenter: { flex: 1, alignItems: 'center' },
     amountValue: { color: colors.textPrimary, fontSize: 40, fontWeight: '800', letterSpacing: -1 },
-    amountQuickRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xl },
-    amountQuick: {
+    amountEditRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    amountCurrency: { color: colors.textTertiary, fontSize: 22, fontWeight: '700' },
+    amountInput: {
+      color: colors.textPrimary,
+      fontSize: 40,
+      fontWeight: '800',
+      letterSpacing: -1,
+      minWidth: 140,
+      textAlign: 'center',
+      padding: 0,
+    },
+    amountHint: { color: colors.textTertiary, fontSize: 11 },
+    amountSectionLabel: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      fontWeight: '600',
+      marginTop: spacing.lg,
+    },
+    presetRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+    preset: {
       flex: 1,
-      paddingVertical: 10,
+      paddingVertical: 14,
       borderRadius: radius.md,
       backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,
       alignItems: 'center',
     },
-    amountQuickText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
+    presetActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    presetText: { color: colors.textPrimary, fontSize: 14, fontWeight: '700' },
+    presetTextActive: { color: '#ffffff' },
 
     wheelRow: {
       flexDirection: 'row',
@@ -660,21 +692,21 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'center',
     },
 
-    intervalRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: 16,
-      borderRadius: radius.lg,
+    freqRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+    freqPill: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: radius.pill,
+      backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.card,
+      alignItems: 'center',
     },
-    intervalRowActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
-    intervalText: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
-    intervalTextActive: { color: '#ffffff' },
+    freqPillActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    freqPillText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
+    freqPillTextActive: { color: '#ffffff' },
 
+    successCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     successIcon: {
       width: 88,
       height: 88,

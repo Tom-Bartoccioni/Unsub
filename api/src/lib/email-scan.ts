@@ -43,6 +43,7 @@ async function persistParsed(
       userId,
       provider: p.provider,
       providerKey: firstProviderToken(p.provider),
+      category: null,
       amountMinor: Math.round(p.amount * 100),
       currency: p.currency,
       frequency: p.frequency,

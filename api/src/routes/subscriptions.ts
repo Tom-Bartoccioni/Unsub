@@ -5,6 +5,7 @@ import type { SubscriptionRow } from '../db/schema.js';
 
 const CreateBody = z.object({
   provider: z.string().trim().min(1).max(120),
+  category: z.string().trim().min(1).max(40).nullable().optional(),
   amount: z.number().positive().max(1_000_000),
   currency: z
     .string()
@@ -18,6 +19,7 @@ const CreateBody = z.object({
 const PatchBody = z
   .object({
     provider: z.string().trim().min(1).max(120).optional(),
+    category: z.string().trim().min(1).max(40).nullable().optional(),
     amount: z.number().positive().max(1_000_000).optional(),
     currency: z
       .string()
@@ -44,6 +46,7 @@ export type SubscriptionsRouteDeps = {
 export type SubscriptionDTO = {
   id: string;
   provider: string;
+  category: string | null;
   amount: number;
   currency: string;
   frequency: string;
@@ -58,6 +61,7 @@ export function toDTO(row: SubscriptionRow): SubscriptionDTO {
   return {
     id: row.id,
     provider: row.provider,
+    category: row.category,
     amount: row.amountMinor / 100,
     currency: row.currency,
     frequency: row.frequency,
@@ -88,6 +92,7 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         userId: auth.row.id,
         provider: body.provider,
         providerKey: firstProviderToken(body.provider),
+        category: body.category ?? null,
         amountMinor: Math.round(body.amount * 100),
         currency: body.currency,
         frequency: body.frequency,
@@ -113,6 +118,7 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         patch.provider = body.provider;
         patch.providerKey = body.provider.split(/\s+/)[0]?.toLowerCase() ?? '';
       }
+      if (body.category !== undefined) patch.category = body.category;
       if (body.amount !== undefined) patch.amountMinor = Math.round(body.amount * 100);
       if (body.currency !== undefined) patch.currency = body.currency;
       if (body.frequency !== undefined) patch.frequency = body.frequency;

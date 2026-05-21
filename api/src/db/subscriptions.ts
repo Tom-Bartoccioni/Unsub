@@ -6,6 +6,7 @@ export type SubscriptionInput = {
   userId: string;
   provider: string;
   providerKey: string;
+  category: string | null;
   amountMinor: number;
   currency: string;
   frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
@@ -19,6 +20,7 @@ export type SubscriptionInput = {
 export type SubscriptionPatch = {
   provider?: string;
   providerKey?: string;
+  category?: string | null;
   amountMinor?: number;
   currency?: string;
   frequency?: 'monthly' | 'yearly' | 'weekly' | 'unknown';
@@ -48,6 +50,7 @@ export function createDrizzleSubscriptionStore(
           userId: input.userId,
           provider: input.provider,
           providerKey: input.providerKey,
+          category: input.category,
           amountMinor: input.amountMinor,
           currency: input.currency,
           frequency: input.frequency,
@@ -69,6 +72,7 @@ export function createDrizzleSubscriptionStore(
             // Don't touch `status` on conflict — preserves user overrides
             // (dismissed, cancelled, manually re-marked active).
             provider: input.provider,
+            category: input.category,
             nextRenewalDate: input.nextRenewalDate,
             confidence: input.confidence,
             sourceMessageId: input.sourceMessageId,
