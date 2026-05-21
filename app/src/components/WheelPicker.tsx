@@ -13,12 +13,16 @@ import { useTheme } from '@/state/preferences';
 const ITEM_HEIGHT = 40;
 const VISIBLE = 5; // odd so there's a clear center row
 const PAD = (VISIBLE - 1) / 2;
+// After the user stops scrolling for this long, snap to the nearest row.
+const SETTLE_MS = 120;
 
 export type WheelValue = { label: string; value: number };
 
 // A scroll-snap picker column. The row centered under the highlight is the
-// selected value — period. Whatever the wheel settles on is committed; there
-// is no separate tap-to-pick that could disagree with the visible row.
+// selected value. snapToInterval is unreliable on RN-Web, so settling is
+// driven in JS: a debounced onScroll handler snaps to the nearest row once
+// the user stops, and commits that row's value. No tap-to-pick — the
+// centered row is always the selection.
 export function WheelPicker({
   values,
   selected,
@@ -31,9 +35,11 @@ export function WheelPicker({
   const colors = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const ref = useRef<ScrollView>(null);
-  // Index the wheel is currently resting on, per the user's last scroll.
-  // Used to avoid the sync effect fighting an in-progress scroll.
+  // Index the wheel currently rests on, per the user's last scroll. Guards
+  // the sync effect from fighting an in-progress scroll.
   const restingIndex = useRef(-1);
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastOffset = useRef(0);
 
   const selectedIndex = Math.max(
     0,
@@ -44,23 +50,41 @@ export function WheelPicker({
     ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated });
   };
 
-  // Sync the column to the controlled value only when it was changed
-  // externally (e.g. the day list shrank after a month switch) — never
-  // while the wheel is already resting on that index from a user scroll.
+  // Sync the column to the controlled value only when changed externally
+  // (e.g. the day list shrank after a month switch) — never while the wheel
+  // already rests on that index from a user scroll.
   useEffect(() => {
     if (restingIndex.current === selectedIndex) return;
     restingIndex.current = selectedIndex;
     scrollToIndex(selectedIndex, false);
   }, [selectedIndex]);
 
-  const settle = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const raw = e.nativeEvent.contentOffset.y / ITEM_HEIGHT;
-    const idx = Math.min(values.length - 1, Math.max(0, Math.round(raw)));
+  useEffect(() => {
+    return () => {
+      if (settleTimer.current) clearTimeout(settleTimer.current);
+    };
+  }, []);
+
+  const snap = (offsetY: number) => {
+    const idx = Math.min(values.length - 1, Math.max(0, Math.round(offsetY / ITEM_HEIGHT)));
     restingIndex.current = idx;
-    // Force the column onto the exact centered row — it can't rest between two.
-    ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated: true });
+    scrollToIndex(idx, true);
     const next = values[idx];
     if (next && next.value !== selected) onChange(next.value);
+  };
+
+  // Fires continuously while scrolling on web. Debounce: once scroll events
+  // stop for SETTLE_MS, snap to the nearest row.
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    lastOffset.current = e.nativeEvent.contentOffset.y;
+    if (settleTimer.current) clearTimeout(settleTimer.current);
+    settleTimer.current = setTimeout(() => snap(lastOffset.current), SETTLE_MS);
+  };
+
+  // Native momentum/drag end — snap immediately rather than waiting.
+  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (settleTimer.current) clearTimeout(settleTimer.current);
+    snap(e.nativeEvent.contentOffset.y);
   };
 
   return (
@@ -74,9 +98,11 @@ export function WheelPicker({
         disableIntervalMomentum
         decelerationRate="fast"
         nestedScrollEnabled
+        scrollEventThrottle={16}
         contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
-        onMomentumScrollEnd={settle}
-        onScrollEndDrag={settle}
+        onScroll={onScroll}
+        onMomentumScrollEnd={onScrollEnd}
+        onScrollEndDrag={onScrollEnd}
         onContentSizeChange={() => {
           // Web sizes the scroll container after mount; the imperative
           // scrollTo at mount is a no-op until then, so re-apply it here.
