@@ -18,7 +18,7 @@ import { radius, spacing, type ColorSet } from '@/theme';
 import { Donut, type DonutSegment } from '@/components/Donut';
 import { SubscriptionCard, type SubscriptionCardData } from '@/components/SubscriptionCard';
 import { SubscriptionDetailModal } from '@/components/SubscriptionDetailModal';
-import { AddSubscriptionModal } from '@/components/AddSubscriptionModal';
+import { AddSubscriptionWizard } from '@/components/AddSubscriptionWizard';
 import { SettingsModal } from '@/components/SettingsModal';
 import type { Subscription, SubscriptionsResponse } from '@/types';
 
@@ -200,7 +200,7 @@ export default function Dashboard() {
         onDeleted={onDeleted}
       />
 
-      <AddSubscriptionModal
+      <AddSubscriptionWizard
         visible={adding}
         onClose={() => setAdding(false)}
         onCreated={onCreated}
