@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
+import { SubscriptionCard } from './SubscriptionCard';
 import { WheelPicker } from './WheelPicker';
 import { POPULAR_SERVICES, type PopularService } from '@/data/popularServices';
 import { categoryColors } from '@/theme';
@@ -545,9 +546,10 @@ function SuccessStep({
           <Ionicons name="checkmark" size={44} color={colors.bg} />
         </View>
         <Text style={styles.successTitle}>Subscription added</Text>
-        <Text style={styles.stepSubtitle}>
-          {sub.provider} · {formatPrice(sub.amount, sub.currency)}
-        </Text>
+        <Text style={styles.stepSubtitle}>Here’s how it’ll show on your dashboard.</Text>
+        <View style={styles.successCardWrap}>
+          <SubscriptionCard sub={sub} onPress={() => {}} />
+        </View>
       </View>
       <PrimaryButton label="Done" onPress={onDone} styles={styles} />
     </View>
@@ -747,6 +749,7 @@ function makeStyles(colors: ColorSet) {
     freqPillTextActive: { color: '#ffffff' },
 
     successCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    successCardWrap: { alignSelf: 'stretch', marginTop: spacing.lg },
     successIcon: {
       width: 88,
       height: 88,
