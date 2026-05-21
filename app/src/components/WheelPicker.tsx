@@ -40,13 +40,17 @@ export function WheelPicker({
     values.findIndex((v) => v.value === selected),
   );
 
+  const scrollToIndex = (idx: number, animated: boolean) => {
+    ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated });
+  };
+
   // Sync the column to the controlled value only when it was changed
   // externally (e.g. the day list shrank after a month switch) — never
   // while the wheel is already resting on that index from a user scroll.
   useEffect(() => {
     if (restingIndex.current === selectedIndex) return;
     restingIndex.current = selectedIndex;
-    ref.current?.scrollTo({ y: selectedIndex * ITEM_HEIGHT, animated: false });
+    scrollToIndex(selectedIndex, false);
   }, [selectedIndex]);
 
   const settle = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -69,8 +73,16 @@ export function WheelPicker({
         snapToAlignment="start"
         disableIntervalMomentum
         decelerationRate="fast"
+        nestedScrollEnabled
+        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
         onMomentumScrollEnd={settle}
         onScrollEndDrag={settle}
+        onContentSizeChange={() => {
+          // Web sizes the scroll container after mount; the imperative
+          // scrollTo at mount is a no-op until then, so re-apply it here.
+          if (restingIndex.current < 0) restingIndex.current = selectedIndex;
+          scrollToIndex(restingIndex.current, false);
+        }}
         contentContainerStyle={{ paddingVertical: PAD * ITEM_HEIGHT }}
       >
         {values.map((v, i) => (
