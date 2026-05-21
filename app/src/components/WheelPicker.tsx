@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import {
   NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,9 +16,9 @@ const PAD = (VISIBLE - 1) / 2;
 
 export type WheelValue = { label: string; value: number };
 
-// A lightweight scroll-snap picker column. A ScrollView with snap intervals,
-// plus a forced scrollTo after any scroll ends so it can never rest between
-// two items — the nearest row always wins. Tapping a row also selects it.
+// A scroll-snap picker column. The row centered under the highlight is the
+// selected value — period. Whatever the wheel settles on is committed; there
+// is no separate tap-to-pick that could disagree with the visible row.
 export function WheelPicker({
   values,
   selected,
@@ -32,28 +31,29 @@ export function WheelPicker({
   const colors = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const ref = useRef<ScrollView>(null);
+  // Index the wheel is currently resting on, per the user's last scroll.
+  // Used to avoid the sync effect fighting an in-progress scroll.
+  const restingIndex = useRef(-1);
 
   const selectedIndex = Math.max(
     0,
     values.findIndex((v) => v.value === selected),
   );
 
-  // Keep the column scrolled to the externally-controlled value (e.g. when
-  // the day count changes after a month switch).
+  // Sync the column to the controlled value only when it was changed
+  // externally (e.g. the day list shrank after a month switch) — never
+  // while the wheel is already resting on that index from a user scroll.
   useEffect(() => {
+    if (restingIndex.current === selectedIndex) return;
+    restingIndex.current = selectedIndex;
     ref.current?.scrollTo({ y: selectedIndex * ITEM_HEIGHT, animated: false });
   }, [selectedIndex]);
 
   const settle = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const raw = e.nativeEvent.contentOffset.y / ITEM_HEIGHT;
     const idx = Math.min(values.length - 1, Math.max(0, Math.round(raw)));
-    // Force the column onto the exact row — guards against resting between two.
-    ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated: true });
-    const next = values[idx];
-    if (next && next.value !== selected) onChange(next.value);
-  };
-
-  const selectIndex = (idx: number) => {
+    restingIndex.current = idx;
+    // Force the column onto the exact centered row — it can't rest between two.
     ref.current?.scrollTo({ y: idx * ITEM_HEIGHT, animated: true });
     const next = values[idx];
     if (next && next.value !== selected) onChange(next.value);
@@ -74,11 +74,11 @@ export function WheelPicker({
         contentContainerStyle={{ paddingVertical: PAD * ITEM_HEIGHT }}
       >
         {values.map((v, i) => (
-          <Pressable key={`${v.value}-${i}`} style={styles.item} onPress={() => selectIndex(i)}>
+          <View key={`${v.value}-${i}`} style={styles.item}>
             <Text style={[styles.itemText, i === selectedIndex && styles.itemTextActive]}>
               {v.label}
             </Text>
-          </Pressable>
+          </View>
         ))}
       </ScrollView>
     </View>

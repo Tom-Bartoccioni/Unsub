@@ -345,38 +345,57 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
     setEditing(false);
   };
 
+  const nudge = (delta: number) => {
+    setDraft((d) => {
+      const next = Math.max(0, Math.round((d.amount + delta) * 100) / 100);
+      setText(next.toFixed(2));
+      return { ...d, amount: next };
+    });
+    setEditing(false);
+  };
+
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>How much is it?</Text>
       <Text style={styles.stepSubtitle}>Tap the amount to type an exact price.</Text>
 
-      <Pressable
-        style={styles.amountDisplay}
-        onPress={() => {
-          setText(draft.amount.toFixed(2));
-          setEditing(true);
-        }}
-      >
-        {editing ? (
-          <View style={styles.amountEditRow}>
-            <Text style={styles.amountCurrency}>{draft.currency}</Text>
-            <TextInput
-              style={styles.amountInput}
-              value={text}
-              onChangeText={setText}
-              onBlur={commit}
-              onSubmitEditing={commit}
-              keyboardType="decimal-pad"
-              autoFocus
-              selectTextOnFocus
-              placeholderTextColor={colors.textTertiary}
-            />
-          </View>
-        ) : (
-          <Text style={styles.amountValue}>{formatPrice(draft.amount, draft.currency)}</Text>
-        )}
-        {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
-      </Pressable>
+      <View style={styles.amountRow}>
+        <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
+          <Ionicons name="remove" size={24} color={colors.textPrimary} />
+        </Pressable>
+
+        <Pressable
+          style={styles.amountDisplay}
+          onPress={() => {
+            setText(draft.amount.toFixed(2));
+            setEditing(true);
+          }}
+        >
+          {editing ? (
+            <View style={styles.amountEditRow}>
+              <Text style={styles.amountCurrency}>{draft.currency}</Text>
+              <TextInput
+                style={styles.amountInput}
+                value={text}
+                onChangeText={setText}
+                onBlur={commit}
+                onSubmitEditing={commit}
+                keyboardType="decimal-pad"
+                autoFocus
+                selectTextOnFocus
+                placeholderTextColor={colors.textTertiary}
+              />
+            </View>
+          ) : (
+            <Text style={styles.amountValue}>{formatPrice(draft.amount, draft.currency)}</Text>
+          )}
+          {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
+        </Pressable>
+
+        <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
+          <Ionicons name="add" size={24} color={colors.textPrimary} />
+        </Pressable>
+      </View>
 
       <Text style={styles.amountSectionLabel}>Common prices</Text>
       <View style={styles.presetRow}>
@@ -641,15 +660,31 @@ function makeStyles(colors: ColorSet) {
     chipText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
     chipTextActive: { color: colors.bg },
 
+    amountRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    stepperButton: {
+      width: 52,
+      height: 52,
+      borderRadius: radius.pill,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     amountDisplay: {
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: radius.lg,
-      paddingVertical: spacing.xl,
-      marginTop: spacing.md,
+      paddingVertical: spacing.lg,
       gap: 4,
     },
     amountValue: { color: colors.textPrimary, fontSize: 40, fontWeight: '800', letterSpacing: -1 },
