@@ -440,14 +440,8 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
         <View style={styles.amountDisplay}>
           <View style={styles.amountInlineRow}>
-            <View style={styles.currencyWheelWrap}>
-              <WheelPicker<string>
-                values={currencyValues}
-                selected={draft.currency}
-                onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
-                compact
-              />
-            </View>
+            {/* Spacer mirroring the wheel width so the price stays centered. */}
+            <View style={styles.currencyWheelWrap} />
 
             {editing ? (
               <TextInput
@@ -471,6 +465,15 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
                 <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
               </Pressable>
             )}
+
+            <View style={styles.currencyWheelWrap}>
+              <WheelPicker<string>
+                values={currencyValues}
+                selected={draft.currency}
+                onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
+                compact
+              />
+            </View>
           </View>
           {!editing && <Text style={styles.amountHint}>Tap to edit · scroll {currencySymbol(draft.currency)} to change</Text>}
         </View>
@@ -843,11 +846,11 @@ function makeStyles(colors: ColorSet) {
     amountInlineRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: spacing.md,
       justifyContent: 'center',
     },
     currencyWheelWrap: {
-      width: 56,
+      width: 64,
       flexDirection: 'row',
     },
 
