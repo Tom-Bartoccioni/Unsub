@@ -48,12 +48,6 @@ type Draft = {
   startedAt: Date | null;
 };
 
-const todayPlusMonth = () => {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 1);
-  return d;
-};
-
 function providerKey(name: string): string {
   return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
 }
@@ -261,7 +255,10 @@ function emptyDraft(): Draft {
     amount: 9.99,
     currency: 'EUR',
     frequency: 'monthly',
-    date: todayPlusMonth(),
+    // Default to today rather than today+1mo so the user must deliberately
+    // scroll forward — a glance-default of "in a month" silently committed
+    // the wrong year when the user only adjusted day/month.
+    date: new Date(),
     startedAt: null,
   };
 }
