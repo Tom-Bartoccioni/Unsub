@@ -16,7 +16,7 @@ import { POPULAR_SERVICES, type PopularService } from '@/data/popularServices';
 import { categoryColors } from '@/theme';
 import { categoryFor } from '@/lib/categories';
 import { ApiError, apiFetch } from '@/lib/api';
-import { formatPrice } from '@/lib/money';
+import { formatPrice, SUPPORTED_CURRENCIES } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
@@ -449,6 +449,28 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         </Pressable>
       </View>
 
+      <Text style={styles.amountSectionLabel}>Currency</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.currencyRow}
+      >
+        {SUPPORTED_CURRENCIES.map((c) => {
+          const active = draft.currency === c;
+          return (
+            <Pressable
+              key={c}
+              style={[styles.currencyChip, active && styles.currencyChipActive]}
+              onPress={() => setDraft((d) => ({ ...d, currency: c }))}
+            >
+              <Text style={[styles.currencyChipText, active && styles.currencyChipTextActive]}>
+                {c}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
       <Text style={styles.amountSectionLabel}>Common prices</Text>
       <View style={styles.presetRow}>
         {AMOUNT_PRESETS.map((p) => {
@@ -809,6 +831,19 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '600',
       marginTop: spacing.lg,
     },
+    currencyRow: { gap: spacing.sm, paddingVertical: spacing.sm, paddingRight: spacing.sm },
+    currencyChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    currencyChipActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    currencyChipText: { color: colors.textSecondary, fontSize: 13, fontWeight: '700' },
+    currencyChipTextActive: { color: '#ffffff' },
+
     presetRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
     preset: {
       flex: 1,
