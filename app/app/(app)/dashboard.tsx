@@ -191,7 +191,7 @@ export default function Dashboard() {
         onPress={() => setAdding(true)}
         accessibilityLabel="Add subscription"
       >
-        <Ionicons name="add" size={30} color="#ffffff" />
+        <Ionicons name="add" size={30} color={colors.bg} />
       </Pressable>
 
       <SubscriptionDetailModal
@@ -293,7 +293,8 @@ function makeStyles(colors: ColorSet) {
       width: 56,
       height: 56,
       borderRadius: radius.pill,
-      backgroundColor: colors.accentBlue,
+      // Inverted — black on light, white on dark — matches the wizard CTA.
+      backgroundColor: colors.textPrimary,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: '#000',
@@ -302,6 +303,6 @@ function makeStyles(colors: ColorSet) {
       shadowOffset: { width: 0, height: 6 },
       elevation: 8,
     },
-    fabPressed: { backgroundColor: colors.accentBlueLight, transform: [{ scale: 0.96 }] },
+    fabPressed: { opacity: 0.85, transform: [{ scale: 0.96 }] },
   });
 }
