@@ -70,18 +70,17 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
           return (
             <View key={i} style={styles.cell}>
               <View style={styles.dotRow}>
-                {/* Connector line on the right of every dot except the last. */}
-                <View style={styles.connectorWrap}>
-                  <Dot point={p} styles={styles} />
-                  {!isLast && (
-                    <View
-                      style={[
-                        styles.connector,
-                        p.kind === 'past' && styles.connectorPast,
-                      ]}
-                    />
-                  )}
-                </View>
+                {/* Connector line on the right of every dot except the last.
+                    Rendered before the dot so the dot sits on top. */}
+                {!isLast && (
+                  <View
+                    style={[
+                      styles.connector,
+                      p.kind === 'past' && styles.connectorPast,
+                    ]}
+                  />
+                )}
+                <Dot point={p} styles={styles} />
               </View>
               <Text style={[styles.monthLabel, p.kind === 'next' && styles.monthLabelNext]}>
                 {monthLabel(p.date)}
@@ -121,12 +120,6 @@ function makeStyles(colors: ColorSet) {
     dotRow: {
       height: DOT_NEXT_SIZE,
       width: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    connectorWrap: {
-      width: '100%',
-      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
     },
