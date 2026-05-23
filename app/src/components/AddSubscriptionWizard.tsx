@@ -51,23 +51,38 @@ const todayPlusMonth = () => {
   return d;
 };
 
+function providerKey(name: string): string {
+  return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
+}
+
 export function AddSubscriptionWizard({
   visible,
   onClose,
   onCreated,
+  existing = [],
 }: {
   visible: boolean;
   onClose: () => void;
   onCreated: (sub: Subscription) => void;
+  existing?: Subscription[];
 }) {
   const colors = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+
+  // Set of provider keys the user already actively tracks. Cancelled subs
+  // are excluded — re-adding a cancelled one is a normal "resubscribe" flow.
+  const trackedKeys = useMemo(
+    () =>
+      new Set(existing.filter((s) => s.status !== 'cancelled').map((s) => providerKey(s.provider))),
+    [existing],
+  );
 
   const [step, setStep] = useState<Step>('service');
   const [draft, setDraft] = useState<Draft>(emptyDraft());
   const [created, setCreated] = useState<Subscription | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
 
   const reset = () => {
     setStep('service');
@@ -75,6 +90,7 @@ export function AddSubscriptionWizard({
     setCreated(null);
     setError(null);
     setSubmitting(false);
+    setDuplicateConfirmed(false);
   };
 
   const close = () => {
@@ -95,8 +111,11 @@ export function AddSubscriptionWizard({
     if (prev) setStep(prev);
   };
 
-  const submit = async () => {
+  const isDuplicate = trackedKeys.has(providerKey(draft.provider));
+
+  const submit = async (force = false) => {
     setError(null);
+    if (isDuplicate && !duplicateConfirmed && !force) return; // wait for user confirmation
     setSubmitting(true);
     try {
       const res = await apiFetch<{ subscription: Subscription }>('/subscriptions', {
@@ -160,7 +179,13 @@ export function AddSubscriptionWizard({
           )}
 
           {step === 'service' && (
-            <ServiceStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
+            <ServiceStep
+              draft={draft}
+              setDraft={setDraft}
+              onNext={goNext}
+              styles={styles}
+              trackedKeys={trackedKeys}
+            />
           )}
           {step === 'category' && (
             <CategoryStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
@@ -176,6 +201,12 @@ export function AddSubscriptionWizard({
               submitting={submitting}
               error={error}
               styles={styles}
+              duplicate={isDuplicate}
+              duplicateConfirmed={duplicateConfirmed}
+              onForceSubmit={() => {
+                setDuplicateConfirmed(true);
+                void submit(true);
+              }}
             />
           )}
           {step === 'success' && created && (
@@ -212,7 +243,13 @@ type StepProps = {
 
 // ---- Step 1: pick a service ------------------------------------------------
 
-function ServiceStep({ draft, setDraft, onNext, styles }: StepProps) {
+function ServiceStep({
+  draft,
+  setDraft,
+  onNext,
+  styles,
+  trackedKeys,
+}: StepProps & { trackedKeys: Set<string> }) {
   const colors = useTheme();
   const [search, setSearch] = useState(draft.provider);
 
@@ -264,22 +301,31 @@ function ServiceStep({ draft, setDraft, onNext, styles }: StepProps) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: spacing.sm }}>
-        {filtered.map((svc) => (
-          <Pressable
-            key={svc.id}
-            style={({ pressed }) => [styles.serviceRow, pressed && styles.rowPressed]}
-            onPress={() => pick(svc)}
-          >
-            <BrandIcon provider={svc.name} size={40} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.serviceName}>{svc.name}</Text>
-              <Text style={styles.serviceMeta}>
-                {formatPrice(svc.defaultAmount, svc.defaultCurrency)} · {svc.defaultFrequency}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-          </Pressable>
-        ))}
+        {filtered.map((svc) => {
+          const tracked = trackedKeys.has(providerKey(svc.name));
+          return (
+            <Pressable
+              key={svc.id}
+              style={({ pressed }) => [styles.serviceRow, pressed && styles.rowPressed]}
+              onPress={() => pick(svc)}
+            >
+              <BrandIcon provider={svc.name} size={40} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.serviceName}>{svc.name}</Text>
+                <Text style={styles.serviceMeta}>
+                  {formatPrice(svc.defaultAmount, svc.defaultCurrency)} · {svc.defaultFrequency}
+                </Text>
+              </View>
+              {tracked ? (
+                <View style={styles.trackedBadge}>
+                  <Text style={styles.trackedBadgeText}>Already tracked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              )}
+            </Pressable>
+          );
+        })}
         {search.trim().length > 0 &&
           !filtered.some((s) => s.name.toLowerCase() === search.trim().toLowerCase()) && (
             <Pressable
@@ -446,7 +492,16 @@ function DateStep({
   submitting,
   error,
   styles,
-}: StepProps & { submitting: boolean; error: string | null }) {
+  duplicate,
+  duplicateConfirmed,
+  onForceSubmit,
+}: StepProps & {
+  submitting: boolean;
+  error: string | null;
+  duplicate: boolean;
+  duplicateConfirmed: boolean;
+  onForceSubmit: () => void;
+}) {
   const now = new Date();
   const years = useMemo(
     () => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i),
@@ -517,12 +572,31 @@ function DateStep({
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={{ flex: 1 }} />
-      <PrimaryButton
-        label={submitting ? 'Adding…' : 'Add subscription'}
-        onPress={onNext}
-        disabled={submitting}
-        styles={styles}
-      />
+
+      {duplicate && !duplicateConfirmed ? (
+        <View style={styles.warningBox}>
+          <View style={styles.warningHeader}>
+            <Ionicons name="warning-outline" size={18} color={styles.warningTitleColor.color} />
+            <Text style={styles.warningTitle}>You already track {draft.provider}</Text>
+          </View>
+          <Text style={styles.warningText}>
+            Adding it again will create a second active row. Sure you want to continue?
+          </Text>
+          <PrimaryButton
+            label={submitting ? 'Adding…' : 'Add it anyway'}
+            onPress={onForceSubmit}
+            disabled={submitting}
+            styles={styles}
+          />
+        </View>
+      ) : (
+        <PrimaryButton
+          label={submitting ? 'Adding…' : 'Add subscription'}
+          onPress={onNext}
+          disabled={submitting}
+          styles={styles}
+        />
+      )}
     </View>
   );
 }
@@ -649,6 +723,28 @@ function makeStyles(colors: ColorSet) {
     },
     serviceName: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
     serviceMeta: { color: colors.textTertiary, fontSize: 12, marginTop: 2 },
+    trackedBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.warning,
+    },
+    trackedBadgeText: { color: colors.warning, fontSize: 10, fontWeight: '700' },
+
+    warningBox: {
+      backgroundColor: colors.dangerSoft,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.warning,
+      padding: spacing.md,
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    warningHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    warningTitle: { color: colors.warning, fontSize: 14, fontWeight: '700' },
+    warningTitleColor: { color: colors.warning },
+    warningText: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
 
     chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
     chip: {

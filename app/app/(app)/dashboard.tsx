@@ -206,6 +206,7 @@ export default function Dashboard() {
         visible={adding}
         onClose={() => setAdding(false)}
         onCreated={onCreated}
+        existing={subs}
       />
 
       <SettingsModal visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
