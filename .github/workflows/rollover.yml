@@ -28,17 +28,44 @@ jobs:
   rollover:
     runs-on: ubuntu-latest
     steps:
+      - name: Sanity-check secrets are configured
+        run: |
+          if [ -z "${UNSUB_API_URL:-}" ]; then
+            echo "::error::UNSUB_API_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${UNSUB_ROLLOVER_TOKEN:-}" ]; then
+            echo "::error::UNSUB_ROLLOVER_TOKEN secret is not set"
+            exit 1
+          fi
+          # Length and scheme without leaking the value itself.
+          url_len=${#UNSUB_API_URL}
+          echo "UNSUB_API_URL length: $url_len"
+          case "$UNSUB_API_URL" in
+            https://*) echo "scheme: https";;
+            http://*) echo "scheme: http (not recommended for prod)";;
+            *) echo "::error::UNSUB_API_URL must start with http(s)://"; exit 1;;
+          esac
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
+
       - name: POST /admin/rollover
         run: |
           set -euo pipefail
-          response=$(curl -sS -o response.json -w '%{http_code}' \
-            -X POST "$UNSUB_API_URL/admin/rollover" \
-            -H "Authorization: Bearer $UNSUB_ROLLOVER_TOKEN")
-          echo "HTTP $response"
-          cat response.json
-          if [ "$response" -ne 200 ]; then
-            exit 1
-          fi
+          # --fail-with-body so curl exits non-zero on HTTP errors while
+          # still printing the response body. -w prints the status code on
+          # a clean line so failure cases are easy to read.
+          set +e
+          curl --silent --show-error --fail-with-body \
+            -o response.json -w 'HTTP %{http_code}\n' \
+            -X POST "${UNSUB_API_URL%/}/admin/rollover" \
+            -H "Authorization: Bearer $UNSUB_ROLLOVER_TOKEN"
+          status=$?
+          set -e
+          echo "--- response body ---"
+          cat response.json || echo "(no response body)"
+          exit $status
         env:
           UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
           UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
