@@ -134,15 +134,14 @@ function makeStyles(colors: ColorSet) {
       position: 'absolute',
       left: '50%',
       right: 0,
-      height: 0,
-      // Dashed top-border draws a 1px dashed line; backgroundColor doesn't
-      // support a dash pattern in RN, this is the standard workaround.
-      borderTopWidth: 1,
-      borderTopColor: colors.borderStrong,
-      borderStyle: 'dashed',
-      top: DOT_NEXT_SIZE / 2,
+      // Solid 1px line, vertically centered on the row by anchoring its
+      // center to the row's center (top: half row height, then nudge up by
+      // half the line thickness so the visible pixel sits exactly on center).
+      height: 1,
+      backgroundColor: colors.borderStrong,
+      top: DOT_NEXT_SIZE / 2 - 0.5,
     },
-    connectorPast: { borderTopColor: colors.textTertiary },
+    connectorPast: { backgroundColor: colors.textTertiary },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,

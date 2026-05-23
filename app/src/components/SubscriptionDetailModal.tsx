@@ -107,9 +107,6 @@ export function SubscriptionDetailModal({
               <Text style={styles.heroTitle} numberOfLines={1}>
                 {sub.provider}
               </Text>
-              <Text style={styles.heroSubtitle}>
-                Renews every {frequencyLabel(sub.frequency).toLowerCase()}
-              </Text>
               {brand?.category && (
                 <View style={[styles.categoryChip, { borderColor: accent }]}>
                   <Ionicons name="pricetag-outline" size={11} color={accent} />
@@ -320,7 +317,6 @@ function makeStyles(colors: ColorSet) {
       letterSpacing: -0.2,
       textAlign: 'center',
     },
-    heroSubtitle: { color: colors.textSecondary, fontSize: 13, textAlign: 'center', fontWeight: '400' },
     categoryChip: {
       flexDirection: 'row',
       alignItems: 'center',
