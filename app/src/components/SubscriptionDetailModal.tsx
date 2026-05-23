@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
 import { RecentTransactions, type PaymentEvent } from './RecentTransactions';
-import { AddTransactionSheet } from './AddTransactionSheet';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatPrice, monthlyAmount } from '@/lib/money';
@@ -31,7 +30,6 @@ export function SubscriptionDetailModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payments, setPayments] = useState<PaymentEvent[]>([]);
-  const [addingTx, setAddingTx] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
@@ -162,11 +160,7 @@ export function SubscriptionDetailModal({
               )}
             </View>
 
-            <RecentTransactions
-              sub={sub}
-              payments={payments}
-              onAdd={() => setAddingTx(true)}
-            />
+            <RecentTransactions sub={sub} payments={payments} />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -191,14 +185,6 @@ export function SubscriptionDetailModal({
           </ScrollView>
         </View>
       </View>
-      <AddTransactionSheet
-        visible={addingTx}
-        subscriptionId={sub.id}
-        defaultAmount={sub.amount}
-        defaultCurrency={sub.currency}
-        onClose={() => setAddingTx(false)}
-        onAdded={(p) => setPayments((prev) => [p, ...prev])}
-      />
     </Modal>
   );
 }

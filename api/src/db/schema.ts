@@ -51,6 +51,11 @@ export const subscriptions = pgTable(
     currency: text('currency').notNull(),
     frequency: text('frequency').notNull(),
     nextRenewalDate: timestamp('next_renewal_date', { withTimezone: true }),
+    // When the user signed up for this service. Nullable: we ask in the
+    // wizard but it's skippable, and old rows predate this column. When
+    // set, we generate 'estimated' payment_events per cycle from this
+    // date through today.
+    startedAt: timestamp('started_at', { withTimezone: true }),
     confidence: real('confidence').notNull(),
     status: text('status').notNull().default('active'),
     sourceMessageId: text('source_message_id'),

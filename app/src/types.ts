@@ -6,6 +6,7 @@ export type Subscription = {
   currency: string;
   frequency: string;
   nextRenewalDate: string | null;
+  startedAt: string | null;
   confidence: number;
   status: string;
   sourceDate: string | null;

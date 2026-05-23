@@ -14,6 +14,7 @@ const CreateBody = z.object({
     .transform((s) => s.toUpperCase()),
   frequency: z.enum(['monthly', 'yearly', 'weekly', 'unknown']),
   nextRenewalDate: z.string().datetime().nullable().optional(),
+  startedAt: z.string().datetime().nullable().optional(),
 });
 
 const PatchBody = z
@@ -29,21 +30,12 @@ const PatchBody = z
       .optional(),
     frequency: z.enum(['monthly', 'yearly', 'weekly', 'unknown']).optional(),
     nextRenewalDate: z.string().datetime().nullable().optional(),
+    startedAt: z.string().datetime().nullable().optional(),
     status: z.enum(['active', 'trial', 'cancelled']).optional(),
   })
   .strict();
 
 const IdParam = z.object({ id: z.string().uuid() });
-
-const AddPaymentBody = z.object({
-  chargedAt: z.string().datetime(),
-  amount: z.number().positive().max(1_000_000),
-  currency: z
-    .string()
-    .trim()
-    .length(3)
-    .transform((s) => s.toUpperCase()),
-});
 
 function firstProviderToken(provider: string): string {
   return provider.split(/\s+/)[0]?.toLowerCase() ?? '';
@@ -61,6 +53,7 @@ export type SubscriptionDTO = {
   currency: string;
   frequency: string;
   nextRenewalDate: string | null;
+  startedAt: string | null;
   confidence: number;
   status: string;
   sourceDate: string | null;
@@ -76,6 +69,7 @@ export function toDTO(row: SubscriptionRow): SubscriptionDTO {
     currency: row.currency,
     frequency: row.frequency,
     nextRenewalDate: row.nextRenewalDate?.toISOString() ?? null,
+    startedAt: row.startedAt?.toISOString() ?? null,
     confidence: row.confidence,
     status: row.status,
     sourceDate: row.sourceDate?.toISOString() ?? null,
@@ -98,6 +92,7 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         return reply.code(400).send({ error: 'invalid_body', issues: parsed.error.issues });
       }
       const body = parsed.data;
+      const startedAt = body.startedAt ? new Date(body.startedAt) : null;
       const row = await deps.store.upsert({
         userId: auth.row.id,
         provider: body.provider,
@@ -107,10 +102,20 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         currency: body.currency,
         frequency: body.frequency,
         nextRenewalDate: body.nextRenewalDate ? new Date(body.nextRenewalDate) : null,
+        startedAt,
         confidence: 1, // user-entered
         sourceMessageId: null,
         sourceDate: null,
       });
+      if (startedAt) {
+        await deps.store.regenerateEstimatedEvents(
+          row.id,
+          startedAt,
+          row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
+          row.amountMinor,
+          row.currency,
+        );
+      }
       return reply.code(201).send({ subscription: toDTO(row) });
     });
 
@@ -135,9 +140,27 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       if (body.nextRenewalDate !== undefined) {
         patch.nextRenewalDate = body.nextRenewalDate ? new Date(body.nextRenewalDate) : null;
       }
+      if (body.startedAt !== undefined) {
+        patch.startedAt = body.startedAt ? new Date(body.startedAt) : null;
+      }
       if (body.status !== undefined) patch.status = body.status;
       const row = await deps.store.updateById(idParsed.data.id, auth.row.id, patch);
       if (!row) return reply.code(404).send({ error: 'not_found' });
+      // Regenerate estimated events whenever the inputs that drive them change.
+      const driversChanged =
+        body.startedAt !== undefined ||
+        body.amount !== undefined ||
+        body.currency !== undefined ||
+        body.frequency !== undefined;
+      if (driversChanged && row.startedAt) {
+        await deps.store.regenerateEstimatedEvents(
+          row.id,
+          row.startedAt,
+          row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
+          row.amountMinor,
+          row.currency,
+        );
+      }
       return { subscription: toDTO(row) };
     });
 
@@ -167,31 +190,5 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       };
     });
 
-    fastify.post('/subscriptions/:id/payments', async (req, reply) => {
-      const auth = await fastify.requireAuth(req);
-      const idParsed = IdParam.safeParse(req.params);
-      if (!idParsed.success) return reply.code(400).send({ error: 'invalid_id' });
-      const bodyParsed = AddPaymentBody.safeParse(req.body);
-      if (!bodyParsed.success) {
-        return reply.code(400).send({ error: 'invalid_body', issues: bodyParsed.error.issues });
-      }
-      const body = bodyParsed.data;
-      const row = await deps.store.addPaymentEvent(idParsed.data.id, auth.row.id, {
-        chargedAt: new Date(body.chargedAt),
-        amountMinor: Math.round(body.amount * 100),
-        currency: body.currency,
-        source: 'manual',
-      });
-      if (!row) return reply.code(404).send({ error: 'not_found' });
-      return reply.code(201).send({
-        payment: {
-          id: row.id,
-          chargedAt: row.chargedAt.toISOString(),
-          amount: row.amountMinor / 100,
-          currency: row.currency,
-          source: row.source,
-        },
-      });
-    });
   };
 }

@@ -33,8 +33,8 @@ const CATEGORIES = Object.keys(categoryColors);
 
 // Wizard steps. `success` is terminal; `service` is the entry point.
 // Billing interval lives on the `date` step (next-payment + cadence together).
-type Step = 'service' | 'category' | 'amount' | 'date' | 'success';
-const FLOW: Step[] = ['service', 'category', 'amount', 'date'];
+type Step = 'service' | 'category' | 'amount' | 'date' | 'started' | 'success';
+const FLOW: Step[] = ['service', 'category', 'amount', 'date', 'started'];
 
 type Draft = {
   provider: string;
@@ -43,6 +43,9 @@ type Draft = {
   currency: string;
   frequency: Frequency;
   date: Date;
+  // Optional: when the user started this subscription. If set, the API
+  // generates one 'estimated' payment_event per cycle from this date.
+  startedAt: Date | null;
 };
 
 const todayPlusMonth = () => {
@@ -156,6 +159,7 @@ export function AddSubscriptionWizard({
           currency: draft.currency.toUpperCase(),
           frequency: draft.frequency,
           nextRenewalDate: startOfUtcDay(draft.date).toISOString(),
+          startedAt: draft.startedAt ? startOfUtcDay(draft.startedAt).toISOString() : null,
         }),
       });
       setCreated(res.subscription);
@@ -223,7 +227,10 @@ export function AddSubscriptionWizard({
             <AmountStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
           )}
           {step === 'date' && (
-            <DateStep
+            <DateStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
+          )}
+          {step === 'started' && (
+            <StartedStep
               draft={draft}
               setDraft={setDraft}
               onNext={goNext}
@@ -255,6 +262,7 @@ function emptyDraft(): Draft {
     currency: 'EUR',
     frequency: 'monthly',
     date: todayPlusMonth(),
+    startedAt: null,
   };
 }
 
@@ -531,23 +539,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function DateStep({
-  draft,
-  setDraft,
-  onNext,
-  submitting,
-  error,
-  styles,
-  duplicate,
-  duplicateConfirmed,
-  onForceSubmit,
-}: StepProps & {
-  submitting: boolean;
-  error: string | null;
-  duplicate: boolean;
-  duplicateConfirmed: boolean;
-  onForceSubmit: () => void;
-}) {
+function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
   const now = new Date();
   const years = useMemo(
     () => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i),
@@ -615,6 +607,94 @@ function DateStep({
         })}
       </View>
 
+      <View style={{ flex: 1 }} />
+      <PrimaryButton label="Continue" onPress={onNext} styles={styles} />
+    </View>
+  );
+}
+
+// ---- Step 5 (optional): when did the subscription start? ------------------
+
+function StartedStep({
+  draft,
+  setDraft,
+  onNext,
+  submitting,
+  error,
+  styles,
+  duplicate,
+  duplicateConfirmed,
+  onForceSubmit,
+}: StepProps & {
+  submitting: boolean;
+  error: string | null;
+  duplicate: boolean;
+  duplicateConfirmed: boolean;
+  onForceSubmit: () => void;
+}) {
+  // Default the wheel to one year ago when the user opens this step.
+  const initial = useMemo(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 1);
+    return d;
+  }, []);
+  const value = draft.startedAt ?? initial;
+
+  const now = new Date();
+  const years = useMemo(
+    () => Array.from({ length: 16 }, (_, i) => now.getFullYear() - i),
+    [now],
+  );
+  const daysInMonth = new Date(value.getFullYear(), value.getMonth() + 1, 0).getDate();
+  const days = useMemo(
+    () => Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    [daysInMonth],
+  );
+
+  const setPart = (part: 'y' | 'm' | 'd', v: number) => {
+    setDraft((prev) => {
+      const cur = prev.startedAt ?? initial;
+      let y = cur.getFullYear();
+      let m = cur.getMonth();
+      let day = cur.getDate();
+      if (part === 'y') y = v;
+      if (part === 'm') m = v;
+      if (part === 'd') day = v;
+      const maxDay = new Date(y, m + 1, 0).getDate();
+      return { ...prev, startedAt: new Date(y, m, Math.min(day, maxDay)) };
+    });
+  };
+
+  const skip = () => {
+    setDraft((d) => ({ ...d, startedAt: null }));
+    onNext();
+  };
+
+  return (
+    <View style={styles.stepBody}>
+      <Text style={styles.stepTitle}>When did you start it?</Text>
+      <Text style={styles.stepSubtitle}>
+        Optional. We’ll fill in past payments since this date so you see what you’ve spent.
+      </Text>
+
+      <View style={styles.wheelRow}>
+        <WheelPicker
+          values={MONTHS.map((label, i) => ({ label, value: i }))}
+          selected={value.getMonth()}
+          onChange={(v) => setPart('m', v)}
+        />
+        <WheelPicker
+          values={days.map((n) => ({ label: String(n), value: n }))}
+          selected={value.getDate()}
+          onChange={(v) => setPart('d', v)}
+        />
+        <WheelPicker
+          values={years.map((n) => ({ label: String(n), value: n }))}
+          selected={value.getFullYear()}
+          onChange={(v) => setPart('y', v)}
+        />
+      </View>
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={{ flex: 1 }} />
@@ -636,12 +716,17 @@ function DateStep({
           />
         </View>
       ) : (
-        <PrimaryButton
-          label={submitting ? 'Adding…' : 'Add subscription'}
-          onPress={onNext}
-          disabled={submitting}
-          styles={styles}
-        />
+        <View style={{ gap: spacing.sm }}>
+          <PrimaryButton
+            label={submitting ? 'Adding…' : 'Add subscription'}
+            onPress={onNext}
+            disabled={submitting}
+            styles={styles}
+          />
+          <Pressable onPress={skip} style={styles.skipLink}>
+            <Text style={styles.skipLinkText}>Skip — I’ll add this later</Text>
+          </Pressable>
+        </View>
       )}
     </View>
   );
@@ -791,6 +876,9 @@ function makeStyles(colors: ColorSet) {
     warningTitle: { color: colors.warning, fontSize: 14, fontWeight: '700' },
     warningTitleColor: { color: colors.warning },
     warningText: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+
+    skipLink: { paddingVertical: 8, alignItems: 'center' },
+    skipLinkText: { color: colors.textTertiary, fontSize: 13, fontWeight: '500' },
 
     chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
     chip: {

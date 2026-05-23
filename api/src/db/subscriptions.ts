@@ -11,6 +11,7 @@ export type SubscriptionInput = {
   currency: string;
   frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
   nextRenewalDate: Date | null;
+  startedAt: Date | null;
   confidence: number;
   status?: 'active' | 'trial';
   sourceMessageId: string | null;
@@ -25,8 +26,31 @@ export type SubscriptionPatch = {
   currency?: string;
   frequency?: 'monthly' | 'yearly' | 'weekly' | 'unknown';
   nextRenewalDate?: Date | null;
+  startedAt?: Date | null;
   status?: 'active' | 'trial' | 'cancelled';
 };
+
+// Cycle dates strictly BEFORE `end`, starting at `start` and stepping by
+// the frequency. Used to backfill 'estimated' payment_events when a user
+// supplies a start date.
+export function cycleDatesBetween(
+  start: Date,
+  end: Date,
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown',
+): Date[] {
+  if (frequency === 'unknown') return [];
+  const out: Date[] = [];
+  const cursor = new Date(start);
+  // Safety cap so a misconfigured 10-year-old weekly sub doesn't blow up.
+  const MAX = 600;
+  while (cursor.getTime() < end.getTime() && out.length < MAX) {
+    out.push(new Date(cursor));
+    if (frequency === 'monthly') cursor.setMonth(cursor.getMonth() + 1);
+    else if (frequency === 'yearly') cursor.setFullYear(cursor.getFullYear() + 1);
+    else if (frequency === 'weekly') cursor.setDate(cursor.getDate() + 7);
+  }
+  return out;
+}
 
 export type SubscriptionStore = {
   upsert: (input: SubscriptionInput) => Promise<SubscriptionRow>;
@@ -49,6 +73,16 @@ export type SubscriptionStore = {
     userId: string,
     input: { chargedAt: Date; amountMinor: number; currency: string; source: string },
   ) => Promise<PaymentEventRow | null>;
+  // Wipes prior 'estimated' rows for the subscription and re-inserts one
+  // per cycle between `startedAt` and now. Real-source rows (manual,
+  // email, card) are preserved. Returns number of estimated rows written.
+  regenerateEstimatedEvents: (
+    subscriptionId: string,
+    startedAt: Date,
+    frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown',
+    amountMinor: number,
+    currency: string,
+  ) => Promise<number>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -67,6 +101,7 @@ export function createDrizzleSubscriptionStore(
           currency: input.currency,
           frequency: input.frequency,
           nextRenewalDate: input.nextRenewalDate,
+          startedAt: input.startedAt,
           confidence: input.confidence,
           status: input.status ?? 'active',
           sourceMessageId: input.sourceMessageId,
@@ -86,6 +121,7 @@ export function createDrizzleSubscriptionStore(
             provider: input.provider,
             category: input.category,
             nextRenewalDate: input.nextRenewalDate,
+            startedAt: input.startedAt,
             confidence: input.confidence,
             sourceMessageId: input.sourceMessageId,
             sourceDate: input.sourceDate,
@@ -150,6 +186,30 @@ export function createDrizzleSubscriptionStore(
         .values({ subscriptionId, ...input })
         .returning();
       return row ?? null;
+    },
+    async regenerateEstimatedEvents(subscriptionId, startedAt, frequency, amountMinor, currency) {
+      // Wipe only the estimated rows — real events from email/card/manual
+      // sources stay untouched, even if their date overlaps an estimate.
+      await db
+        .delete(paymentEvents)
+        .where(
+          and(
+            eq(paymentEvents.subscriptionId, subscriptionId),
+            eq(paymentEvents.source, 'estimated'),
+          ),
+        );
+      const dates = cycleDatesBetween(startedAt, new Date(), frequency);
+      if (dates.length === 0) return 0;
+      await db.insert(paymentEvents).values(
+        dates.map((d) => ({
+          subscriptionId,
+          chargedAt: d,
+          amountMinor,
+          currency,
+          source: 'estimated',
+        })),
+      );
+      return dates.length;
     },
   };
 }
