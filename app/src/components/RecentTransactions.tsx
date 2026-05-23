@@ -42,12 +42,10 @@ export function RecentTransactions({
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          Recent Transactions <Text style={styles.count}>({payments.length})</Text>
-        </Text>
+        <Text style={styles.title}>Recent Transactions</Text>
         {hasMore && onSeeAll && (
           <Pressable onPress={onSeeAll} hitSlop={8}>
-            <Text style={styles.seeAll}>See All</Text>
+            <Text style={styles.seeAll}>See All ({payments.length})</Text>
           </Pressable>
         )}
       </View>
@@ -95,7 +93,6 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'space-between',
     },
     title: { color: colors.textPrimary, fontSize: 13, fontWeight: '600' },
-    count: { color: colors.textTertiary, fontWeight: '400' },
     seeAll: { color: colors.accentBlue, fontSize: 12, fontWeight: '600' },
     list: { gap: spacing.sm },
     row: {

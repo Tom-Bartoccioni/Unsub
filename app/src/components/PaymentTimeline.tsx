@@ -5,10 +5,11 @@ import { useTheme } from '@/state/preferences';
 
 export type TimelinePoint = {
   date: Date;
-  // 'past' = observed/mocked completed charge
-  // 'next' = the immediate next renewal
-  // 'future' = projected later renewal
-  kind: 'past' | 'next' | 'future';
+  // 'real' = observed/confirmed past charge (filled dot)
+  // 'past' = mocked past based on cycle math (hollow ring)
+  // 'next' = the immediate next renewal (filled accent)
+  // 'future' = projected later renewal (hollow grey)
+  kind: 'real' | 'past' | 'next' | 'future';
 };
 
 // Past dots are MOCKED right now. The API has a payment_events table but no
@@ -17,36 +18,45 @@ export type TimelinePoint = {
 export function buildTimelinePoints(opts: {
   nextRenewal: Date | null;
   frequency: string;
-  // Observed past charges (newest-first or any order — we sort and take the
-  // most recent). When provided, replaces the mocked dots up to its length.
+  // Observed past charges (any order — we sort and take the most recent).
   pastEvents?: Date[];
   mockedPastCount?: number;
   futureCount?: number;
+  realPastCount?: number;
 }): TimelinePoint[] {
-  const { nextRenewal, frequency, pastEvents = [], mockedPastCount = 2, futureCount = 2 } = opts;
+  const {
+    nextRenewal,
+    frequency,
+    pastEvents = [],
+    mockedPastCount = 2,
+    futureCount = 2,
+    realPastCount = 4,
+  } = opts;
   if (!nextRenewal) return [];
   const step = cycleStep(frequency);
   if (!step) return [];
 
   const points: TimelinePoint[] = [];
-
-  // Past slots: prefer real events when we have them; fill any remaining
-  // slots with mocked dates derived from the cycle so the timeline still
-  // shows context for new subscriptions.
   const sortedReal = [...pastEvents].sort((a, b) => a.getTime() - b.getTime());
-  const realToShow = sortedReal.slice(-mockedPastCount); // oldest of the recent ones first
-  const mockedNeeded = Math.max(0, mockedPastCount - realToShow.length);
-  for (let i = mockedNeeded; i >= 1; i--) {
-    const offset = realToShow.length + i;
-    points.push({ date: shift(nextRenewal, -offset * step.months, -offset * step.days), kind: 'past' });
-  }
-  for (const d of realToShow) {
-    points.push({ date: d, kind: 'past' });
-  }
 
-  points.push({ date: nextRenewal, kind: 'next' });
-  for (let i = 1; i <= futureCount; i++) {
-    points.push({ date: shift(nextRenewal, i * step.months, i * step.days), kind: 'future' });
+  if (sortedReal.length > 0) {
+    // History mode: show the last N real charges as filled dots leading up
+    // to the next renewal. No future dots — once we have data, project the
+    // user's actual cadence, not hypotheticals.
+    for (const d of sortedReal.slice(-realPastCount)) {
+      points.push({ date: d, kind: 'real' });
+    }
+    points.push({ date: nextRenewal, kind: 'next' });
+  } else {
+    // Empty-state mode: mocked past dots (hollow rings) + next + future
+    // projections so the screen has context for brand-new subs.
+    for (let i = mockedPastCount; i >= 1; i--) {
+      points.push({ date: shift(nextRenewal, -i * step.months, -i * step.days), kind: 'past' });
+    }
+    points.push({ date: nextRenewal, kind: 'next' });
+    for (let i = 1; i <= futureCount; i++) {
+      points.push({ date: shift(nextRenewal, i * step.months, i * step.days), kind: 'future' });
+    }
   }
   return points;
 }
@@ -92,12 +102,19 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
                     style={[
                       styles.connector,
                       p.kind === 'past' && styles.connectorPast,
+                      p.kind === 'real' && styles.connectorReal,
                     ]}
                   />
                 )}
                 <Dot point={p} styles={styles} />
               </View>
-              <Text style={[styles.monthLabel, p.kind === 'next' && styles.monthLabelNext]}>
+              <Text
+                style={[
+                  styles.monthLabel,
+                  p.kind === 'next' && styles.monthLabelNext,
+                  p.kind === 'real' && styles.monthLabelReal,
+                ]}
+              >
                 {monthLabel(p.date)}
               </Text>
             </View>
@@ -116,6 +133,7 @@ function Dot({
   styles: ReturnType<typeof makeStyles>;
 }) {
   if (point.kind === 'next') return <View style={[styles.dot, styles.dotNext]} />;
+  if (point.kind === 'real') return <View style={[styles.dot, styles.dotReal]} />;
   if (point.kind === 'past') return <View style={[styles.dot, styles.dotPast]} />;
   return <View style={[styles.dot, styles.dotFuture]} />;
 }
@@ -153,6 +171,7 @@ function makeStyles(colors: ColorSet) {
       transform: [{ translateY: -0.5 }],
     },
     connectorPast: { backgroundColor: colors.textTertiary },
+    connectorReal: { backgroundColor: colors.success },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
@@ -163,10 +182,16 @@ function makeStyles(colors: ColorSet) {
       backgroundColor: colors.card,
     },
     // Hollow ring filled with the surface color so the dashed connector
-    // disappears behind the dot — matches the finpal style.
+    // disappears behind the dot — used for mocked past slots (no data yet).
     dotPast: {
       borderWidth: 1.5,
       borderColor: colors.textSecondary,
+    },
+    // Confirmed past charge — filled green ring, finpal style.
+    dotReal: {
+      backgroundColor: colors.success,
+      borderWidth: 2,
+      borderColor: colors.card,
     },
     dotNext: {
       width: DOT_NEXT_SIZE,
@@ -182,6 +207,7 @@ function makeStyles(colors: ColorSet) {
     },
     monthLabel: { color: colors.textTertiary, fontSize: 11 },
     monthLabelNext: { color: colors.textPrimary, fontWeight: '600' },
+    monthLabelReal: { color: colors.textPrimary, fontWeight: '500' },
     empty: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,

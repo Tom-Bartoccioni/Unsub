@@ -270,6 +270,22 @@ function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
 }
 
+// How many full cycles fit between `start` and now, given the frequency.
+// Matches the API's cycleDatesBetween count exactly so the preview can't
+// disagree with what gets inserted.
+function countCyclesSince(start: Date, frequency: Frequency): number {
+  if (start.getTime() >= Date.now()) return 0;
+  const cursor = new Date(start);
+  let n = 0;
+  while (cursor.getTime() < Date.now() && n < 600) {
+    n++;
+    if (frequency === 'monthly') cursor.setMonth(cursor.getMonth() + 1);
+    else if (frequency === 'yearly') cursor.setFullYear(cursor.getFullYear() + 1);
+    else if (frequency === 'weekly') cursor.setDate(cursor.getDate() + 7);
+  }
+  return n;
+}
+
 type Styles = ReturnType<typeof makeStyles>;
 type StepProps = {
   draft: Draft;
@@ -632,12 +648,10 @@ function StartedStep({
   duplicateConfirmed: boolean;
   onForceSubmit: () => void;
 }) {
-  // Default the wheel to one year ago when the user opens this step.
-  const initial = useMemo(() => {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 1);
-    return d;
-  }, []);
+  // Default the wheel to today so the user has to scroll back deliberately
+  // — a sensible default of "one year ago" was confusing because a quick
+  // scroll could land on the wrong year and silently backfill 12 months.
+  const initial = useMemo(() => new Date(), []);
   const value = draft.startedAt ?? initial;
 
   const now = new Date();
@@ -670,12 +684,29 @@ function StartedStep({
     onNext();
   };
 
+  const cycles = countCyclesSince(value, draft.frequency);
+  const preview = value.toLocaleDateString(undefined, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>When did you start it?</Text>
       <Text style={styles.stepSubtitle}>
         Optional. We’ll fill in past payments since this date so you see what you’ve spent.
       </Text>
+
+      <View style={styles.startedPreview}>
+        <Text style={styles.startedPreviewDate}>{preview}</Text>
+        <Text style={styles.startedPreviewMeta}>
+          {cycles === 0
+            ? 'No past payments will be added.'
+            : `${cycles} past payment${cycles === 1 ? '' : 's'} will be added.`}
+        </Text>
+      </View>
 
       <View style={styles.wheelRow}>
         <WheelPicker
@@ -879,6 +910,19 @@ function makeStyles(colors: ColorSet) {
 
     skipLink: { paddingVertical: 8, alignItems: 'center' },
     skipLinkText: { color: colors.textTertiary, fontSize: 13, fontWeight: '500' },
+
+    startedPreview: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      marginTop: spacing.sm,
+      alignItems: 'center',
+      gap: 4,
+    },
+    startedPreviewDate: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
+    startedPreviewMeta: { color: colors.textTertiary, fontSize: 12 },
 
     chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
     chip: {

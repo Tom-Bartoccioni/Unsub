@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
 import { RecentTransactions, type PaymentEvent } from './RecentTransactions';
+import { AllTransactionsSheet } from './AllTransactionsSheet';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatPrice, monthlyAmount } from '@/lib/money';
@@ -30,6 +31,7 @@ export function SubscriptionDetailModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payments, setPayments] = useState<PaymentEvent[]>([]);
+  const [seeAllOpen, setSeeAllOpen] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
@@ -160,7 +162,11 @@ export function SubscriptionDetailModal({
               )}
             </View>
 
-            <RecentTransactions sub={sub} payments={payments} />
+            <RecentTransactions
+              sub={sub}
+              payments={payments}
+              onSeeAll={() => setSeeAllOpen(true)}
+            />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -185,6 +191,12 @@ export function SubscriptionDetailModal({
           </ScrollView>
         </View>
       </View>
+      <AllTransactionsSheet
+        visible={seeAllOpen}
+        sub={sub}
+        payments={payments}
+        onClose={() => setSeeAllOpen(false)}
+      />
     </Modal>
   );
 }
