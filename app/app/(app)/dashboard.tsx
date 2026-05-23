@@ -284,13 +284,13 @@ export default function Dashboard() {
   );
 }
 
-// Renders the price so the decimal separator sits on the donut's vertical
-// center line. Standard textAlign 'center' pivots on the string midpoint,
-// which drifts as digit count changes (28,97 vs 128,97). Splitting the
-// formatted price at the decimal mark and laying out integer right-aligned
-// against center / fractional left-aligned against center keeps the decimal
-// pinned. Locale-aware: uses Intl.formatToParts so it works for both
-// "28,97 €" (fr) and "$28.97" (en).
+// Renders the price so the digits-only string (e.g. "28,97") is centered
+// in the donut, with the currency symbol floating to its right WITHOUT
+// affecting the centering math. Standard textAlign 'center' includes the
+// symbol in its midpoint calculation, so the visual digits drift left
+// when "€" is appended. Using Intl.formatToParts we keep only the
+// number portion in the centered Text, and overlay the symbol as an
+// absolutely-positioned sibling.
 function DecimalCenteredPrice({
   amount,
   currency,
@@ -300,8 +300,8 @@ function DecimalCenteredPrice({
   currency: string;
   styles: ReturnType<typeof makeStyles>;
 }) {
-  let intPart = '';
-  let fracPart = '';
+  let digits = '';
+  let symbol = '';
   try {
     const parts = new Intl.NumberFormat(undefined, {
       style: 'currency',
@@ -309,35 +309,22 @@ function DecimalCenteredPrice({
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).formatToParts(amount);
-    let seenDecimal = false;
     for (const p of parts) {
-      // Drop whitespace at the edges so a leading non-breaking space
-      // (French puts one before €) doesn't visually offset the halves.
-      if (p.type === 'literal' && /^\s+$/.test(p.value)) continue;
-      if (p.type === 'decimal') {
-        seenDecimal = true;
-        // Keep the decimal mark on the integer side so it visually sits
-        // at the centerline as the "anchor".
-        intPart += p.value;
-        continue;
-      }
-      if (seenDecimal) fracPart += p.value;
-      else intPart += p.value;
+      if (p.type === 'currency') symbol = p.value;
+      // Skip whitespace literals (e.g. French puts a non-breaking space
+      // between the number and "€") and the minusSign for now — the
+      // amount is the dashboard total which is always positive.
+      else if (p.type === 'literal') continue;
+      else digits += p.value;
     }
   } catch {
-    const fixed = amount.toFixed(2);
-    const [i, f] = fixed.split('.');
-    intPart = `${i}.`;
-    fracPart = `${f ?? ''} ${currency}`;
+    digits = amount.toFixed(2);
+    symbol = currency;
   }
   return (
     <View style={styles.priceRow}>
-      <View style={styles.priceHalfRight}>
-        <Text style={styles.donutValue}>{intPart}</Text>
-      </View>
-      <View style={styles.priceHalfLeft}>
-        <Text style={styles.donutValue}>{fracPart}</Text>
-      </View>
+      <Text style={styles.donutValue}>{digits}</Text>
+      <Text style={styles.donutSymbol}>{symbol}</Text>
     </View>
   );
 }
@@ -399,18 +386,23 @@ function makeStyles(colors: ColorSet) {
       fontSize: 32,
       fontWeight: '800',
     },
-    // The two halves around the decimal mark. The row spans the donut's
-    // inner width; each half is flex-1 with its text aligned toward the
-    // shared centerline (right-align on the left half, left-align on the
-    // right half). Whatever sits at that boundary stays pinned at center.
+    // Centered row holding only the digits. The symbol is absolute-
+    // positioned just to the right of the digits so it floats next to
+    // them without contributing to the centering math.
     priceRow: {
       flexDirection: 'row',
-      alignSelf: 'stretch',
-      alignItems: 'baseline',
+      alignItems: 'center',
+      justifyContent: 'center',
       marginTop: -10,
     },
-    priceHalfRight: { flex: 1, alignItems: 'flex-end' },
-    priceHalfLeft: { flex: 1, alignItems: 'flex-start' },
+    donutSymbol: {
+      position: 'absolute',
+      left: '100%',
+      marginLeft: 6,
+      color: colors.textTertiary,
+      fontSize: 18,
+      fontWeight: '600',
+    },
     legend: {
       flexDirection: 'row',
       flexWrap: 'wrap',
