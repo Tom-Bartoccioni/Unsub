@@ -322,15 +322,15 @@ function makeStyles(colors: ColorSet) {
     },
     donutWrap: { alignItems: 'center', marginVertical: spacing.lg },
     donutLabel: { color: colors.textTertiary, fontSize: 12, textAlign: 'center' },
-    // Pin the label just below the price so the price stays the geometric
-    // center of the donut. Half the price's line-height (~22) plus a small
-    // gap = ~28 from center to the label's top.
+    // Pin the label so it hangs just below the price. The price is offset
+    // up by 12px via marginTop on donutValue; we shift the label by the
+    // same amount so their relative spacing stays put.
     donutLabelBelow: {
       position: 'absolute',
       left: 0,
       right: 0,
       top: '50%',
-      marginTop: 28,
+      marginTop: 16, // = 28 (default gap below center) − 12 (price lift)
       alignItems: 'center',
     },
     donutValue: {
@@ -338,6 +338,9 @@ function makeStyles(colors: ColorSet) {
       fontSize: 32,
       fontWeight: '800',
       textAlign: 'center',
+      // Visual nudge up so the price sits a touch above geometric center,
+      // leaving room for the label beneath without crowding the bottom arc.
+      marginTop: -24,
     },
     legend: {
       flexDirection: 'row',

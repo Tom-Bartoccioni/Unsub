@@ -28,12 +28,16 @@ export function monthlyAmount(amount: number, frequency: string): number | null 
 
 export function formatPrice(amount: number, currency: string): string {
   try {
-    return new Intl.NumberFormat(undefined, {
+    const out = new Intl.NumberFormat(undefined, {
       style: 'currency',
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+    // Intl emits locale-specific whitespace around the symbol (e.g. French
+    // uses a non-breaking space before €). Trim leading/trailing whitespace
+    // so centered text aligns on the actual glyphs, not the padded box.
+    return out.replace(/^\s+|\s+$/g, '');
   } catch {
     return `${amount.toFixed(2)} ${currency}`;
   }
