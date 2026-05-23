@@ -247,12 +247,11 @@ function makeStyles() {
     // floated with viewport height.
     scroll: { flexGrow: 1, paddingHorizontal: spacing.xl, paddingBottom: spacing.xl },
     card: { width: '100%', maxWidth: 400, alignSelf: 'center', gap: spacing.lg },
-    // The dashboard donut's visible center sits ~204px from the top of the
-    // screen (scrollPad + header + headerMargin + donutWrapMargin + radius).
-    // The logo image is 700x700 with significant transparent padding; its
-    // visible glyph centers at the bounding-box center (y = top + 350).
-    // marginTop = 204 - 350 = -146 lines them up.
-    logo: { width: 700, height: 700, alignSelf: 'center', marginTop: -146, marginBottom: -200 },
+    // Sized so the logo's visible glyph (after the PNG's transparent padding
+    // is cropped by negative margins) matches the dashboard donut's 240px
+    // diameter. Visible center should land at y=204 — bounding-box center
+    // is at top + height/2, so marginTop = 204 - height/2.
+    logo: { width: 560, height: 560, alignSelf: 'center', marginTop: -76, marginBottom: -160 },
     headings: { gap: 6 },
     title: { fontSize: 28, fontWeight: '800', color: ink.textPrimary, letterSpacing: -0.5 },
     subtitle: { fontSize: 14, color: ink.textSecondary, lineHeight: 20 },
