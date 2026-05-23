@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Image,
   Pressable,
   ScrollView,
   StatusBar,
@@ -7,6 +8,8 @@ import {
   Text,
   View,
 } from 'react-native';
+
+const logoText = require('../../assets/logo_text.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
@@ -147,7 +150,7 @@ export default function Dashboard() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.brand}>UNSUB</Text>
+          <Image source={logoText} style={styles.brand} resizeMode="contain" />
           <Pressable
             style={styles.iconButton}
             onPress={() => setSettingsOpen(true)}
@@ -352,12 +355,9 @@ function makeStyles(colors: ColorSet) {
       alignItems: 'center',
       marginBottom: spacing.lg,
     },
-    brand: {
-      color: colors.textPrimary,
-      fontSize: 18,
-      fontWeight: '800',
-      letterSpacing: 4,
-    },
+    // Brand wordmark image. Height ≈ the old text's cap height (~22) and
+    // width is bounded so resizeMode 'contain' fits it without overflow.
+    brand: { height: 26, width: 110 },
     iconButton: {
       width: 36,
       height: 36,
