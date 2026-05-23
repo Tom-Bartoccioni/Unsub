@@ -101,8 +101,11 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
                   <View
                     style={[
                       styles.connector,
+                      // Only paint a "history" line when both endpoints are
+                      // observed past charges. A real→next segment crosses
+                      // into the future and stays neutral.
                       p.kind === 'past' && styles.connectorPast,
-                      p.kind === 'real' && styles.connectorReal,
+                      p.kind === 'real' && points[i + 1]?.kind === 'real' && styles.connectorReal,
                     ]}
                   />
                 )}
