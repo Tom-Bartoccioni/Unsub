@@ -55,6 +55,18 @@ function providerKey(name: string): string {
   return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
 }
 
+// Capitalize the first letter of each whitespace-separated word, leaving the
+// rest of the word alone. We don't lowercase the tail so brand spellings the
+// user types correctly ("iCloud", "HBO Max") survive — only "basic fit" →
+// "Basic Fit" style fixes happen.
+function titleCase(name: string): string {
+  return name
+    .trim()
+    .split(/(\s+)/)
+    .map((part) => (/^\s+$/.test(part) ? part : part.charAt(0).toUpperCase() + part.slice(1)))
+    .join('');
+}
+
 // Hardcoded glyphs — Intl returns "CHF"/"C$"/"A$" which doesn't match the
 // symbol-only look we want. Dollar-using currencies are disambiguated with
 // a country suffix so the wheel doesn't show three identical `$` rows.
@@ -289,7 +301,7 @@ function ServiceStep({
   };
 
   const useCustom = () => {
-    const name = search.trim();
+    const name = titleCase(search);
     if (!name) return;
     setDraft((d) => ({ ...d, provider: name, category: categoryFor(name).category }));
     onNext();
@@ -352,7 +364,7 @@ function ServiceStep({
               <View style={styles.customIcon}>
                 <Ionicons name="add" size={22} color={colors.textPrimary} />
               </View>
-              <Text style={styles.serviceName}>Add “{search.trim()}”</Text>
+              <Text style={styles.serviceName}>Add “{titleCase(search)}”</Text>
             </Pressable>
           )}
       </ScrollView>
