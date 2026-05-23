@@ -14,7 +14,12 @@ import type { DonutSegment } from './Donut';
 type Phase = 'spinning' | 'morphing' | 'settled';
 
 const SPIN_DURATION_MS = 1200;
-const MORPH_DURATION_MS = 700;
+// Minimum morph duration so the wedges always have visible motion even
+// when the spin happens to be near a full revolution when morph starts.
+// Actual duration is computed in the morphing-phase effect so the wedge
+// animation completes at the same instant the spin lands on an integer
+// revolution at constant cruise speed.
+const MIN_MORPH_DURATION_MS = 500;
 const GAP_DEG = 4; // small visual gap between logo wedges, in degrees
 const SETTLE_TICK_MS = 16; // ~60fps for the JS-driven morph value
 
@@ -52,6 +57,9 @@ export function LoadingDonut({
   // 0 = logo state, 1 = data state. JS-driven so we can recompute SVG
   // dasharrays per frame without depending on reanimated.
   const [morph, setMorph] = useState(0);
+  // Computed on entering the morphing phase so the wedge animation lands
+  // at the same instant the spin reaches a full revolution.
+  const morphDurationRef = useRef<number>(MIN_MORPH_DURATION_MS);
 
   // Spin transform. spinValue counts in full rotations (integer = 0°/360°)
   // so the angle is `(spinValue % 1) * 360deg`. During spinning we loop
@@ -87,36 +95,27 @@ export function LoadingDonut({
       return () => loop.stop();
     }
     if (phase === 'morphing') {
-      // Goal: rotation reaches an exact integer revolution at the same
-      // instant the morph completes (= MORPH_DURATION_MS from now). That
-      // way the static Donut, which is at angle 0, takes over invisibly.
-      //
-      // Split into two segments: a linear cruise at the original loop
-      // speed, then an ease-out landing onto the next integer rev. The
-      // cruise + landing durations sum to MORPH_DURATION_MS, so the spin
-      // and the morph finish together.
-      const LANDING_MS = Math.min(350, MORPH_DURATION_MS);
-      const cruiseMs = MORPH_DURATION_MS - LANDING_MS;
+      // Constant-speed cruise to the next full revolution that gives the
+      // morph at least MIN_MORPH_DURATION_MS to play out. Both spin and
+      // wedges finish on the same tick because the wedge morph below
+      // reads morphDurationRef. Landing on an integer = landing at 0°,
+      // so the swap to the static Donut is invisible.
       const current = spinValueRef.current;
-      const speed = 1 / SPIN_DURATION_MS; // revolutions per ms
-      const afterCruise = current + speed * cruiseMs;
-      // Round up to the next integer that's at least afterCruise so the
-      // landing segment never has to reverse direction.
-      const target = Math.ceil(afterCruise);
-      Animated.sequence([
-        Animated.timing(spinValue, {
-          toValue: afterCruise,
-          duration: cruiseMs,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(spinValue, {
-          toValue: target,
-          duration: LANDING_MS,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start();
+      let target = Math.ceil(current + 0.0001);
+      let duration = (target - current) * SPIN_DURATION_MS;
+      // If we'd land too soon for the wedge animation to be readable,
+      // pad with full extra revolutions until we clear the minimum.
+      while (duration < MIN_MORPH_DURATION_MS) {
+        target += 1;
+        duration += SPIN_DURATION_MS;
+      }
+      morphDurationRef.current = duration;
+      Animated.timing(spinValue, {
+        toValue: target,
+        duration,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start();
     }
     return undefined;
   }, [phase, spinValue]);
@@ -130,9 +129,10 @@ export function LoadingDonut({
   useEffect(() => {
     if (phase !== 'morphing') return;
     const start = Date.now();
+    const duration = morphDurationRef.current;
     const id = setInterval(() => {
       const elapsed = Date.now() - start;
-      const t = Math.min(1, elapsed / MORPH_DURATION_MS);
+      const t = Math.min(1, elapsed / duration);
       // Ease-out cubic for a softer landing.
       const eased = 1 - Math.pow(1 - t, 3);
       setMorph(eased);
