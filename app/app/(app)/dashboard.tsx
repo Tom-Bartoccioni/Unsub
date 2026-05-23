@@ -66,6 +66,8 @@ export default function Dashboard() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // null = no filter; otherwise narrows the donut highlight and the list.
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -94,11 +96,33 @@ export default function Dashboard() {
   }, [user]);
 
   const sorted = useMemo(() => [...subs].sort(compareSubs), [subs]);
-  const visible = useMemo(() => sorted.filter((s) => s.status !== 'cancelled'), [sorted]);
-  const ghosted = useMemo(() => sorted.filter((s) => s.status === 'cancelled'), [sorted]);
+  // When a category is selected we narrow both the active list and hide the
+  // ghosted section entirely (the selection has already narrowed the user's
+  // focus; no need to also surface cancelled subs).
+  const visible = useMemo(
+    () =>
+      sorted.filter(
+        (s) =>
+          s.status !== 'cancelled' &&
+          (selectedCategory == null ||
+            (s.category ?? categoryFor(s.provider).category) === selectedCategory),
+      ),
+    [sorted, selectedCategory],
+  );
+  const ghosted = useMemo(
+    () =>
+      selectedCategory != null
+        ? []
+        : sorted.filter((s) => s.status === 'cancelled'),
+    [sorted, selectedCategory],
+  );
   const { segments, total } = useMemo(
     () => buildSegments(subs, prefs.displayCurrency),
     [subs, prefs.displayCurrency],
+  );
+  const selectedSegment = useMemo(
+    () => (selectedCategory ? segments.find((s) => s.key === selectedCategory) ?? null : null),
+    [segments, selectedCategory],
   );
 
   const detailSub = subs.find((s) => s.id === detailId) ?? null;
@@ -131,20 +155,43 @@ export default function Dashboard() {
         </View>
 
         <View style={styles.donutWrap}>
-          <Donut segments={segments}>
-            <Text style={styles.donutLabel}>Monthly Cost</Text>
-            <Text style={styles.donutValue}>{formatPrice(total, prefs.displayCurrency)}</Text>
+          <Donut
+            segments={segments}
+            selectedKey={selectedCategory}
+            onSelect={setSelectedCategory}
+          >
+            <Text style={styles.donutLabel}>
+              {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
+            </Text>
+            <Text style={styles.donutValue}>
+              {formatPrice(
+                selectedSegment ? selectedSegment.value : total,
+                prefs.displayCurrency,
+              )}
+            </Text>
           </Donut>
         </View>
 
         {segments.length > 0 ? (
           <View style={styles.legend}>
-            {segments.map((s) => (
-              <View key={s.key} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: s.color }]} />
-                <Text style={styles.legendText}>{s.key}</Text>
-              </View>
-            ))}
+            {segments.map((s) => {
+              const isSelected = selectedCategory === s.key;
+              const dimmed = selectedCategory != null && !isSelected;
+              return (
+                <Pressable
+                  key={s.key}
+                  onPress={() => setSelectedCategory(isSelected ? null : s.key)}
+                  style={[styles.legendItem, dimmed && styles.legendItemDimmed]}
+                >
+                  <View style={[styles.legendDot, { backgroundColor: s.color }]} />
+                  <Text
+                    style={[styles.legendText, isSelected && styles.legendTextSelected]}
+                  >
+                    {s.key}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         ) : null}
 
@@ -157,8 +204,14 @@ export default function Dashboard() {
             <Text style={styles.errorText}>{error}</Text>
           ) : visible.length === 0 && ghosted.length === 0 ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No subscriptions yet</Text>
-              <Text style={styles.emptyBody}>Tap the + button to track your first one.</Text>
+              <Text style={styles.emptyTitle}>
+                {selectedCategory ? `No active ${selectedCategory} subs` : 'No subscriptions yet'}
+              </Text>
+              <Text style={styles.emptyBody}>
+                {selectedCategory
+                  ? 'Clear the filter to see everything.'
+                  : 'Tap the + button to track your first one.'}
+              </Text>
             </View>
           ) : (
             <>
@@ -270,8 +323,10 @@ function makeStyles(colors: ColorSet) {
       marginBottom: spacing.lg,
     },
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    legendItemDimmed: { opacity: 0.35 },
     legendDot: { width: 8, height: 8, borderRadius: radius.pill },
     legendText: { color: colors.textSecondary, fontSize: 11 },
+    legendTextSelected: { color: colors.textPrimary, fontWeight: '700' },
     list: { gap: spacing.sm },
     empty: { alignItems: 'center', padding: spacing.xl, gap: 6 },
     emptyTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '600' },
