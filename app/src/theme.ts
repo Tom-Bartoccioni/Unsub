@@ -69,12 +69,17 @@ export const colorsByTheme: Record<ThemeName, ColorSet> = {
 
 // Category palette is intentionally the same across themes — it's the brand
 // signal for each subscription category, not a UI surface.
+// Category palette mirrors the Unsub logo's 5 arcs (blue / purple / green /
+// yellow / red) so the dashboard donut visually carries the brand. Other
+// stays neutral grey for the 6th bucket.
+export const LOGO_COLORS = ['#3b82f6', '#a855f7', '#10b981', '#facc15', '#ef4444'] as const;
+
 export const categoryColors: Record<string, string> = {
-  Entertainment: '#ec4899',
   Productivity: '#3b82f6',
+  Cloud: '#a855f7',
   Wellness: '#10b981',
-  Cloud: '#8b5cf6',
-  News: '#f59e0b',
+  News: '#facc15',
+  Entertainment: '#ef4444',
   Other: '#6b7280',
 };
 

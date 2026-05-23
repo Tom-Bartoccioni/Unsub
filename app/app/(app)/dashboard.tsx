@@ -16,6 +16,7 @@ import { categoryColor, categoryFor } from '@/lib/categories';
 import { convert, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { Donut, type DonutSegment } from '@/components/Donut';
+import { LoadingDonut } from '@/components/LoadingDonut';
 import { SubscriptionCard, type SubscriptionCardData } from '@/components/SubscriptionCard';
 import { SubscriptionDetailModal } from '@/components/SubscriptionDetailModal';
 import { AddSubscriptionWizard } from '@/components/AddSubscriptionWizard';
@@ -68,6 +69,9 @@ export default function Dashboard() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // null = no filter; otherwise narrows the donut highlight and the list.
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // True after the first-load splash morph has finished. Subsequent loads
+  // (e.g. refresh after adding a sub) don't replay the animation.
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -155,21 +159,32 @@ export default function Dashboard() {
         </View>
 
         <View style={styles.donutWrap}>
-          <Donut
-            segments={segments}
-            selectedKey={selectedCategory}
-            onSelect={setSelectedCategory}
-          >
-            <Text style={styles.donutLabel}>
-              {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
-            </Text>
-            <Text style={styles.donutValue}>
-              {formatPrice(
-                selectedSegment ? selectedSegment.value : total,
-                prefs.displayCurrency,
-              )}
-            </Text>
-          </Donut>
+          {splashDone ? (
+            <Donut
+              segments={segments}
+              selectedKey={selectedCategory}
+              onSelect={setSelectedCategory}
+            >
+              <Text style={styles.donutLabel}>
+                {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
+              </Text>
+              <Text style={styles.donutValue}>
+                {formatPrice(
+                  selectedSegment ? selectedSegment.value : total,
+                  prefs.displayCurrency,
+                )}
+              </Text>
+            </Donut>
+          ) : (
+            <LoadingDonut
+              segments={segments}
+              isLoading={loading}
+              onSettled={() => setSplashDone(true)}
+            >
+              <Text style={styles.donutLabel}>Monthly Cost</Text>
+              <Text style={styles.donutValue}>{formatPrice(total, prefs.displayCurrency)}</Text>
+            </LoadingDonut>
+          )}
         </View>
 
         {segments.length > 0 ? (
