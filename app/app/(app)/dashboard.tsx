@@ -12,7 +12,7 @@ import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryColor, categoryFor } from '@/lib/categories';
-import { convert, formatPrice, monthlyAmount } from '@/lib/money';
+import { convert, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { Donut, type DonutSegment } from '@/components/Donut';
 import { LoadingDonut } from '@/components/LoadingDonut';
@@ -164,12 +164,11 @@ export default function Dashboard() {
               selectedKey={selectedCategory}
               onSelect={setSelectedCategory}
             >
-              <Text style={styles.donutValue}>
-                {formatPrice(
-                  selectedSegment ? selectedSegment.value : total,
-                  prefs.displayCurrency,
-                )}
-              </Text>
+              <DecimalCenteredPrice
+                amount={selectedSegment ? selectedSegment.value : total}
+                currency={prefs.displayCurrency}
+                styles={styles}
+              />
               <View style={styles.donutLabelBelow}>
                 <Text style={styles.donutLabel}>
                   {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
@@ -182,7 +181,11 @@ export default function Dashboard() {
               isLoading={loading}
               onSettled={() => setSplashDone(true)}
             >
-              <Text style={styles.donutValue}>{formatPrice(total, prefs.displayCurrency)}</Text>
+              <DecimalCenteredPrice
+                amount={total}
+                currency={prefs.displayCurrency}
+                styles={styles}
+              />
               <View style={styles.donutLabelBelow}>
                 <Text style={styles.donutLabel}>Monthly Cost</Text>
               </View>
@@ -281,6 +284,64 @@ export default function Dashboard() {
   );
 }
 
+// Renders the price so the decimal separator sits on the donut's vertical
+// center line. Standard textAlign 'center' pivots on the string midpoint,
+// which drifts as digit count changes (28,97 vs 128,97). Splitting the
+// formatted price at the decimal mark and laying out integer right-aligned
+// against center / fractional left-aligned against center keeps the decimal
+// pinned. Locale-aware: uses Intl.formatToParts so it works for both
+// "28,97 €" (fr) and "$28.97" (en).
+function DecimalCenteredPrice({
+  amount,
+  currency,
+  styles,
+}: {
+  amount: number;
+  currency: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
+  let intPart = '';
+  let fracPart = '';
+  try {
+    const parts = new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).formatToParts(amount);
+    let seenDecimal = false;
+    for (const p of parts) {
+      // Drop whitespace at the edges so a leading non-breaking space
+      // (French puts one before €) doesn't visually offset the halves.
+      if (p.type === 'literal' && /^\s+$/.test(p.value)) continue;
+      if (p.type === 'decimal') {
+        seenDecimal = true;
+        // Keep the decimal mark on the integer side so it visually sits
+        // at the centerline as the "anchor".
+        intPart += p.value;
+        continue;
+      }
+      if (seenDecimal) fracPart += p.value;
+      else intPart += p.value;
+    }
+  } catch {
+    const fixed = amount.toFixed(2);
+    const [i, f] = fixed.split('.');
+    intPart = `${i}.`;
+    fracPart = `${f ?? ''} ${currency}`;
+  }
+  return (
+    <View style={styles.priceRow}>
+      <View style={styles.priceHalfRight}>
+        <Text style={styles.donutValue}>{intPart}</Text>
+      </View>
+      <View style={styles.priceHalfLeft}>
+        <Text style={styles.donutValue}>{fracPart}</Text>
+      </View>
+    </View>
+  );
+}
+
 function toCardData(s: Subscription): SubscriptionCardData {
   return {
     id: s.id,
@@ -337,16 +398,19 @@ function makeStyles(colors: ColorSet) {
       color: colors.textPrimary,
       fontSize: 32,
       fontWeight: '800',
-      textAlign: 'center',
-      // Span the donut's inner width so textAlign 'center' lays out against
-      // the donut diameter, not the price's intrinsic Text-box width.
-      // Otherwise the parent's alignItems centers the shrunk text box —
-      // a price with a wider currency symbol drifts off horizontal center.
+    },
+    // The two halves around the decimal mark. The row spans the donut's
+    // inner width; each half is flex-1 with its text aligned toward the
+    // shared centerline (right-align on the left half, left-align on the
+    // right half). Whatever sits at that boundary stays pinned at center.
+    priceRow: {
+      flexDirection: 'row',
       alignSelf: 'stretch',
-      // Visual nudge up so the price sits a touch above geometric center,
-      // leaving room for the label beneath without crowding the bottom arc.
+      alignItems: 'baseline',
       marginTop: -10,
     },
+    priceHalfRight: { flex: 1, alignItems: 'flex-end' },
+    priceHalfLeft: { flex: 1, alignItems: 'flex-start' },
     legend: {
       flexDirection: 'row',
       flexWrap: 'wrap',
