@@ -170,9 +170,11 @@ export default function Dashboard() {
                   prefs.displayCurrency,
                 )}
               </Text>
-              <Text style={styles.donutLabel}>
-                {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
-              </Text>
+              <View style={styles.donutLabelBelow}>
+                <Text style={styles.donutLabel}>
+                  {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
+                </Text>
+              </View>
             </Donut>
           ) : (
             <LoadingDonut
@@ -181,7 +183,9 @@ export default function Dashboard() {
               onSettled={() => setSplashDone(true)}
             >
               <Text style={styles.donutValue}>{formatPrice(total, prefs.displayCurrency)}</Text>
-              <Text style={styles.donutLabel}>Monthly Cost</Text>
+              <View style={styles.donutLabelBelow}>
+                <Text style={styles.donutLabel}>Monthly Cost</Text>
+              </View>
             </LoadingDonut>
           )}
         </View>
@@ -317,7 +321,18 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.border,
     },
     donutWrap: { alignItems: 'center', marginVertical: spacing.lg },
-    donutLabel: { color: colors.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 4 },
+    donutLabel: { color: colors.textTertiary, fontSize: 12, textAlign: 'center' },
+    // Pin the label just below the price so the price stays the geometric
+    // center of the donut. Half the price's line-height (~22) plus a small
+    // gap = ~28 from center to the label's top.
+    donutLabelBelow: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: '50%',
+      marginTop: 28,
+      alignItems: 'center',
+    },
     donutValue: {
       color: colors.textPrimary,
       fontSize: 32,
