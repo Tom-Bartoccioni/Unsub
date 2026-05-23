@@ -193,8 +193,10 @@ function makeStyles(colors: ColorSet) {
     },
     connectorPast: { backgroundColor: colors.textTertiary },
     connectorReal: { backgroundColor: colors.success },
-    // Shares the connector's coordinate space; the dashes inside lay out as
-    // a justified flex row so spacing is even regardless of cell width.
+    // Spans dot-center to next-dot-center, like `connector`. The dashes
+    // are laid out as a flex row; horizontal padding insets them by the
+    // dot radius so the first and last dashes don't hide behind the dots
+    // they sit beside.
     dashedWrap: {
       position: 'absolute',
       left: '50%',
@@ -205,8 +207,9 @@ function makeStyles(colors: ColorSet) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingHorizontal: DOT_SIZE / 2 + 2,
     },
-    dash: { width: 6, height: 1, backgroundColor: colors.borderStrong },
+    dash: { width: 4, height: 1, backgroundColor: colors.borderStrong },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
@@ -230,10 +233,13 @@ function makeStyles(colors: ColorSet) {
     },
     // The "next" dot is the upcoming, unpaid renewal. Grey filled so it
     // reads as anticipated rather than confirmed (real dots are green).
-    // Same size as the other dots — no longer needs to be emphasized now
-    // that it's neutral-colored.
+    // Same border treatment as dotReal so the visible fill is the same
+    // diameter — without the border, the filled circle looks larger
+    // than the bordered real dots beside it.
     dotNext: {
       backgroundColor: colors.textTertiary,
+      borderWidth: 2,
+      borderColor: colors.card,
     },
     dotFuture: {
       borderWidth: 1.5,
