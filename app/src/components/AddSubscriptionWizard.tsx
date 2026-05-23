@@ -864,9 +864,9 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.border,
       alignItems: 'center',
     },
-    presetActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    presetActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
     presetText: { color: colors.textPrimary, fontSize: 14, fontWeight: '700' },
-    presetTextActive: { color: '#ffffff' },
+    presetTextActive: { color: colors.bg },
 
     wheelRow: {
       flexDirection: 'row',
@@ -885,9 +885,9 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.border,
       alignItems: 'center',
     },
-    freqPillActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
+    freqPillActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
     freqPillText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
-    freqPillTextActive: { color: '#ffffff' },
+    freqPillTextActive: { color: colors.bg },
 
     successCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     successCardWrap: { alignSelf: 'stretch', marginTop: spacing.lg },
