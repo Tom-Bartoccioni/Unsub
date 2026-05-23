@@ -53,28 +53,57 @@ export function LoadingDonut({
   // dasharrays per frame without depending on reanimated.
   const [morph, setMorph] = useState(0);
 
-  // Spin transform — runs with Animated.loop throughout spinning AND
-  // morphing at the same constant speed, then a short ease to 0 at the
-  // moment of settle. Stopping the spin during morph (the previous
-  // approach) made the donut feel like it was "braking" before the
-  // wedges had landed, which read as broken.
+  // Spin transform. spinValue counts in full rotations (integer = 0°/360°)
+  // so the angle is `(spinValue % 1) * 360deg`. During spinning we loop
+  // 0→1 forever; during morphing we run a SINGLE linear timing from the
+  // current value to the next integer reachable at constant speed within
+  // the morph duration. That lands the rotation on an exact multiple of
+  // 360° at the same instant the wedges finish moving, so the snap to the
+  // static Donut at angle 0 is invisible.
   const spinValue = useRef(new Animated.Value(0)).current;
+  // We need to read the current value when the morph starts, so track it.
+  const spinValueRef = useRef(0);
   useEffect(() => {
-    if (phase === 'spinning' || phase === 'morphing') {
+    const id = spinValue.addListener(({ value }) => {
+      spinValueRef.current = value;
+    });
+    return () => spinValue.removeListener(id);
+  }, [spinValue]);
+
+  useEffect(() => {
+    if (phase === 'spinning') {
       const loop = Animated.loop(
         Animated.timing(spinValue, {
-          toValue: 1,
+          toValue: spinValueRef.current + 1,
           duration: SPIN_DURATION_MS,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
+        // resetBeforeIteration defaults true — that re-snaps to 0 each
+        // cycle. We want continuous rotation, so disable it.
+        { resetBeforeIteration: false },
       );
       loop.start();
       return () => loop.stop();
     }
-    // 'settled' just stops the loop; the parent swaps in the static Donut
-    // on the same frame, so a small angular pop is unavoidable here. The
-    // alternative (animating back to 0) would visibly rotate backwards.
+    if (phase === 'morphing') {
+      // Continue at the same angular speed: revolutions/ms = 1/SPIN_DURATION_MS.
+      // Across MORPH_DURATION_MS we'd naturally turn this many revolutions:
+      const naturalAdvance = MORPH_DURATION_MS / SPIN_DURATION_MS;
+      const current = spinValueRef.current;
+      // Round UP to the next integer that's at least `naturalAdvance` past
+      // current, so we land cleanly on a full rotation without ever slowing
+      // down or speeding up.
+      const target = Math.ceil(current + naturalAdvance);
+      const distance = target - current;
+      const duration = distance * SPIN_DURATION_MS; // preserves angular speed
+      Animated.timing(spinValue, {
+        toValue: target,
+        duration,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start();
+    }
     return undefined;
   }, [phase, spinValue]);
 
