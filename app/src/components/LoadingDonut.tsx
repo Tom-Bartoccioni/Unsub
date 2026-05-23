@@ -87,22 +87,36 @@ export function LoadingDonut({
       return () => loop.stop();
     }
     if (phase === 'morphing') {
-      // Continue at the same angular speed: revolutions/ms = 1/SPIN_DURATION_MS.
-      // Across MORPH_DURATION_MS we'd naturally turn this many revolutions:
-      const naturalAdvance = MORPH_DURATION_MS / SPIN_DURATION_MS;
+      // Goal: rotation reaches an exact integer revolution at the same
+      // instant the morph completes (= MORPH_DURATION_MS from now). That
+      // way the static Donut, which is at angle 0, takes over invisibly.
+      //
+      // Split into two segments: a linear cruise at the original loop
+      // speed, then an ease-out landing onto the next integer rev. The
+      // cruise + landing durations sum to MORPH_DURATION_MS, so the spin
+      // and the morph finish together.
+      const LANDING_MS = Math.min(350, MORPH_DURATION_MS);
+      const cruiseMs = MORPH_DURATION_MS - LANDING_MS;
       const current = spinValueRef.current;
-      // Round UP to the next integer that's at least `naturalAdvance` past
-      // current, so we land cleanly on a full rotation without ever slowing
-      // down or speeding up.
-      const target = Math.ceil(current + naturalAdvance);
-      const distance = target - current;
-      const duration = distance * SPIN_DURATION_MS; // preserves angular speed
-      Animated.timing(spinValue, {
-        toValue: target,
-        duration,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start();
+      const speed = 1 / SPIN_DURATION_MS; // revolutions per ms
+      const afterCruise = current + speed * cruiseMs;
+      // Round up to the next integer that's at least afterCruise so the
+      // landing segment never has to reverse direction.
+      const target = Math.ceil(afterCruise);
+      Animated.sequence([
+        Animated.timing(spinValue, {
+          toValue: afterCruise,
+          duration: cruiseMs,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(spinValue, {
+          toValue: target,
+          duration: LANDING_MS,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
     return undefined;
   }, [phase, spinValue]);
