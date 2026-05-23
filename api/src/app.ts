@@ -7,6 +7,7 @@ import { meRoutes } from './routes/me.js';
 import { makeGoogleOAuthRoutes, type OAuthGoogleDeps } from './routes/oauth-google.js';
 import { makeScanRoutes, type ScanRouteDeps } from './routes/scan.js';
 import { makeSubscriptionsRoutes, type SubscriptionsRouteDeps } from './routes/subscriptions.js';
+import { makeAdminRoutes, type AdminRouteDeps } from './routes/admin.js';
 import type { TokenVerifier } from './firebase.js';
 import type { UserStore } from './db/users.js';
 
@@ -17,6 +18,7 @@ export type BuildOptions = {
   googleOAuth?: OAuthGoogleDeps;
   scan?: ScanRouteDeps;
   subscriptions?: SubscriptionsRouteDeps;
+  admin?: AdminRouteDeps;
 };
 
 const stubVerifier: TokenVerifier = async () => {
@@ -61,6 +63,9 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   }
   if (opts.subscriptions) {
     await fastify.register(makeSubscriptionsRoutes(opts.subscriptions));
+  }
+  if (opts.admin) {
+    await fastify.register(makeAdminRoutes(opts.admin));
   }
 
   return fastify;

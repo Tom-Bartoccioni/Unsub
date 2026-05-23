@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, lt } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { paymentEvents, subscriptions, type PaymentEventRow, type SubscriptionRow } from './schema.js';
 
@@ -83,6 +83,12 @@ export type SubscriptionStore = {
     amountMinor: number,
     currency: string,
   ) => Promise<number>;
+  // Daily rollover: find every active subscription whose next renewal date
+  // has already passed, advance it one cycle at a time until it's in the
+  // future, and (if startedAt is set) insert one 'estimated' payment_event
+  // per cycle that was crossed. Idempotent — running twice in the same day
+  // touches no rows the second time. Returns counts for observability.
+  rolloverDueRenewals: () => Promise<{ subsAdvanced: number; eventsInserted: number }>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -211,5 +217,66 @@ export function createDrizzleSubscriptionStore(
       );
       return dates.length;
     },
+    async rolloverDueRenewals() {
+      const now = new Date();
+      // Active subs only — cancelled rows don't renew. Filter out 'unknown'
+      // frequency in JS since we can't step it. Trial subs are included:
+      // they'll convert unless cancelled, so their renewal date should still
+      // advance.
+      const due = await db
+        .select()
+        .from(subscriptions)
+        .where(
+          and(
+            lt(subscriptions.nextRenewalDate, now),
+            eq(subscriptions.status, 'active'),
+          ),
+        );
+      let subsAdvanced = 0;
+      let eventsInserted = 0;
+      for (const row of due) {
+        if (!row.nextRenewalDate) continue;
+        const freq = row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown';
+        if (freq === 'unknown') continue;
+        // The missed cycles are every date from the current nextRenewalDate
+        // (inclusive of the one that just passed) up to but not including
+        // the first future date. cycleDatesBetween gives us exactly that
+        // when we treat now as the end and the current next as the start.
+        const missed = cycleDatesBetween(row.nextRenewalDate, now, freq);
+        if (missed.length === 0) continue;
+        // Advance the date forward by missed.length cycles. The first
+        // future date is one step beyond the last missed date.
+        const newNext = stepCycle(missed[missed.length - 1]!, freq);
+        await db
+          .update(subscriptions)
+          .set({ nextRenewalDate: newNext, updatedAt: new Date() })
+          .where(eq(subscriptions.id, row.id));
+        subsAdvanced++;
+        // Insert observed-charge events only if startedAt is set — that's
+        // the signal the user has acknowledged the cycle pattern. Without
+        // it we don't pretend we know they were charged.
+        if (row.startedAt) {
+          await db.insert(paymentEvents).values(
+            missed.map((d) => ({
+              subscriptionId: row.id,
+              chargedAt: d,
+              amountMinor: row.amountMinor,
+              currency: row.currency,
+              source: 'estimated',
+            })),
+          );
+          eventsInserted += missed.length;
+        }
+      }
+      return { subsAdvanced, eventsInserted };
+    },
   };
+}
+
+function stepCycle(d: Date, frequency: 'monthly' | 'yearly' | 'weekly'): Date {
+  const out = new Date(d);
+  if (frequency === 'monthly') out.setMonth(out.getMonth() + 1);
+  else if (frequency === 'yearly') out.setFullYear(out.getFullYear() + 1);
+  else if (frequency === 'weekly') out.setDate(out.getDate() + 7);
+  return out;
 }

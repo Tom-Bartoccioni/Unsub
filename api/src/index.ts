@@ -44,6 +44,7 @@ async function main(): Promise<void> {
         }
       : undefined,
     subscriptions: { store: subscriptionStore },
+    admin: { store: subscriptionStore, rolloverToken: env.ROLLOVER_TOKEN },
   });
   if (!oauthConfigured) {
     app.log.warn(

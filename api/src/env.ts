@@ -18,6 +18,11 @@ const EnvSchema = z.object({
     .string()
     .regex(/^[0-9a-f]{64}$/i, 'ENCRYPTION_KEY must be 32 bytes (64 hex chars)')
     .optional(),
+  // Shared secret required by /admin/rollover. The daily GitHub Actions
+  // cron sends this in Authorization: Bearer <token>. When unset the
+  // endpoint is disabled (returns 503) so the route can't be hit
+  // anonymously in environments that haven't configured the cron yet.
+  ROLLOVER_TOKEN: z.string().min(16, 'ROLLOVER_TOKEN must be at least 16 chars').optional(),
   GIT_SHA: z.string().default('dev'),
 });
 

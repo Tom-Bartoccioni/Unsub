@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "rollover": "tsx src/jobs/rollover.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",

@@ -1,0 +1,44 @@
+name: Daily renewal rollover
+
+# Runs once a day to advance any past renewal dates and insert estimated
+# payment events for missed cycles. POSTs to the API's /admin/rollover
+# endpoint using a shared bearer token stored in GitHub Secrets.
+#
+# Required repo secrets:
+#   - UNSUB_API_URL       e.g. https://unsub.onrender.com
+#   - UNSUB_ROLLOVER_TOKEN must match the ROLLOVER_TOKEN env on the API
+#
+# Note: GitHub disables scheduled workflows after 60 days of repo
+# inactivity. Push at least once every two months or re-enable the
+# workflow in Actions if it stops firing.
+
+on:
+  schedule:
+    # 04:00 UTC daily — early enough that subs renewing later in the day
+    # are still in the future at run time.
+    - cron: '0 4 * * *'
+  # Lets the maintainer trigger it on demand from the Actions tab.
+  workflow_dispatch:
+
+concurrency:
+  group: rollover
+  cancel-in-progress: false
+
+jobs:
+  rollover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /admin/rollover
+        run: |
+          set -euo pipefail
+          response=$(curl -sS -o response.json -w '%{http_code}' \
+            -X POST "$UNSUB_API_URL/admin/rollover" \
+            -H "Authorization: Bearer $UNSUB_ROLLOVER_TOKEN")
+          echo "HTTP $response"
+          cat response.json
+          if [ "$response" -ne 200 ]; then
+            exit 1
+          fi
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
