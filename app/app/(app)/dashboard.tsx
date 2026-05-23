@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StatusBar,
@@ -211,11 +210,7 @@ export default function Dashboard() {
         ) : null}
 
         <View style={styles.list}>
-          {loading ? (
-            <View style={styles.empty}>
-              <ActivityIndicator color={colors.textSecondary} />
-            </View>
-          ) : error ? (
+          {loading ? null : error ? (
             <Text style={styles.errorText}>{error}</Text>
           ) : visible.length === 0 && ghosted.length === 0 ? (
             <View style={styles.empty}>

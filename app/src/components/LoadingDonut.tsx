@@ -53,11 +53,14 @@ export function LoadingDonut({
   // dasharrays per frame without depending on reanimated.
   const [morph, setMorph] = useState(0);
 
-  // Spin transform — runs with Animated.loop while spinning; ramps to 0
-  // during morph so the donut settles at a stable angle.
+  // Spin transform — runs with Animated.loop throughout spinning AND
+  // morphing at the same constant speed, then a short ease to 0 at the
+  // moment of settle. Stopping the spin during morph (the previous
+  // approach) made the donut feel like it was "braking" before the
+  // wedges had landed, which read as broken.
   const spinValue = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (phase === 'spinning') {
+    if (phase === 'spinning' || phase === 'morphing') {
       const loop = Animated.loop(
         Animated.timing(spinValue, {
           toValue: 1,
@@ -69,15 +72,9 @@ export function LoadingDonut({
       loop.start();
       return () => loop.stop();
     }
-    if (phase === 'morphing') {
-      // Damp the spin to 0 over the morph duration so it doesn't snap.
-      Animated.timing(spinValue, {
-        toValue: 0,
-        duration: MORPH_DURATION_MS,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }).start();
-    }
+    // 'settled' just stops the loop; the parent swaps in the static Donut
+    // on the same frame, so a small angular pop is unavoidable here. The
+    // alternative (animating back to 0) would visibly rotate backwards.
     return undefined;
   }, [phase, spinValue]);
 
