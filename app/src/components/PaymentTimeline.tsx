@@ -97,7 +97,9 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
               <View style={styles.dotRow}>
                 {/* Connector line on the right of every dot except the last.
                     Rendered before the dot so the dot sits on top. */}
-                {!isLast && (
+                {!isLast && points[i + 1]?.kind === 'next' ? (
+                  <DashedConnector styles={styles} />
+                ) : !isLast ? (
                   <View
                     style={[
                       styles.connector,
@@ -106,11 +108,9 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
                       // into the future and stays neutral.
                       p.kind === 'past' && styles.connectorPast,
                       p.kind === 'real' && points[i + 1]?.kind === 'real' && styles.connectorReal,
-                      // Trailing segment into the unpaid renewal: dashed.
-                      points[i + 1]?.kind === 'next' && styles.connectorPending,
                     ]}
                   />
-                )}
+                ) : null}
                 <Dot point={p} styles={styles} />
               </View>
               <Text
@@ -126,6 +126,22 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
           );
         })}
       </View>
+    </View>
+  );
+}
+
+// Custom dashed line. RN-Web's borderStyle: 'dashed' renders far too many
+// dashes; native ignores borderDashPattern. A flex row of fixed-size dashes
+// keeps the rhythm sparse and identical on both targets.
+function DashedConnector({ styles }: { styles: ReturnType<typeof makeStyles> }) {
+  // 5 dashes is enough to read as dashed at a typical cell width and matches
+  // the finpal cadence. Container fills the same coordinate space as the
+  // solid connector so vertical alignment is shared.
+  return (
+    <View style={styles.dashedWrap} pointerEvents="none">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <View key={i} style={styles.dash} />
+      ))}
     </View>
   );
 }
@@ -177,16 +193,20 @@ function makeStyles(colors: ColorSet) {
     },
     connectorPast: { backgroundColor: colors.textTertiary },
     connectorReal: { backgroundColor: colors.success },
-    // Segments crossing into a not-yet-paid renewal: drop the solid fill
-    // and draw a dashed border on top instead. Height is collapsed to 0 so
-    // the 1px dashed border sits at the same row-y as the solid line.
-    connectorPending: {
-      backgroundColor: 'transparent',
-      height: 0,
-      borderTopWidth: 1,
-      borderTopColor: colors.borderStrong,
-      borderStyle: 'dashed',
+    // Shares the connector's coordinate space; the dashes inside lay out as
+    // a justified flex row so spacing is even regardless of cell width.
+    dashedWrap: {
+      position: 'absolute',
+      left: '50%',
+      right: '-50%',
+      top: DOT_NEXT_SIZE / 2,
+      transform: [{ translateY: -0.5 }],
+      height: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
     },
+    dash: { width: 6, height: 1, backgroundColor: colors.borderStrong },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
@@ -210,13 +230,10 @@ function makeStyles(colors: ColorSet) {
     },
     // The "next" dot is the upcoming, unpaid renewal. Grey filled so it
     // reads as anticipated rather than confirmed (real dots are green).
+    // Same size as the other dots — no longer needs to be emphasized now
+    // that it's neutral-colored.
     dotNext: {
-      width: DOT_NEXT_SIZE,
-      height: DOT_NEXT_SIZE,
-      borderRadius: DOT_NEXT_SIZE / 2,
       backgroundColor: colors.textTertiary,
-      borderWidth: 2,
-      borderColor: colors.card,
     },
     dotFuture: {
       borderWidth: 1.5,
