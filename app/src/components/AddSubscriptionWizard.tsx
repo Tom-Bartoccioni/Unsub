@@ -904,13 +904,14 @@ function makeStyles(colors: ColorSet) {
 
     error: { color: colors.danger, fontSize: 13, marginTop: spacing.sm },
     primaryButton: {
-      backgroundColor: colors.accentBlue,
+      // Inverted button — black on light theme, white on dark theme.
+      backgroundColor: colors.textPrimary,
       height: 52,
       borderRadius: radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primaryButtonText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+    primaryButtonText: { color: colors.bg, fontSize: 16, fontWeight: '700' },
     pressed: { opacity: 0.85 },
     disabled: { opacity: 0.5 },
   });
