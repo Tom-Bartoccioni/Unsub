@@ -72,3 +72,28 @@ export const subscriptions = pgTable(
 
 export type SubscriptionRow = typeof subscriptions.$inferSelect;
 export type SubscriptionInsert = typeof subscriptions.$inferInsert;
+
+// Observed charges for a subscription. Rows are NOT auto-generated from the
+// subscriptions row's frequency — they appear only when we have evidence of
+// an actual charge (parsed from email, virtual card webhook, etc). The
+// detail screen falls back to mocked dots until enough events accumulate.
+export const paymentEvents = pgTable(
+  'payment_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    subscriptionId: uuid('subscription_id')
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: 'cascade' }),
+    chargedAt: timestamp('charged_at', { withTimezone: true }).notNull(),
+    amountMinor: integer('amount_minor').notNull(),
+    currency: text('currency').notNull(),
+    // Where this event came from — 'email', 'card', 'manual', etc. Free-form
+    // for now; if we end up with a fixed set we can promote to an enum.
+    source: text('source').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('payment_events_subscription_id_idx').on(t.subscriptionId)],
+);
+
+export type PaymentEventRow = typeof paymentEvents.$inferSelect;
+export type PaymentEventInsert = typeof paymentEvents.$inferInsert;

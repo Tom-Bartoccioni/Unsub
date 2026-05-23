@@ -139,5 +139,22 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       if (!ok) return reply.code(404).send({ error: 'not_found' });
       return reply.code(204).send();
     });
+
+    fastify.get('/subscriptions/:id/payments', async (req, reply) => {
+      const auth = await fastify.requireAuth(req);
+      const parsed = IdParam.safeParse(req.params);
+      if (!parsed.success) return reply.code(400).send({ error: 'invalid_id' });
+      const events = await deps.store.listPaymentEvents(parsed.data.id, auth.row.id);
+      if (events === null) return reply.code(404).send({ error: 'not_found' });
+      return {
+        payments: events.map((e) => ({
+          id: e.id,
+          chargedAt: e.chargedAt.toISOString(),
+          amount: e.amountMinor / 100,
+          currency: e.currency,
+          source: e.source,
+        })),
+      };
+    });
   };
 }

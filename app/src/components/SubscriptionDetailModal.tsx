@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
+import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
 import { ApiError, apiFetch } from '@/lib/api';
+import { categoryFor } from '@/lib/categories';
 import { formatPrice, frequencyLabel, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { useTheme } from '@/state/preferences';
@@ -25,10 +28,28 @@ export function SubscriptionDetailModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const brand = sub ? categoryFor(sub.provider) : null;
+  const brandColor = brand?.brandColor ?? colors.card;
+  const onBrand = useMemo(() => pickContrast(brandColor), [brandColor]);
+
+  const points = useMemo(
+    () =>
+      sub
+        ? buildTimelinePoints({
+            nextRenewal: sub.nextRenewalDate ? new Date(sub.nextRenewalDate) : null,
+            frequency: sub.frequency,
+          })
+        : [],
+    [sub],
+  );
+
   if (!sub) return null;
 
   const isGhost = sub.status === 'cancelled';
   const joinedAt = sub.sourceDate ?? sub.updatedAt;
+  const monthly = monthlyAmount(sub.amount, sub.frequency);
+  const monthsTracked = monthsBetween(new Date(joinedAt), new Date());
+  const totalSpent = monthly != null ? monthly * Math.max(0, monthsTracked) : null;
 
   const onGhost = async () => {
     setError(null);
@@ -41,14 +62,7 @@ export function SubscriptionDetailModal({
       onUpdated(res.subscription);
       onClose();
     } catch (e) {
-      console.error('Ghost subscription failed:', e);
-      const msg =
-        e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
-          : e instanceof Error
-            ? e.message
-            : 'Failed to update';
-      setError(msg);
+      setError(humanize(e, 'update'));
     } finally {
       setBusy(false);
     }
@@ -62,14 +76,7 @@ export function SubscriptionDetailModal({
       onDeleted(sub.id);
       onClose();
     } catch (e) {
-      console.error('Delete subscription failed:', e);
-      const msg =
-        e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
-          : e instanceof Error
-            ? e.message
-            : 'Failed to delete';
-      setError(msg);
+      setError(humanize(e, 'delete'));
     } finally {
       setBusy(false);
     }
@@ -84,84 +91,90 @@ export function SubscriptionDetailModal({
           accessibilityLabel="Close"
         />
         <View style={styles.sheet}>
-          <Pressable style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>×</Text>
-          </Pressable>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <Pressable style={styles.closeButton} onPress={onClose} hitSlop={8}>
+              <Ionicons name="close" size={22} color={colors.textPrimary} />
+            </Pressable>
 
-          <View style={styles.heroRow}>
-            <BrandIcon provider={sub.provider} size={64} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.title}>{sub.provider}</Text>
-              <Text style={styles.subtitle}>
-                {formatPrice(sub.amount, sub.currency)} / {frequencyLabel(sub.frequency)}
+            <View style={[styles.hero, { backgroundColor: brandColor }]}>
+              <BrandIcon provider={sub.provider} size={72} />
+              <Text style={[styles.heroTitle, { color: onBrand }]} numberOfLines={1}>
+                {sub.provider}
+              </Text>
+              {isGhost ? (
+                <View style={styles.statusBadge}>
+                  <Text style={styles.statusBadgeText}>Ghosted</Text>
+                </View>
+              ) : (
+                <View style={[styles.statusBadge, styles.statusBadgeActive]}>
+                  <Text style={[styles.statusBadgeText, styles.statusBadgeTextActive]}>Active</Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.nextPaymentCard}>
+              <Text style={styles.nextPaymentLabel}>Next Payment</Text>
+              <Text style={styles.nextPaymentAmount}>
+                −{formatPrice(sub.amount, sub.currency)}
+              </Text>
+              <Text style={styles.nextPaymentDate}>
+                {sub.nextRenewalDate
+                  ? `Expected ${fmtLongDate(sub.nextRenewalDate)}`
+                  : 'No renewal date set'}
+              </Text>
+
+              <View style={styles.timelineWrap}>
+                <PaymentTimeline points={points} amount={sub.amount} currency={sub.currency} />
+              </View>
+            </View>
+
+            <View style={styles.metaRow}>
+              <MetaCard
+                label="Billing Cycle"
+                value={frequencyLabel(sub.frequency)}
+                styles={styles}
+              />
+              <MetaCard
+                label="Tracked Since"
+                value={fmtMediumDate(joinedAt)}
+                styles={styles}
+              />
+            </View>
+
+            <View style={styles.metaSingle}>
+              <Text style={styles.metaLabel}>Total Spent</Text>
+              <Text style={styles.metaValueLarge}>
+                {totalSpent != null ? formatPrice(totalSpent, sub.currency) : '—'}
+              </Text>
+              <Text style={styles.metaHint}>
+                ≈ {monthsTracked} month{monthsTracked === 1 ? '' : 's'} on Unsub
               </Text>
             </View>
-          </View>
 
-          <CostSinceJoin sub={sub} joinedAt={joinedAt} styles={styles} />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <View style={styles.metaRow}>
-            <MetaCard
-              label="Renewal Date"
-              value={fmtDate(sub.nextRenewalDate) ?? '—'}
-              styles={styles}
-            />
-            <MetaCard label="Billing Cycle" value={frequencyLabel(sub.frequency)} styles={styles} />
-          </View>
+            <Pressable
+              style={[styles.ghostButton, busy && styles.disabled]}
+              onPress={onGhost}
+              disabled={busy}
+            >
+              <Ionicons
+                name={isGhost ? 'play-circle-outline' : 'eye-off-outline'}
+                size={18}
+                color={colors.textPrimary}
+              />
+              <Text style={styles.ghostButtonText}>
+                {isGhost ? 'Reactivate' : 'Ghost This Sub'}
+              </Text>
+            </Pressable>
 
-          <View style={styles.metaSingle}>
-            <Text style={styles.metaLabel}>Tracked Since</Text>
-            <Text style={styles.metaValue}>{fmtLongDate(joinedAt)}</Text>
-          </View>
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <Pressable
-            style={[styles.ghostButton, busy && styles.disabled]}
-            onPress={onGhost}
-            disabled={busy}
-          >
-            <Text style={styles.ghostButtonText}>
-              {isGhost ? 'Un-Ghost (mark active)' : 'Ghost This Sub'}
-            </Text>
-          </Pressable>
-
-          <Pressable style={styles.deleteLink} onPress={onDelete} disabled={busy}>
-            <Text style={styles.deleteLinkText}>Delete permanently</Text>
-          </Pressable>
-
-          <Pressable style={styles.cancelLink} onPress={onClose}>
-            <Text style={styles.cancelLinkText}>Close</Text>
-          </Pressable>
+            <Pressable style={styles.deleteLink} onPress={onDelete} disabled={busy}>
+              <Text style={styles.deleteLinkText}>Delete permanently</Text>
+            </Pressable>
+          </ScrollView>
         </View>
       </View>
     </Modal>
-  );
-}
-
-function CostSinceJoin({
-  sub,
-  joinedAt,
-  styles,
-}: {
-  sub: Subscription;
-  joinedAt: string;
-  styles: ReturnType<typeof makeStyles>;
-}) {
-  const monthly = monthlyAmount(sub.amount, sub.frequency);
-  const months = monthsBetween(new Date(joinedAt), new Date());
-  const total = monthly != null ? monthly * Math.max(0, months) : null;
-
-  return (
-    <View style={styles.heroCost}>
-      <Text style={styles.heroCostLabel}>Cost Since Tracked</Text>
-      <Text style={styles.heroCostValue}>
-        {total != null ? `${formatPrice(total, sub.currency)} total` : '—'}
-      </Text>
-      <Text style={styles.heroCostHint}>
-        ≈ {months} month{months === 1 ? '' : 's'} on Unsub
-      </Text>
-    </View>
   );
 }
 
@@ -182,8 +195,13 @@ function MetaCard({
   );
 }
 
-function fmtDate(iso: string | null): string | null {
-  if (!iso) return null;
+function humanize(e: unknown, verb: 'update' | 'delete'): string {
+  if (e instanceof ApiError) return `API ${e.status}: ${e.message}`;
+  if (e instanceof Error) return e.message;
+  return `Failed to ${verb}`;
+}
+
+function fmtMediumDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
@@ -203,6 +221,20 @@ function monthsBetween(start: Date, end: Date): number {
   return Math.max(1, Math.round(ms / (30.44 * 86_400_000)));
 }
 
+// Same algorithm as BrandIcon — pick black or white for legibility against the
+// brand fill. White brand colors (e.g. Notion, Vercel) drop to black ink so
+// the provider name still reads.
+function pickContrast(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return '#ffffff';
+  const v = parseInt(m[1]!, 16);
+  const r = (v >> 16) & 0xff;
+  const g = (v >> 8) & 0xff;
+  const b = v & 0xff;
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return lum > 0.6 ? '#0a0a0a' : '#ffffff';
+}
+
 function makeStyles(colors: ColorSet) {
   return StyleSheet.create({
     modalRoot: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
@@ -210,38 +242,64 @@ function makeStyles(colors: ColorSet) {
       backgroundColor: colors.bg,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      padding: spacing.xl,
+      height: '88%',
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
       paddingTop: spacing.lg,
+      paddingBottom: spacing.xl,
       gap: spacing.md,
-      maxHeight: '85%',
     },
     closeButton: {
       position: 'absolute',
-      top: 12,
-      right: 16,
+      top: spacing.sm,
+      right: spacing.sm,
       width: 32,
       height: 32,
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1,
+      borderRadius: radius.pill,
+      backgroundColor: colors.cardElevated,
+      zIndex: 2,
     },
-    closeText: { color: colors.textSecondary, fontSize: 28, lineHeight: 28 },
-    heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.sm },
-    title: { color: colors.textPrimary, fontSize: 22, fontWeight: '700' },
-    subtitle: { color: colors.textSecondary, fontSize: 14, marginTop: 2 },
-    heroCost: {
+
+    hero: {
+      borderRadius: radius.xl,
+      padding: spacing.xl,
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    heroTitle: { fontSize: 22, fontWeight: '800', letterSpacing: -0.3 },
+    statusBadge: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.pill,
+      backgroundColor: 'rgba(0,0,0,0.2)',
+    },
+    statusBadgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
+    statusBadgeText: { color: '#ffffff', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+    statusBadgeTextActive: { color: '#ffffff' },
+
+    nextPaymentCard: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,
       padding: spacing.lg,
       alignItems: 'center',
       gap: 4,
-      marginTop: spacing.sm,
       borderWidth: 1,
       borderColor: colors.border,
     },
-    heroCostLabel: { color: colors.textTertiary, fontSize: 12 },
-    heroCostValue: { color: colors.textPrimary, fontSize: 28, fontWeight: '700' },
-    heroCostHint: { color: colors.textTertiary, fontSize: 11 },
+    nextPaymentLabel: { color: colors.textTertiary, fontSize: 12 },
+    nextPaymentAmount: {
+      color: colors.danger,
+      fontSize: 34,
+      fontWeight: '800',
+      letterSpacing: -0.5,
+    },
+    nextPaymentDate: { color: colors.textTertiary, fontSize: 11, marginBottom: spacing.md },
+    timelineWrap: { width: '100%', marginTop: spacing.sm },
+
     metaRow: { flexDirection: 'row', gap: spacing.sm },
     metaCard: {
       flex: 1,
@@ -255,28 +313,32 @@ function makeStyles(colors: ColorSet) {
     metaSingle: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,
-      padding: spacing.md,
+      padding: spacing.lg,
       gap: 4,
       borderWidth: 1,
       borderColor: colors.border,
     },
-    metaLabel: { color: colors.textTertiary, fontSize: 11 },
+    metaLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5 },
     metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
+    metaValueLarge: { color: colors.textPrimary, fontSize: 22, fontWeight: '800' },
+    metaHint: { color: colors.textTertiary, fontSize: 11, marginTop: 2 },
+
     error: { color: colors.danger, fontSize: 12, textAlign: 'center' },
     ghostButton: {
-      backgroundColor: colors.cardElevated,
-      paddingVertical: 14,
-      borderRadius: radius.md,
+      flexDirection: 'row',
       alignItems: 'center',
-      marginTop: spacing.sm,
+      justifyContent: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.card,
+      paddingVertical: 14,
+      borderRadius: radius.pill,
       borderWidth: 1,
       borderColor: colors.borderStrong,
+      marginTop: spacing.sm,
     },
     ghostButtonText: { color: colors.textPrimary, fontSize: 15, fontWeight: '700' },
     deleteLink: { paddingVertical: 8, alignItems: 'center' },
-    deleteLinkText: { color: colors.danger, fontSize: 13 },
-    cancelLink: { paddingVertical: 6, alignItems: 'center' },
-    cancelLinkText: { color: colors.textTertiary, fontSize: 14 },
+    deleteLinkText: { color: colors.danger, fontSize: 13, fontWeight: '600' },
     disabled: { opacity: 0.6 },
   });
 }

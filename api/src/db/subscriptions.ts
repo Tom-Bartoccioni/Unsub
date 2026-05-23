@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { subscriptions, type SubscriptionRow } from './schema.js';
+import { paymentEvents, subscriptions, type PaymentEventRow, type SubscriptionRow } from './schema.js';
 
 export type SubscriptionInput = {
   userId: string;
@@ -37,6 +37,12 @@ export type SubscriptionStore = {
     userId: string,
     patch: SubscriptionPatch,
   ) => Promise<SubscriptionRow | null>;
+  // Returns rows ordered newest-first. Returns null when the subscription
+  // doesn't exist or isn't owned by the user (caller should 404).
+  listPaymentEvents: (
+    subscriptionId: string,
+    userId: string,
+  ) => Promise<PaymentEventRow[] | null>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -112,6 +118,20 @@ export function createDrizzleSubscriptionStore(
         .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
         .returning();
       return row ?? null;
+    },
+    async listPaymentEvents(subscriptionId, userId) {
+      // Ownership check first — avoids leaking row existence via the events
+      // list returning empty vs not-found.
+      const [sub] = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.userId, userId)));
+      if (!sub) return null;
+      return db
+        .select()
+        .from(paymentEvents)
+        .where(eq(paymentEvents.subscriptionId, subscriptionId))
+        .orderBy(desc(paymentEvents.chargedAt));
     },
   };
 }

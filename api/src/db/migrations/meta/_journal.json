@@ -29,6 +29,13 @@
       "when": 1779400413903,
       "tag": "0003_add_subscription_category",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779552237062,
+      "tag": "0004_add_payment_events",
+      "breakpoints": true
     }
   ]
 }
