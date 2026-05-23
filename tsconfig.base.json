@@ -16,10 +16,9 @@
     "verbatimModuleSyntax": false,
     "declaration": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
-      "@unsub/shared": ["packages/shared/src/index.ts"],
-      "@unsub/shared/*": ["packages/shared/src/*"]
+      "@unsub/shared": ["./packages/shared/src/index.ts"],
+      "@unsub/shared/*": ["./packages/shared/src/*"]
     }
   }
 }
