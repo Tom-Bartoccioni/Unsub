@@ -139,11 +139,14 @@ export function AddSubscriptionWizard({
 
   const isDuplicate = trackedKeys.has(providerKey(draft.provider));
 
-  const submit = async (force = false) => {
+  const submit = async (force = false, startedAtOverride?: Date | null) => {
     setError(null);
     if (isDuplicate && !duplicateConfirmed && !force) return; // wait for user confirmation
     setSubmitting(true);
     try {
+      // startedAt is racy: the StartedStep may set it just before calling
+      // submit; the override sidesteps the stale-closure read.
+      const startedAt = startedAtOverride !== undefined ? startedAtOverride : draft.startedAt;
       const res = await apiFetch<{ subscription: Subscription }>('/subscriptions', {
         method: 'POST',
         body: JSON.stringify({
@@ -153,7 +156,7 @@ export function AddSubscriptionWizard({
           currency: draft.currency.toUpperCase(),
           frequency: draft.frequency,
           nextRenewalDate: startOfUtcDay(draft.date).toISOString(),
-          startedAt: draft.startedAt ? startOfUtcDay(draft.startedAt).toISOString() : null,
+          startedAt: startedAt ? startOfUtcDay(startedAt).toISOString() : null,
         }),
       });
       setCreated(res.subscription);
@@ -233,9 +236,14 @@ export function AddSubscriptionWizard({
               styles={styles}
               duplicate={isDuplicate}
               duplicateConfirmed={duplicateConfirmed}
-              onForceSubmit={() => {
+              onSubmitWith={(startedAt) => {
+                setDraft((d) => ({ ...d, startedAt }));
+                void submit(false, startedAt);
+              }}
+              onForceSubmitWith={(startedAt) => {
                 setDuplicateConfirmed(true);
-                void submit(true);
+                setDraft((d) => ({ ...d, startedAt }));
+                void submit(true, startedAt);
               }}
             />
           )}
@@ -265,6 +273,16 @@ function emptyDraft(): Draft {
 
 function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+}
+
+// One cycle earlier than `base`. Used as the suggested start date on the
+// StartedStep — "next payment is May 28, monthly" → suggests April 28.
+function oneCycleBefore(base: Date, frequency: Frequency): Date {
+  const d = new Date(base);
+  if (frequency === 'monthly') d.setMonth(d.getMonth() - 1);
+  else if (frequency === 'yearly') d.setFullYear(d.getFullYear() - 1);
+  else if (frequency === 'weekly') d.setDate(d.getDate() - 7);
+  return d;
 }
 
 // How many full cycles fit between `start` and now, given the frequency.
@@ -631,25 +649,30 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
 function StartedStep({
   draft,
   setDraft,
-  onNext,
+  onNext: _onNext,
   submitting,
   error,
   styles,
   duplicate,
   duplicateConfirmed,
-  onForceSubmit,
+  onSubmitWith,
+  onForceSubmitWith,
 }: StepProps & {
   submitting: boolean;
   error: string | null;
   duplicate: boolean;
   duplicateConfirmed: boolean;
-  onForceSubmit: () => void;
+  onSubmitWith: (startedAt: Date | null) => void;
+  onForceSubmitWith: (startedAt: Date | null) => void;
 }) {
-  // Default the wheel to today so the user has to scroll back deliberately
-  // — a sensible default of "one year ago" was confusing because a quick
-  // scroll could land on the wrong year and silently backfill 12 months.
-  const initial = useMemo(() => new Date(), []);
-  const value = draft.startedAt ?? initial;
+  // Suggest one cycle before the next-payment date so the user doesn't have
+  // to scroll for the common "I'm midway through the first cycle" case.
+  // Falls back to today if the cadence is unknown.
+  const suggested = useMemo(() => oneCycleBefore(draft.date, draft.frequency), [
+    draft.date,
+    draft.frequency,
+  ]);
+  const value = draft.startedAt ?? suggested;
 
   const now = new Date();
   const years = useMemo(
@@ -664,7 +687,7 @@ function StartedStep({
 
   const setPart = (part: 'y' | 'm' | 'd', v: number) => {
     setDraft((prev) => {
-      const cur = prev.startedAt ?? initial;
+      const cur = prev.startedAt ?? suggested;
       let y = cur.getFullYear();
       let m = cur.getMonth();
       let day = cur.getDate();
@@ -676,10 +699,13 @@ function StartedStep({
     });
   };
 
-  const skip = () => {
-    setDraft((d) => ({ ...d, startedAt: null }));
-    onNext();
-  };
+  // Effective startedAt the user is currently looking at — explicit if they
+  // scrolled, otherwise the suggested fallback. Submitting commits this.
+  const effectiveStartedAt = draft.startedAt ?? value;
+
+  const skip = () => onSubmitWith(null);
+  const confirmAndSubmit = () => onSubmitWith(effectiveStartedAt);
+  const confirmAndForce = () => onForceSubmitWith(effectiveStartedAt);
 
   const cycles = countCyclesSince(value, draft.frequency);
   const preview = value.toLocaleDateString(undefined, {
@@ -738,7 +764,7 @@ function StartedStep({
           </Text>
           <PrimaryButton
             label={submitting ? 'Adding…' : 'Add it anyway'}
-            onPress={onForceSubmit}
+            onPress={confirmAndForce}
             disabled={submitting}
             styles={styles}
           />
@@ -747,7 +773,7 @@ function StartedStep({
         <View style={{ gap: spacing.sm }}>
           <PrimaryButton
             label={submitting ? 'Adding…' : 'Add subscription'}
-            onPress={onNext}
+            onPress={confirmAndSubmit}
             disabled={submitting}
             styles={styles}
           />
