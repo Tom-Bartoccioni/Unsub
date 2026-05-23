@@ -55,6 +55,16 @@ function providerKey(name: string): string {
   return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
 }
 
+function currencySymbol(code: string): string {
+  try {
+    // formatToParts gives us the localized symbol regardless of position.
+    const parts = new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).formatToParts(0);
+    return parts.find((p) => p.type === 'currency')?.value ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export function AddSubscriptionWizard({
   visible,
   onClose,
@@ -406,6 +416,15 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
     setEditing(false);
   };
 
+  const cycleCurrency = (dir: 1 | -1) => {
+    const i = SUPPORTED_CURRENCIES.indexOf(draft.currency as (typeof SUPPORTED_CURRENCIES)[number]);
+    const safe = i < 0 ? 0 : i;
+    const next = SUPPORTED_CURRENCIES[(safe + dir + SUPPORTED_CURRENCIES.length) % SUPPORTED_CURRENCIES.length];
+    setDraft((d) => ({ ...d, currency: next! }));
+  };
+
+  const symbol = currencySymbol(draft.currency);
+
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>How much is it?</Text>
@@ -416,16 +435,20 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
           <Ionicons name="remove" size={24} color={colors.textPrimary} />
         </Pressable>
 
-        <Pressable
-          style={styles.amountDisplay}
-          onPress={() => {
-            setText(draft.amount.toFixed(2));
-            setEditing(true);
-          }}
-        >
-          {editing ? (
-            <View style={styles.amountEditRow}>
-              <Text style={styles.amountCurrency}>{draft.currency}</Text>
+        <View style={styles.amountDisplay}>
+          <View style={styles.amountInline}>
+            <Pressable
+              onPress={() => cycleCurrency(1)}
+              onLongPress={() => cycleCurrency(-1)}
+              hitSlop={8}
+              style={styles.currencyToggle}
+              accessibilityLabel={`Currency ${draft.currency}, tap to change`}
+            >
+              <Text style={styles.currencyToggleText}>{symbol}</Text>
+              <Ionicons name="swap-horizontal" size={12} color={colors.textTertiary} />
+            </Pressable>
+
+            {editing ? (
               <TextInput
                 style={styles.amountInput}
                 value={text}
@@ -437,39 +460,24 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
                 selectTextOnFocus
                 placeholderTextColor={colors.textTertiary}
               />
-            </View>
-          ) : (
-            <Text style={styles.amountValue}>{formatPrice(draft.amount, draft.currency)}</Text>
-          )}
-          {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
-        </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => {
+                  setText(draft.amount.toFixed(2));
+                  setEditing(true);
+                }}
+              >
+                <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
+              </Pressable>
+            )}
+          </View>
+          {!editing && <Text style={styles.amountHint}>Tap amount to edit · tap {symbol} to change</Text>}
+        </View>
 
         <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
           <Ionicons name="add" size={24} color={colors.textPrimary} />
         </Pressable>
       </View>
-
-      <Text style={styles.amountSectionLabel}>Currency</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.currencyRow}
-      >
-        {SUPPORTED_CURRENCIES.map((c) => {
-          const active = draft.currency === c;
-          return (
-            <Pressable
-              key={c}
-              style={[styles.currencyChip, active && styles.currencyChipActive]}
-              onPress={() => setDraft((d) => ({ ...d, currency: c }))}
-            >
-              <Text style={[styles.currencyChipText, active && styles.currencyChipTextActive]}>
-                {c}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
 
       <Text style={styles.amountSectionLabel}>Common prices</Text>
       <View style={styles.presetRow}>
@@ -831,18 +839,19 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '600',
       marginTop: spacing.lg,
     },
-    currencyRow: { gap: spacing.sm, paddingVertical: spacing.sm, paddingRight: spacing.sm },
-    currencyChip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: 8,
-      borderRadius: radius.pill,
+    amountInline: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    currencyToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 6,
+      borderRadius: radius.md,
+      backgroundColor: colors.cardElevated,
       borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
+      borderColor: colors.borderStrong,
     },
-    currencyChipActive: { backgroundColor: colors.accentBlue, borderColor: colors.accentBlue },
-    currencyChipText: { color: colors.textSecondary, fontSize: 13, fontWeight: '700' },
-    currencyChipTextActive: { color: '#ffffff' },
+    currencyToggleText: { color: colors.textPrimary, fontSize: 22, fontWeight: '800' },
 
     presetRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
     preset: {
