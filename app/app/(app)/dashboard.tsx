@@ -164,14 +164,14 @@ export default function Dashboard() {
               selectedKey={selectedCategory}
               onSelect={setSelectedCategory}
             >
-              <Text style={styles.donutLabel}>
-                {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
-              </Text>
               <Text style={styles.donutValue}>
                 {formatPrice(
                   selectedSegment ? selectedSegment.value : total,
                   prefs.displayCurrency,
                 )}
+              </Text>
+              <Text style={styles.donutLabel}>
+                {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
               </Text>
             </Donut>
           ) : (
@@ -180,8 +180,8 @@ export default function Dashboard() {
               isLoading={loading}
               onSettled={() => setSplashDone(true)}
             >
-              <Text style={styles.donutLabel}>Monthly Cost</Text>
               <Text style={styles.donutValue}>{formatPrice(total, prefs.displayCurrency)}</Text>
+              <Text style={styles.donutLabel}>Monthly Cost</Text>
             </LoadingDonut>
           )}
         </View>
@@ -317,12 +317,11 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.border,
     },
     donutWrap: { alignItems: 'center', marginVertical: spacing.lg },
-    donutLabel: { color: colors.textTertiary, fontSize: 12, textAlign: 'center' },
+    donutLabel: { color: colors.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 4 },
     donutValue: {
       color: colors.textPrimary,
       fontSize: 32,
       fontWeight: '800',
-      marginTop: 4,
       textAlign: 'center',
     },
     legend: {
