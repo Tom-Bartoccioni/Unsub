@@ -7,7 +7,7 @@ import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatPrice, frequencyLabel, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
+import { usePrefs, useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 export function SubscriptionDetailModal({
@@ -24,13 +24,16 @@ export function SubscriptionDetailModal({
   onDeleted: (id: string) => void;
 }) {
   const colors = useTheme();
+  const { prefs } = usePrefs();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
-  const onBrand = useMemo(() => pickContrast(brandColor), [brandColor]);
+  const isDark = prefs.theme === 'dark';
+  const tint = useMemo(() => brandTint(brandColor, isDark), [brandColor, isDark]);
+  const accent = useMemo(() => brandAccent(brandColor, isDark), [brandColor, isDark]);
 
   const points = useMemo(
     () =>
@@ -96,18 +99,21 @@ export function SubscriptionDetailModal({
               <Ionicons name="close" size={22} color={colors.textPrimary} />
             </Pressable>
 
-            <View style={[styles.hero, { backgroundColor: brandColor }]}>
-              <BrandIcon provider={sub.provider} size={72} />
-              <Text style={[styles.heroTitle, { color: onBrand }]} numberOfLines={1}>
+            <View style={[styles.hero, { backgroundColor: tint }]}>
+              <BrandIcon provider={sub.provider} size={64} />
+              <Text style={[styles.heroStatus, { color: accent }]}>
+                Status: {isGhost ? 'Ghosted' : 'Active'}
+              </Text>
+              <Text style={styles.heroTitle} numberOfLines={1}>
                 {sub.provider}
               </Text>
-              {isGhost ? (
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusBadgeText}>Ghosted</Text>
-                </View>
-              ) : (
-                <View style={[styles.statusBadge, styles.statusBadgeActive]}>
-                  <Text style={[styles.statusBadgeText, styles.statusBadgeTextActive]}>Active</Text>
+              <Text style={styles.heroSubtitle}>
+                {formatPrice(sub.amount, sub.currency)} every {frequencyLabel(sub.frequency).toLowerCase()}
+              </Text>
+              {brand?.category && (
+                <View style={[styles.categoryChip, { borderColor: accent }]}>
+                  <Ionicons name="pricetag-outline" size={11} color={accent} />
+                  <Text style={[styles.categoryChipText, { color: accent }]}>{brand.category}</Text>
                 </View>
               )}
             </View>
@@ -126,6 +132,13 @@ export function SubscriptionDetailModal({
               <View style={styles.timelineWrap}>
                 <PaymentTimeline points={points} amount={sub.amount} currency={sub.currency} />
               </View>
+
+              {totalSpent != null && (
+                <Text style={styles.spentInline}>
+                  You’ve spent {formatPrice(totalSpent, sub.currency)} over{' '}
+                  {monthsTracked} month{monthsTracked === 1 ? '' : 's'} on this vendor.
+                </Text>
+              )}
             </View>
 
             <View style={styles.metaRow}>
@@ -139,16 +152,6 @@ export function SubscriptionDetailModal({
                 value={fmtMediumDate(joinedAt)}
                 styles={styles}
               />
-            </View>
-
-            <View style={styles.metaSingle}>
-              <Text style={styles.metaLabel}>Total Spent</Text>
-              <Text style={styles.metaValueLarge}>
-                {totalSpent != null ? formatPrice(totalSpent, sub.currency) : '—'}
-              </Text>
-              <Text style={styles.metaHint}>
-                ≈ {monthsTracked} month{monthsTracked === 1 ? '' : 's'} on Unsub
-              </Text>
             </View>
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -221,18 +224,55 @@ function monthsBetween(start: Date, end: Date): number {
   return Math.max(1, Math.round(ms / (30.44 * 86_400_000)));
 }
 
-// Same algorithm as BrandIcon — pick black or white for legibility against the
-// brand fill. White brand colors (e.g. Notion, Vercel) drop to black ink so
-// the provider name still reads.
-function pickContrast(hex: string): string {
+// Removed pickContrast — the hero now uses a pale tinted background with
+// theme-default text instead of saturated brand fill with inverted ink.
+
+function parseHex(hex: string): [number, number, number] | null {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex);
-  if (!m) return '#ffffff';
+  if (!m) return null;
   const v = parseInt(m[1]!, 16);
-  const r = (v >> 16) & 0xff;
-  const g = (v >> 8) & 0xff;
-  const b = v & 0xff;
-  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return lum > 0.6 ? '#0a0a0a' : '#ffffff';
+  return [(v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff];
+}
+
+// Pale wash of a brand color — mix toward white in light mode, toward a near-
+// black surface in dark mode. The result is a calm tint behind dark/light text
+// (finpal-style) instead of a saturated brand fill that fights the icon.
+function brandTint(hex: string, isDark: boolean): string {
+  const rgb = parseHex(hex);
+  if (!rgb) return isDark ? '#1c1c1e' : '#f5f5f7';
+  const [r, g, b] = rgb;
+  // Heavily desaturate by mixing toward the surface color. Light mode mixes
+  // 88% white, dark mode mixes 82% near-black — enough hue for recognition,
+  // not enough to glare.
+  const mix = isDark ? 0.82 : 0.88;
+  const sr = isDark ? 20 : 255;
+  const sg = isDark ? 20 : 255;
+  const sb = isDark ? 22 : 255;
+  const out = [
+    Math.round(r * (1 - mix) + sr * mix),
+    Math.round(g * (1 - mix) + sg * mix),
+    Math.round(b * (1 - mix) + sb * mix),
+  ];
+  return `#${out.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
+// A muted version of the brand color for accents (status text, category chip
+// border) so they read against the tinted card without being shouty.
+function brandAccent(hex: string, isDark: boolean): string {
+  const rgb = parseHex(hex);
+  if (!rgb) return isDark ? '#a1a1aa' : '#52525b';
+  const [r, g, b] = rgb;
+  // Bias toward the surface 35% so vivid brand colors don't burn through.
+  const mix = isDark ? 0.2 : 0.35;
+  const sr = isDark ? 255 : 0;
+  const sg = isDark ? 255 : 0;
+  const sb = isDark ? 255 : 0;
+  const out = [
+    Math.round(r * (1 - mix) + sr * mix),
+    Math.round(g * (1 - mix) + sg * mix),
+    Math.round(b * (1 - mix) + sb * mix),
+  ];
+  return `#${out.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
 }
 
 function makeStyles(colors: ColorSet) {
@@ -265,21 +305,33 @@ function makeStyles(colors: ColorSet) {
 
     hero: {
       borderRadius: radius.xl,
-      padding: spacing.xl,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.lg,
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: 6,
       marginTop: spacing.sm,
     },
-    heroTitle: { fontSize: 22, fontWeight: '800', letterSpacing: -0.3 },
-    statusBadge: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: 4,
-      borderRadius: radius.pill,
-      backgroundColor: 'rgba(0,0,0,0.2)',
+    heroStatus: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginTop: spacing.sm },
+    heroTitle: {
+      color: colors.textPrimary,
+      fontSize: 22,
+      fontWeight: '800',
+      letterSpacing: -0.3,
+      textAlign: 'center',
     },
-    statusBadgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
-    statusBadgeText: { color: '#ffffff', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
-    statusBadgeTextActive: { color: '#ffffff' },
+    heroSubtitle: { color: colors.textSecondary, fontSize: 13, textAlign: 'center' },
+    categoryChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 5,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      marginTop: 4,
+    },
+    categoryChipText: { fontSize: 11, fontWeight: '700' },
 
     nextPaymentCard: {
       backgroundColor: colors.card,
@@ -310,18 +362,15 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    metaSingle: {
-      backgroundColor: colors.card,
-      borderRadius: radius.lg,
-      padding: spacing.lg,
-      gap: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
     metaLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5 },
     metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
-    metaValueLarge: { color: colors.textPrimary, fontSize: 22, fontWeight: '800' },
-    metaHint: { color: colors.textTertiary, fontSize: 11, marginTop: 2 },
+    spentInline: {
+      color: colors.textTertiary,
+      fontSize: 11,
+      fontStyle: 'italic',
+      textAlign: 'center',
+      marginTop: spacing.md,
+    },
 
     error: { color: colors.danger, fontSize: 12, textAlign: 'center' },
     ghostButton: {

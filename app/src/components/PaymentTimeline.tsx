@@ -94,6 +94,9 @@ export function PaymentTimeline({
               <Text style={[styles.monthLabel, p.kind === 'next' && styles.monthLabelNext]}>
                 {monthLabel(p.date)}
               </Text>
+              <Text style={[styles.yearLabel, p.kind === 'next' && styles.yearLabelNext]}>
+                {p.date.getFullYear()}
+              </Text>
               {p.kind === 'next' && (
                 <View style={styles.nextBadge}>
                   <Text style={styles.nextBadgeText}>{formatShortAmount(amount, currency)}</Text>
@@ -159,33 +162,46 @@ function makeStyles(colors: ColorSet) {
       position: 'absolute',
       left: '50%',
       right: 0,
-      height: 1,
-      backgroundColor: colors.border,
+      height: 0,
+      // Dashed top-border draws a 1px dashed line; backgroundColor doesn't
+      // support a dash pattern in RN, this is the standard workaround.
+      borderTopWidth: 1,
+      borderTopColor: colors.borderStrong,
+      borderStyle: 'dashed',
       top: DOT_NEXT_SIZE / 2,
     },
-    connectorPast: { backgroundColor: colors.textTertiary },
+    connectorPast: { borderTopColor: colors.textTertiary },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
       borderRadius: DOT_SIZE / 2,
       zIndex: 1,
+      // Matches the parent card so the dashed connector visually terminates
+      // at each dot rather than passing through.
+      backgroundColor: colors.card,
     },
-    dotPast: { backgroundColor: colors.textPrimary },
+    // Hollow ring filled with the surface color so the dashed connector
+    // disappears behind the dot — matches the finpal style.
+    dotPast: {
+      borderWidth: 2,
+      borderColor: colors.textPrimary,
+    },
     dotNext: {
       width: DOT_NEXT_SIZE,
       height: DOT_NEXT_SIZE,
       borderRadius: DOT_NEXT_SIZE / 2,
       backgroundColor: colors.accentBlue,
       borderWidth: 2,
-      borderColor: colors.bg,
+      borderColor: colors.card,
     },
     dotFuture: {
-      backgroundColor: 'transparent',
       borderWidth: 1.5,
       borderColor: colors.borderStrong,
     },
     monthLabel: { color: colors.textTertiary, fontSize: 11 },
     monthLabelNext: { color: colors.textPrimary, fontWeight: '700' },
+    yearLabel: { color: colors.textMuted, fontSize: 9 },
+    yearLabelNext: { color: colors.textTertiary, fontWeight: '700' },
     nextBadge: {
       paddingHorizontal: spacing.sm,
       paddingVertical: 2,
