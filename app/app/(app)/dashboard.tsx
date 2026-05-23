@@ -14,6 +14,7 @@ import { ApiError, apiFetch } from '@/lib/api';
 import { categoryColor, categoryFor } from '@/lib/categories';
 import { convert, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
+import { BrandIcon } from '@/components/BrandIcon';
 import { Donut, type DonutSegment } from '@/components/Donut';
 import { LoadingDonut } from '@/components/LoadingDonut';
 import { SubscriptionCard, type SubscriptionCardData } from '@/components/SubscriptionCard';
@@ -141,17 +142,22 @@ export default function Dashboard() {
     const now = new Date();
     const limit = new Date(now);
     limit.setDate(limit.getDate() + 7);
-    let count = 0;
+    const items: Subscription[] = [];
     let total = 0;
     for (const s of activeSubs) {
       if (!s.nextRenewalDate) continue;
       const d = new Date(s.nextRenewalDate);
       if (d >= now && d <= limit) {
-        count++;
+        items.push(s);
         total += convert(s.amount, s.currency, prefs.displayCurrency);
       }
     }
-    return { count, total };
+    // Sort by date so the avatar stack reads left = sooner.
+    items.sort(
+      (a, b) =>
+        new Date(a.nextRenewalDate ?? 0).getTime() - new Date(b.nextRenewalDate ?? 0).getTime(),
+    );
+    return { items, count: items.length, total };
   }, [activeSubs, prefs.displayCurrency]);
 
   const annualTotal = total * 12;
@@ -247,11 +253,14 @@ export default function Dashboard() {
           <View style={styles.summaryRow}>
             <View style={styles.summaryCard}>
               <Text style={styles.summaryLabel}>Next 7 days</Text>
-              <Text style={styles.summaryValue}>
-                {upcoming.count === 0
-                  ? '—'
-                  : formatPrice(upcoming.total, prefs.displayCurrency)}
-              </Text>
+              <View style={styles.summaryValueRow}>
+                <Text style={styles.summaryValue}>
+                  {upcoming.count === 0
+                    ? '—'
+                    : formatPrice(upcoming.total, prefs.displayCurrency)}
+                </Text>
+                {upcoming.count > 0 ? <AvatarStack subs={upcoming.items} /> : null}
+              </View>
               <Text style={styles.summaryHint}>
                 {upcoming.count === 0
                   ? 'no renewals'
@@ -387,6 +396,59 @@ function DecimalCenteredPrice({
   );
 }
 
+// Overlapping circular avatars for the "Next 7 days" card. Shows up to
+// MAX brand logos with each subsequent avatar shifted left by half its
+// width so they read as a stack. If the list is longer, the last slot
+// becomes a "+N" chip instead of a third logo.
+const AVATAR_SIZE = 26;
+const AVATAR_OVERLAP = 10; // pixels each subsequent avatar shifts left
+const AVATAR_MAX = 3;
+
+function AvatarStack({ subs }: { subs: Subscription[] }) {
+  const colors = useTheme();
+  const visible = subs.slice(0, AVATAR_MAX);
+  const overflow = Math.max(0, subs.length - AVATAR_MAX);
+  // When there's overflow, drop the last visible avatar to make room for
+  // the "+N" chip so the stack stays at AVATAR_MAX wide.
+  const shown = overflow > 0 ? visible.slice(0, AVATAR_MAX - 1) : visible;
+  return (
+    <View style={{ flexDirection: 'row' }}>
+      {shown.map((s, i) => (
+        <View
+          key={s.id}
+          style={{
+            marginLeft: i === 0 ? 0 : -AVATAR_OVERLAP,
+            borderWidth: 2,
+            borderColor: colors.card,
+            borderRadius: AVATAR_SIZE,
+          }}
+        >
+          <BrandIcon provider={s.provider} size={AVATAR_SIZE} />
+        </View>
+      ))}
+      {overflow > 0 ? (
+        <View
+          style={{
+            width: AVATAR_SIZE,
+            height: AVATAR_SIZE,
+            borderRadius: AVATAR_SIZE / 2,
+            backgroundColor: colors.cardElevated,
+            borderWidth: 2,
+            borderColor: colors.card,
+            marginLeft: shown.length === 0 ? 0 : -AVATAR_OVERLAP,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ color: colors.textSecondary, fontSize: 10, fontWeight: '700' }}>
+            +{overflow}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 function toCardData(s: Subscription): SubscriptionCardData {
   return {
     id: s.id,
@@ -478,6 +540,12 @@ function makeStyles(colors: ColorSet) {
       gap: 4,
     },
     summaryLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5 },
+    summaryValueRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
     summaryValue: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
     summaryHint: { color: colors.textTertiary, fontSize: 11 },
     subsCountLabel: {
