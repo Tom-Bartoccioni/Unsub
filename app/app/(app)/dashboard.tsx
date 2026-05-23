@@ -338,9 +338,14 @@ function makeStyles(colors: ColorSet) {
       fontSize: 32,
       fontWeight: '800',
       textAlign: 'center',
+      // Span the donut's inner width so textAlign 'center' lays out against
+      // the donut diameter, not the price's intrinsic Text-box width.
+      // Otherwise the parent's alignItems centers the shrunk text box —
+      // a price with a wider currency symbol drifts off horizontal center.
+      alignSelf: 'stretch',
       // Visual nudge up so the price sits a touch above geometric center,
       // leaving room for the label beneath without crowding the bottom arc.
-      marginTop: -24,
+      marginTop: -10,
     },
     legend: {
       flexDirection: 'row',
