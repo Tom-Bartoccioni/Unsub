@@ -108,7 +108,7 @@ export function SubscriptionDetailModal({
                 {sub.provider}
               </Text>
               <Text style={styles.heroSubtitle}>
-                {formatPrice(sub.amount, sub.currency)} every {frequencyLabel(sub.frequency).toLowerCase()}
+                Renews every {frequencyLabel(sub.frequency).toLowerCase()}
               </Text>
               {brand?.category && (
                 <View style={[styles.categoryChip, { borderColor: accent }]}>
@@ -130,7 +130,7 @@ export function SubscriptionDetailModal({
               </Text>
 
               <View style={styles.timelineWrap}>
-                <PaymentTimeline points={points} amount={sub.amount} currency={sub.currency} />
+                <PaymentTimeline points={points} />
               </View>
 
               {totalSpent != null && (
@@ -312,15 +312,15 @@ function makeStyles(colors: ColorSet) {
       gap: 6,
       marginTop: spacing.sm,
     },
-    heroStatus: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginTop: spacing.sm },
+    heroStatus: { fontSize: 11, fontWeight: '600', letterSpacing: 0.6, marginTop: spacing.sm },
     heroTitle: {
       color: colors.textPrimary,
       fontSize: 22,
-      fontWeight: '800',
-      letterSpacing: -0.3,
+      fontWeight: '600',
+      letterSpacing: -0.2,
       textAlign: 'center',
     },
-    heroSubtitle: { color: colors.textSecondary, fontSize: 13, textAlign: 'center' },
+    heroSubtitle: { color: colors.textSecondary, fontSize: 13, textAlign: 'center', fontWeight: '400' },
     categoryChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -331,7 +331,7 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 1,
       marginTop: 4,
     },
-    categoryChipText: { fontSize: 11, fontWeight: '700' },
+    categoryChipText: { fontSize: 11, fontWeight: '500' },
 
     nextPaymentCard: {
       backgroundColor: colors.card,
@@ -342,14 +342,14 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    nextPaymentLabel: { color: colors.textTertiary, fontSize: 12 },
+    nextPaymentLabel: { color: colors.textTertiary, fontSize: 12, fontWeight: '400' },
     nextPaymentAmount: {
       color: colors.danger,
       fontSize: 34,
-      fontWeight: '800',
-      letterSpacing: -0.5,
+      fontWeight: '600',
+      letterSpacing: -0.4,
     },
-    nextPaymentDate: { color: colors.textTertiary, fontSize: 11, marginBottom: spacing.md },
+    nextPaymentDate: { color: colors.textTertiary, fontSize: 11, marginBottom: spacing.md, fontWeight: '400' },
     timelineWrap: { width: '100%', marginTop: spacing.sm },
 
     metaRow: { flexDirection: 'row', gap: spacing.sm },
@@ -362,14 +362,15 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    metaLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5 },
-    metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
+    metaLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5, fontWeight: '400' },
+    metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '500' },
     spentInline: {
       color: colors.textTertiary,
       fontSize: 11,
       fontStyle: 'italic',
       textAlign: 'center',
       marginTop: spacing.md,
+      fontWeight: '400',
     },
 
     error: { color: colors.danger, fontSize: 12, textAlign: 'center' },
@@ -385,9 +386,9 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.borderStrong,
       marginTop: spacing.sm,
     },
-    ghostButtonText: { color: colors.textPrimary, fontSize: 15, fontWeight: '700' },
+    ghostButtonText: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
     deleteLink: { paddingVertical: 8, alignItems: 'center' },
-    deleteLinkText: { color: colors.danger, fontSize: 13, fontWeight: '600' },
+    deleteLinkText: { color: colors.danger, fontSize: 13, fontWeight: '500' },
     disabled: { opacity: 0.6 },
   });
 }

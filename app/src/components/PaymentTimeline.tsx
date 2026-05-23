@@ -20,7 +20,7 @@ export function buildTimelinePoints(opts: {
   mockedPastCount?: number;
   futureCount?: number;
 }): TimelinePoint[] {
-  const { nextRenewal, frequency, mockedPastCount = 3, futureCount = 3 } = opts;
+  const { nextRenewal, frequency, mockedPastCount = 2, futureCount = 2 } = opts;
   if (!nextRenewal) return [];
   const step = cycleStep(frequency);
   if (!step) return [];
@@ -50,15 +50,7 @@ function shift(base: Date, months: number, days: number): Date {
   return d;
 }
 
-export function PaymentTimeline({
-  points,
-  amount,
-  currency,
-}: {
-  points: TimelinePoint[];
-  amount: number;
-  currency: string;
-}) {
+export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
   const colors = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -94,14 +86,6 @@ export function PaymentTimeline({
               <Text style={[styles.monthLabel, p.kind === 'next' && styles.monthLabelNext]}>
                 {monthLabel(p.date)}
               </Text>
-              <Text style={[styles.yearLabel, p.kind === 'next' && styles.yearLabelNext]}>
-                {p.date.getFullYear()}
-              </Text>
-              {p.kind === 'next' && (
-                <View style={styles.nextBadge}>
-                  <Text style={styles.nextBadgeText}>{formatShortAmount(amount, currency)}</Text>
-                </View>
-              )}
             </View>
           );
         })}
@@ -124,18 +108,6 @@ function Dot({
 
 function monthLabel(d: Date): string {
   return d.toLocaleDateString(undefined, { month: 'short' });
-}
-
-function formatShortAmount(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${Math.round(amount)} ${currency}`;
-  }
 }
 
 const DOT_SIZE = 10;
@@ -183,8 +155,8 @@ function makeStyles(colors: ColorSet) {
     // Hollow ring filled with the surface color so the dashed connector
     // disappears behind the dot — matches the finpal style.
     dotPast: {
-      borderWidth: 2,
-      borderColor: colors.textPrimary,
+      borderWidth: 1.5,
+      borderColor: colors.textSecondary,
     },
     dotNext: {
       width: DOT_NEXT_SIZE,
@@ -199,17 +171,7 @@ function makeStyles(colors: ColorSet) {
       borderColor: colors.borderStrong,
     },
     monthLabel: { color: colors.textTertiary, fontSize: 11 },
-    monthLabelNext: { color: colors.textPrimary, fontWeight: '700' },
-    yearLabel: { color: colors.textMuted, fontSize: 9 },
-    yearLabelNext: { color: colors.textTertiary, fontWeight: '700' },
-    nextBadge: {
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 2,
-      borderRadius: radius.pill,
-      backgroundColor: colors.accentBlue,
-      marginTop: 2,
-    },
-    nextBadgeText: { color: '#ffffff', fontSize: 10, fontWeight: '700' },
+    monthLabelNext: { color: colors.textPrimary, fontWeight: '600' },
     empty: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,
