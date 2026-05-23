@@ -16,7 +16,9 @@ export type Preferences = {
 };
 
 const DEFAULTS: Preferences = {
-  theme: 'light',
+  // Dark by default. Users who picked a theme in settings keep their choice
+  // (the persisted value overrides this default on load).
+  theme: 'dark',
   displayCurrency: 'EUR',
   notificationsEnabled: false,
 };
