@@ -55,14 +55,21 @@ function providerKey(name: string): string {
   return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
 }
 
+// Hardcoded glyphs — Intl returns "CHF"/"C$"/"A$" which doesn't match the
+// symbol-only look we want. Dollar-using currencies are disambiguated with
+// a country suffix so the wheel doesn't show three identical `$` rows.
+const CURRENCY_GLYPHS: Record<string, string> = {
+  EUR: '€',
+  USD: '$ US',
+  GBP: '£',
+  CHF: '₣',
+  CAD: '$ CA',
+  AUD: '$ AU',
+  JPY: '¥',
+};
+
 function currencySymbol(code: string): string {
-  try {
-    // formatToParts gives us the localized symbol regardless of position.
-    const parts = new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).formatToParts(0);
-    return parts.find((p) => p.type === 'currency')?.value ?? code;
-  } catch {
-    return code;
-  }
+  return CURRENCY_GLYPHS[code] ?? code;
 }
 
 export function AddSubscriptionWizard({
