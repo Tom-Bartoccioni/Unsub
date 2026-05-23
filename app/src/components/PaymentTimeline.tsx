@@ -17,18 +17,33 @@ export type TimelinePoint = {
 export function buildTimelinePoints(opts: {
   nextRenewal: Date | null;
   frequency: string;
+  // Observed past charges (newest-first or any order — we sort and take the
+  // most recent). When provided, replaces the mocked dots up to its length.
+  pastEvents?: Date[];
   mockedPastCount?: number;
   futureCount?: number;
 }): TimelinePoint[] {
-  const { nextRenewal, frequency, mockedPastCount = 2, futureCount = 2 } = opts;
+  const { nextRenewal, frequency, pastEvents = [], mockedPastCount = 2, futureCount = 2 } = opts;
   if (!nextRenewal) return [];
   const step = cycleStep(frequency);
   if (!step) return [];
 
   const points: TimelinePoint[] = [];
-  for (let i = mockedPastCount; i >= 1; i--) {
-    points.push({ date: shift(nextRenewal, -i * step.months, -i * step.days), kind: 'past' });
+
+  // Past slots: prefer real events when we have them; fill any remaining
+  // slots with mocked dates derived from the cycle so the timeline still
+  // shows context for new subscriptions.
+  const sortedReal = [...pastEvents].sort((a, b) => a.getTime() - b.getTime());
+  const realToShow = sortedReal.slice(-mockedPastCount); // oldest of the recent ones first
+  const mockedNeeded = Math.max(0, mockedPastCount - realToShow.length);
+  for (let i = mockedNeeded; i >= 1; i--) {
+    const offset = realToShow.length + i;
+    points.push({ date: shift(nextRenewal, -offset * step.months, -offset * step.days), kind: 'past' });
   }
+  for (const d of realToShow) {
+    points.push({ date: d, kind: 'past' });
+  }
+
   points.push({ date: nextRenewal, kind: 'next' });
   for (let i = 1; i <= futureCount; i++) {
     points.push({ date: shift(nextRenewal, i * step.months, i * step.days), kind: 'future' });

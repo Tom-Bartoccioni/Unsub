@@ -35,6 +35,16 @@ const PatchBody = z
 
 const IdParam = z.object({ id: z.string().uuid() });
 
+const AddPaymentBody = z.object({
+  chargedAt: z.string().datetime(),
+  amount: z.number().positive().max(1_000_000),
+  currency: z
+    .string()
+    .trim()
+    .length(3)
+    .transform((s) => s.toUpperCase()),
+});
+
 function firstProviderToken(provider: string): string {
   return provider.split(/\s+/)[0]?.toLowerCase() ?? '';
 }
@@ -155,6 +165,33 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
           source: e.source,
         })),
       };
+    });
+
+    fastify.post('/subscriptions/:id/payments', async (req, reply) => {
+      const auth = await fastify.requireAuth(req);
+      const idParsed = IdParam.safeParse(req.params);
+      if (!idParsed.success) return reply.code(400).send({ error: 'invalid_id' });
+      const bodyParsed = AddPaymentBody.safeParse(req.body);
+      if (!bodyParsed.success) {
+        return reply.code(400).send({ error: 'invalid_body', issues: bodyParsed.error.issues });
+      }
+      const body = bodyParsed.data;
+      const row = await deps.store.addPaymentEvent(idParsed.data.id, auth.row.id, {
+        chargedAt: new Date(body.chargedAt),
+        amountMinor: Math.round(body.amount * 100),
+        currency: body.currency,
+        source: 'manual',
+      });
+      if (!row) return reply.code(404).send({ error: 'not_found' });
+      return reply.code(201).send({
+        payment: {
+          id: row.id,
+          chargedAt: row.chargedAt.toISOString(),
+          amount: row.amountMinor / 100,
+          currency: row.currency,
+          source: row.source,
+        },
+      });
     });
   };
 }

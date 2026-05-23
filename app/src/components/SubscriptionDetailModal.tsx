@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
+import { RecentTransactions, type PaymentEvent } from './RecentTransactions';
+import { AddTransactionSheet } from './AddTransactionSheet';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatPrice, monthlyAmount } from '@/lib/money';
@@ -28,6 +30,8 @@ export function SubscriptionDetailModal({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [payments, setPayments] = useState<PaymentEvent[]>([]);
+  const [addingTx, setAddingTx] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
@@ -35,15 +39,35 @@ export function SubscriptionDetailModal({
   const tint = useMemo(() => brandTint(brandColor, isDark), [brandColor, isDark]);
   const accent = useMemo(() => brandAccent(brandColor, isDark), [brandColor, isDark]);
 
+  // Reset + fetch whenever a new subscription is opened.
+  useEffect(() => {
+    if (!visible || !sub) {
+      setPayments([]);
+      return;
+    }
+    let cancelled = false;
+    apiFetch<{ payments: PaymentEvent[] }>(`/subscriptions/${sub.id}/payments`)
+      .then((res) => {
+        if (!cancelled) setPayments(res.payments);
+      })
+      .catch(() => {
+        // Non-fatal — leave payments empty; the section just hides itself.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, sub]);
+
   const points = useMemo(
     () =>
       sub
         ? buildTimelinePoints({
             nextRenewal: sub.nextRenewalDate ? new Date(sub.nextRenewalDate) : null,
             frequency: sub.frequency,
+            pastEvents: payments.map((p) => new Date(p.chargedAt)),
           })
         : [],
-    [sub],
+    [sub, payments],
   );
 
   if (!sub) return null;
@@ -138,6 +162,12 @@ export function SubscriptionDetailModal({
               )}
             </View>
 
+            <RecentTransactions
+              sub={sub}
+              payments={payments}
+              onAdd={() => setAddingTx(true)}
+            />
+
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
             <Pressable
@@ -161,6 +191,14 @@ export function SubscriptionDetailModal({
           </ScrollView>
         </View>
       </View>
+      <AddTransactionSheet
+        visible={addingTx}
+        subscriptionId={sub.id}
+        defaultAmount={sub.amount}
+        defaultCurrency={sub.currency}
+        onClose={() => setAddingTx(false)}
+        onAdded={(p) => setPayments((prev) => [p, ...prev])}
+      />
     </Modal>
   );
 }

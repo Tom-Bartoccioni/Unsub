@@ -43,6 +43,12 @@ export type SubscriptionStore = {
     subscriptionId: string,
     userId: string,
   ) => Promise<PaymentEventRow[] | null>;
+  // Inserts a manual event. Returns null on ownership failure.
+  addPaymentEvent: (
+    subscriptionId: string,
+    userId: string,
+    input: { chargedAt: Date; amountMinor: number; currency: string; source: string },
+  ) => Promise<PaymentEventRow | null>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -132,6 +138,18 @@ export function createDrizzleSubscriptionStore(
         .from(paymentEvents)
         .where(eq(paymentEvents.subscriptionId, subscriptionId))
         .orderBy(desc(paymentEvents.chargedAt));
+    },
+    async addPaymentEvent(subscriptionId, userId, input) {
+      const [sub] = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.userId, userId)));
+      if (!sub) return null;
+      const [row] = await db
+        .insert(paymentEvents)
+        .values({ subscriptionId, ...input })
+        .returning();
+      return row ?? null;
     },
   };
 }
