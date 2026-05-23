@@ -401,7 +401,9 @@ function DecimalCenteredPrice({
 // width so they read as a stack. If the list is longer, the last slot
 // becomes a "+N" chip instead of a third logo.
 const AVATAR_SIZE = 26;
-const AVATAR_OVERLAP = 10; // pixels each subsequent avatar shifts left
+// ~65% overlap so the stack feels tightly clustered (matches the
+// reference). Lower this for more breathing room between logos.
+const AVATAR_OVERLAP = 17;
 const AVATAR_MAX = 3;
 
 function AvatarStack({ subs }: { subs: Subscription[] }) {
@@ -411,6 +413,9 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
   // When there's overflow, drop the last visible avatar to make room for
   // the "+N" chip so the stack stays at AVATAR_MAX wide.
   const shown = overflow > 0 ? visible.slice(0, AVATAR_MAX - 1) : visible;
+  const stackLen = shown.length + (overflow > 0 ? 1 : 0);
+  // First avatar sits on top of subsequent ones (sub renewing soonest is
+  // the "front" of the stack). Give earlier items higher zIndex.
   return (
     <View style={{ flexDirection: 'row' }}>
       {shown.map((s, i) => (
@@ -421,6 +426,7 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
             borderWidth: 2,
             borderColor: colors.card,
             borderRadius: AVATAR_SIZE,
+            zIndex: stackLen - i,
           }}
         >
           <BrandIcon provider={s.provider} size={AVATAR_SIZE} />
@@ -438,6 +444,7 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
             marginLeft: shown.length === 0 ? 0 : -AVATAR_OVERLAP,
             alignItems: 'center',
             justifyContent: 'center',
+            zIndex: 0, // sits behind every brand avatar
           }}
         >
           <Text style={{ color: colors.textSecondary, fontSize: 10, fontWeight: '700' }}>
