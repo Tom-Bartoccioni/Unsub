@@ -279,12 +279,14 @@ function makeStyles(colors: ColorSet) {
       backgroundColor: colors.bg,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      height: '88%',
+      // Sheet hugs its content; cap so very long detail lists still scroll
+      // instead of pushing the close button off the top.
+      maxHeight: '92%',
     },
     scrollContent: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.lg,
-      paddingBottom: spacing.xl,
+      paddingBottom: spacing.md,
       gap: spacing.md,
     },
     closeButton: {
