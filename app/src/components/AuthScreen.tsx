@@ -251,7 +251,7 @@ function makeStyles() {
     // is cropped by negative margins) matches the dashboard donut's 240px
     // diameter. Visible center should land at y=204 — bounding-box center
     // is at top + height/2, so marginTop = 204 - height/2.
-    logo: { width: 900, height: 900, alignSelf: 'center', marginTop: -246, marginBottom: -260 },
+    logo: { width: 800, height: 800, alignSelf: 'center', marginTop: -196, marginBottom: -230 },
     headings: { gap: 6 },
     title: { fontSize: 28, fontWeight: '800', color: ink.textPrimary, letterSpacing: -0.5 },
     subtitle: { fontSize: 14, color: ink.textSecondary, lineHeight: 20 },
