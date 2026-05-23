@@ -417,7 +417,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
   };
 
   const currencyValues = useMemo(
-    () => SUPPORTED_CURRENCIES.map((c) => ({ label: `${currencySymbol(c)} ${c}`, value: c })),
+    () => SUPPORTED_CURRENCIES.map((c) => ({ label: currencySymbol(c), value: c })),
     [],
   );
 
@@ -432,42 +432,45 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         </Pressable>
 
         <View style={styles.amountDisplay}>
-          {editing ? (
-            <TextInput
-              style={styles.amountInput}
-              value={text}
-              onChangeText={setText}
-              onBlur={commit}
-              onSubmitEditing={commit}
-              keyboardType="decimal-pad"
-              autoFocus
-              selectTextOnFocus
-              placeholderTextColor={colors.textTertiary}
-            />
-          ) : (
-            <Pressable
-              onPress={() => {
-                setText(draft.amount.toFixed(2));
-                setEditing(true);
-              }}
-            >
-              <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
-            </Pressable>
-          )}
-          {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
+          <View style={styles.amountInlineRow}>
+            <View style={styles.currencyWheelWrap}>
+              <WheelPicker<string>
+                values={currencyValues}
+                selected={draft.currency}
+                onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
+                compact
+              />
+            </View>
+
+            {editing ? (
+              <TextInput
+                style={styles.amountInput}
+                value={text}
+                onChangeText={setText}
+                onBlur={commit}
+                onSubmitEditing={commit}
+                keyboardType="decimal-pad"
+                autoFocus
+                selectTextOnFocus
+                placeholderTextColor={colors.textTertiary}
+              />
+            ) : (
+              <Pressable
+                onPress={() => {
+                  setText(draft.amount.toFixed(2));
+                  setEditing(true);
+                }}
+              >
+                <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
+              </Pressable>
+            )}
+          </View>
+          {!editing && <Text style={styles.amountHint}>Tap to edit · scroll {currencySymbol(draft.currency)} to change</Text>}
         </View>
 
         <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
           <Ionicons name="add" size={24} color={colors.textPrimary} />
         </Pressable>
-      </View>
-
-      <View style={styles.currencyWheelWrap}>
-        <WheelPicker<string>
-          values={currencyValues}
-          selected={draft.currency}
-          onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
-        />
       </View>
 
       <Text style={styles.amountSectionLabel}>Common prices</Text>
@@ -830,11 +833,15 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '600',
       marginTop: spacing.lg,
     },
-    currencyWheelWrap: {
+    amountInlineRow: {
       flexDirection: 'row',
-      height: 200,
-      marginTop: spacing.md,
+      alignItems: 'center',
+      gap: spacing.sm,
       justifyContent: 'center',
+    },
+    currencyWheelWrap: {
+      width: 56,
+      flexDirection: 'row',
     },
 
     presetRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },

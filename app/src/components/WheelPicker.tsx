@@ -10,9 +10,10 @@ import {
 import { radius, type ColorSet } from '@/theme';
 import { useTheme } from '@/state/preferences';
 
-const ITEM_HEIGHT = 40;
-const VISIBLE = 5; // odd so there's a clear center row
-const PAD = (VISIBLE - 1) / 2;
+const DEFAULT_ITEM_HEIGHT = 40;
+const DEFAULT_VISIBLE = 5; // odd so there's a clear center row
+const COMPACT_ITEM_HEIGHT = 28;
+const COMPACT_VISIBLE = 3;
 // After the user stops scrolling for this long, snap to the nearest row.
 const SETTLE_MS = 120;
 
@@ -27,13 +28,18 @@ export function WheelPicker<T = number>({
   values,
   selected,
   onChange,
+  compact = false,
 }: {
   values: WheelValue<T>[];
   selected: T;
   onChange: (value: T) => void;
+  compact?: boolean;
 }) {
   const colors = useTheme();
-  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const ITEM_HEIGHT = compact ? COMPACT_ITEM_HEIGHT : DEFAULT_ITEM_HEIGHT;
+  const VISIBLE = compact ? COMPACT_VISIBLE : DEFAULT_VISIBLE;
+  const PAD = (VISIBLE - 1) / 2;
+  const styles = useMemo(() => makeStyles(colors, ITEM_HEIGHT, VISIBLE, PAD), [colors, ITEM_HEIGHT, VISIBLE, PAD]);
   const ref = useRef<ScrollView>(null);
   // Index the wheel currently rests on, per the user's last scroll. Guards
   // the sync effect from fighting an in-progress scroll.
@@ -123,10 +129,11 @@ export function WheelPicker<T = number>({
   );
 }
 
-function makeStyles(colors: ColorSet) {
+function makeStyles(colors: ColorSet, itemHeight: number, visible: number, pad: number) {
+  const compact = itemHeight < DEFAULT_ITEM_HEIGHT;
   return StyleSheet.create({
     wrap: {
-      height: ITEM_HEIGHT * VISIBLE,
+      height: itemHeight * visible,
       flex: 1,
       justifyContent: 'center',
     },
@@ -134,15 +141,15 @@ function makeStyles(colors: ColorSet) {
       position: 'absolute',
       left: 0,
       right: 0,
-      top: ITEM_HEIGHT * PAD,
-      height: ITEM_HEIGHT,
+      top: itemHeight * pad,
+      height: itemHeight,
       borderRadius: radius.md,
       backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,
     },
-    item: { height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center' },
-    itemText: { color: colors.textTertiary, fontSize: 16 },
-    itemTextActive: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
+    item: { height: itemHeight, alignItems: 'center', justifyContent: 'center' },
+    itemText: { color: colors.textTertiary, fontSize: compact ? 14 : 16 },
+    itemTextActive: { color: colors.textPrimary, fontSize: compact ? 16 : 18, fontWeight: '700' },
   });
 }
