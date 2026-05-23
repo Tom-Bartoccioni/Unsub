@@ -5,7 +5,7 @@ import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
-import { formatPrice, frequencyLabel, monthlyAmount } from '@/lib/money';
+import { formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { usePrefs, useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
@@ -138,19 +138,6 @@ export function SubscriptionDetailModal({
               )}
             </View>
 
-            <View style={styles.metaRow}>
-              <MetaCard
-                label="Billing Cycle"
-                value={frequencyLabel(sub.frequency)}
-                styles={styles}
-              />
-              <MetaCard
-                label="Tracked Since"
-                value={fmtMediumDate(joinedAt)}
-                styles={styles}
-              />
-            </View>
-
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
             <Pressable
@@ -178,32 +165,10 @@ export function SubscriptionDetailModal({
   );
 }
 
-function MetaCard({
-  label,
-  value,
-  styles,
-}: {
-  label: string;
-  value: string;
-  styles: ReturnType<typeof makeStyles>;
-}) {
-  return (
-    <View style={styles.metaCard}>
-      <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
-    </View>
-  );
-}
-
 function humanize(e: unknown, verb: 'update' | 'delete'): string {
   if (e instanceof ApiError) return `API ${e.status}: ${e.message}`;
   if (e instanceof Error) return e.message;
   return `Failed to ${verb}`;
-}
-
-function fmtMediumDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
 
 function fmtLongDate(iso: string): string {
@@ -350,18 +315,6 @@ function makeStyles(colors: ColorSet) {
     nextPaymentDate: { color: colors.textTertiary, fontSize: 11, marginBottom: spacing.md, fontWeight: '400' },
     timelineWrap: { width: '100%', marginTop: spacing.sm },
 
-    metaRow: { flexDirection: 'row', gap: spacing.sm },
-    metaCard: {
-      flex: 1,
-      backgroundColor: colors.card,
-      borderRadius: radius.lg,
-      padding: spacing.md,
-      gap: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    metaLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5, fontWeight: '400' },
-    metaValue: { color: colors.textPrimary, fontSize: 15, fontWeight: '500' },
     spentInline: {
       color: colors.textTertiary,
       fontSize: 11,
