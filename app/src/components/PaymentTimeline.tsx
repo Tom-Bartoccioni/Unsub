@@ -132,14 +132,17 @@ function makeStyles(colors: ColorSet) {
     },
     connector: {
       position: 'absolute',
+      // Span from this dot's center (left 50%) all the way to the NEXT
+      // dot's center (one full cell to the right, so right: -50%).
+      // Without the negative right, the line stops at the cell boundary and
+      // never reaches the neighbour.
       left: '50%',
-      right: 0,
-      // Solid 1px line, vertically centered on the row by anchoring its
-      // center to the row's center (top: half row height, then nudge up by
-      // half the line thickness so the visible pixel sits exactly on center).
+      right: '-50%',
+      // Centered on the dot row's vertical midpoint.
       height: 1,
       backgroundColor: colors.borderStrong,
-      top: DOT_NEXT_SIZE / 2 - 0.5,
+      top: DOT_NEXT_SIZE / 2,
+      transform: [{ translateY: -0.5 }],
     },
     connectorPast: { backgroundColor: colors.textTertiary },
     dot: {

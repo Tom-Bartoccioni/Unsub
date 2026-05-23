@@ -340,7 +340,7 @@ function makeStyles(colors: ColorSet) {
     },
     nextPaymentLabel: { color: colors.textTertiary, fontSize: 12, fontWeight: '400' },
     nextPaymentAmount: {
-      color: colors.danger,
+      color: colors.textPrimary,
       fontSize: 34,
       fontWeight: '600',
       letterSpacing: -0.4,
