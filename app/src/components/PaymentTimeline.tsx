@@ -106,6 +106,8 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
                       // into the future and stays neutral.
                       p.kind === 'past' && styles.connectorPast,
                       p.kind === 'real' && points[i + 1]?.kind === 'real' && styles.connectorReal,
+                      // Trailing segment into the unpaid renewal: dashed.
+                      points[i + 1]?.kind === 'next' && styles.connectorPending,
                     ]}
                   />
                 )}
@@ -175,6 +177,16 @@ function makeStyles(colors: ColorSet) {
     },
     connectorPast: { backgroundColor: colors.textTertiary },
     connectorReal: { backgroundColor: colors.success },
+    // Segments crossing into a not-yet-paid renewal: drop the solid fill
+    // and draw a dashed border on top instead. Height is collapsed to 0 so
+    // the 1px dashed border sits at the same row-y as the solid line.
+    connectorPending: {
+      backgroundColor: 'transparent',
+      height: 0,
+      borderTopWidth: 1,
+      borderTopColor: colors.borderStrong,
+      borderStyle: 'dashed',
+    },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
@@ -196,11 +208,13 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 2,
       borderColor: colors.card,
     },
+    // The "next" dot is the upcoming, unpaid renewal. Grey filled so it
+    // reads as anticipated rather than confirmed (real dots are green).
     dotNext: {
       width: DOT_NEXT_SIZE,
       height: DOT_NEXT_SIZE,
       borderRadius: DOT_NEXT_SIZE / 2,
-      backgroundColor: colors.accentBlue,
+      backgroundColor: colors.textTertiary,
       borderWidth: 2,
       borderColor: colors.card,
     },
