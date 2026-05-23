@@ -12,7 +12,7 @@ import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryColor, categoryFor } from '@/lib/categories';
-import { convert, monthlyAmount } from '@/lib/money';
+import { convert, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { Donut, type DonutSegment } from '@/components/Donut';
 import { LoadingDonut } from '@/components/LoadingDonut';
@@ -128,6 +128,34 @@ export default function Dashboard() {
     [segments, selectedCategory],
   );
 
+  // Active subs counted for the dashboard summary cards. Cancelled subs
+  // don't contribute to upcoming/annual; trial subs do (they'll convert
+  // unless cancelled).
+  const activeSubs = useMemo(() => subs.filter((s) => s.status !== 'cancelled'), [subs]);
+
+  // Renewals hitting in the next 7 days. Each row counts once at its
+  // amount in display currency (a weekly sub might also charge again
+  // inside 7 days, but our nextRenewalDate only points at the next one
+  // — accepting the slight undercount keeps this simple).
+  const upcoming = useMemo(() => {
+    const now = new Date();
+    const limit = new Date(now);
+    limit.setDate(limit.getDate() + 7);
+    let count = 0;
+    let total = 0;
+    for (const s of activeSubs) {
+      if (!s.nextRenewalDate) continue;
+      const d = new Date(s.nextRenewalDate);
+      if (d >= now && d <= limit) {
+        count++;
+        total += convert(s.amount, s.currency, prefs.displayCurrency);
+      }
+    }
+    return { count, total };
+  }, [activeSubs, prefs.displayCurrency]);
+
+  const annualTotal = total * 12;
+
   const detailSub = subs.find((s) => s.id === detailId) ?? null;
   const onUpdated = (s: Subscription) =>
     setSubs((prev) => prev.map((p) => (p.id === s.id ? s : p)));
@@ -213,6 +241,37 @@ export default function Dashboard() {
               );
             })}
           </View>
+        ) : null}
+
+        {activeSubs.length > 0 ? (
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Next 7 days</Text>
+              <Text style={styles.summaryValue}>
+                {upcoming.count === 0
+                  ? '—'
+                  : formatPrice(upcoming.total, prefs.displayCurrency)}
+              </Text>
+              <Text style={styles.summaryHint}>
+                {upcoming.count === 0
+                  ? 'no renewals'
+                  : `${upcoming.count} renewal${upcoming.count === 1 ? '' : 's'}`}
+              </Text>
+            </View>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Yearly</Text>
+              <Text style={styles.summaryValue}>
+                {formatPrice(annualTotal, prefs.displayCurrency)}
+              </Text>
+              <Text style={styles.summaryHint}>at current pace</Text>
+            </View>
+          </View>
+        ) : null}
+
+        {activeSubs.length > 0 ? (
+          <Text style={styles.subsCountLabel}>
+            You have {activeSubs.length} subscription{activeSubs.length === 1 ? '' : 's'}
+          </Text>
         ) : null}
 
         <View style={styles.list}>
@@ -408,6 +467,25 @@ function makeStyles(colors: ColorSet) {
     legendDot: { width: 8, height: 8, borderRadius: radius.pill },
     legendText: { color: colors.textSecondary, fontSize: 11 },
     legendTextSelected: { color: colors.textPrimary, fontWeight: '700' },
+    summaryRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    summaryCard: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+      gap: 4,
+    },
+    summaryLabel: { color: colors.textTertiary, fontSize: 11, letterSpacing: 0.5 },
+    summaryValue: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
+    summaryHint: { color: colors.textTertiary, fontSize: 11 },
+    subsCountLabel: {
+      color: colors.textTertiary,
+      fontSize: 12,
+      marginTop: spacing.lg,
+      marginBottom: spacing.xs,
+    },
     list: { gap: spacing.sm },
     empty: { alignItems: 'center', padding: spacing.xl, gap: 6 },
     emptyTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '600' },
