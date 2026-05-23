@@ -16,21 +16,21 @@ const PAD = (VISIBLE - 1) / 2;
 // After the user stops scrolling for this long, snap to the nearest row.
 const SETTLE_MS = 120;
 
-export type WheelValue = { label: string; value: number };
+export type WheelValue<T = number> = { label: string; value: T };
 
 // A scroll-snap picker column. The row centered under the highlight is the
 // selected value. snapToInterval is unreliable on RN-Web, so settling is
 // driven in JS: a debounced onScroll handler snaps to the nearest row once
 // the user stops, and commits that row's value. No tap-to-pick — the
 // centered row is always the selection.
-export function WheelPicker({
+export function WheelPicker<T = number>({
   values,
   selected,
   onChange,
 }: {
-  values: WheelValue[];
-  selected: number;
-  onChange: (value: number) => void;
+  values: WheelValue<T>[];
+  selected: T;
+  onChange: (value: T) => void;
 }) {
   const colors = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -112,7 +112,7 @@ export function WheelPicker({
         contentContainerStyle={{ paddingVertical: PAD * ITEM_HEIGHT }}
       >
         {values.map((v, i) => (
-          <View key={`${v.value}-${i}`} style={styles.item}>
+          <View key={`${String(v.value)}-${i}`} style={styles.item}>
             <Text style={[styles.itemText, i === selectedIndex && styles.itemTextActive]}>
               {v.label}
             </Text>

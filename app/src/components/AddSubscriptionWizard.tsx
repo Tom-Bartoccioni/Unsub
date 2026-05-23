@@ -416,19 +416,15 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
     setEditing(false);
   };
 
-  const cycleCurrency = (dir: 1 | -1) => {
-    const i = SUPPORTED_CURRENCIES.indexOf(draft.currency as (typeof SUPPORTED_CURRENCIES)[number]);
-    const safe = i < 0 ? 0 : i;
-    const next = SUPPORTED_CURRENCIES[(safe + dir + SUPPORTED_CURRENCIES.length) % SUPPORTED_CURRENCIES.length];
-    setDraft((d) => ({ ...d, currency: next! }));
-  };
-
-  const symbol = currencySymbol(draft.currency);
+  const currencyValues = useMemo(
+    () => SUPPORTED_CURRENCIES.map((c) => ({ label: `${currencySymbol(c)} ${c}`, value: c })),
+    [],
+  );
 
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>How much is it?</Text>
-      <Text style={styles.stepSubtitle}>Tap the amount to type an exact price.</Text>
+      <Text style={styles.stepSubtitle}>Tap the amount to type · scroll the currency to change.</Text>
 
       <View style={styles.amountRow}>
         <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
@@ -436,47 +432,42 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         </Pressable>
 
         <View style={styles.amountDisplay}>
-          <View style={styles.amountInline}>
+          {editing ? (
+            <TextInput
+              style={styles.amountInput}
+              value={text}
+              onChangeText={setText}
+              onBlur={commit}
+              onSubmitEditing={commit}
+              keyboardType="decimal-pad"
+              autoFocus
+              selectTextOnFocus
+              placeholderTextColor={colors.textTertiary}
+            />
+          ) : (
             <Pressable
-              onPress={() => cycleCurrency(1)}
-              onLongPress={() => cycleCurrency(-1)}
-              hitSlop={8}
-              style={styles.currencyToggle}
-              accessibilityLabel={`Currency ${draft.currency}, tap to change`}
+              onPress={() => {
+                setText(draft.amount.toFixed(2));
+                setEditing(true);
+              }}
             >
-              <Text style={styles.currencyToggleText}>{symbol}</Text>
-              <Ionicons name="swap-horizontal" size={12} color={colors.textTertiary} />
+              <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
             </Pressable>
-
-            {editing ? (
-              <TextInput
-                style={styles.amountInput}
-                value={text}
-                onChangeText={setText}
-                onBlur={commit}
-                onSubmitEditing={commit}
-                keyboardType="decimal-pad"
-                autoFocus
-                selectTextOnFocus
-                placeholderTextColor={colors.textTertiary}
-              />
-            ) : (
-              <Pressable
-                onPress={() => {
-                  setText(draft.amount.toFixed(2));
-                  setEditing(true);
-                }}
-              >
-                <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
-              </Pressable>
-            )}
-          </View>
-          {!editing && <Text style={styles.amountHint}>Tap amount to edit · tap {symbol} to change</Text>}
+          )}
+          {!editing && <Text style={styles.amountHint}>Tap to edit</Text>}
         </View>
 
         <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
           <Ionicons name="add" size={24} color={colors.textPrimary} />
         </Pressable>
+      </View>
+
+      <View style={styles.currencyWheelWrap}>
+        <WheelPicker<string>
+          values={currencyValues}
+          selected={draft.currency}
+          onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
+        />
       </View>
 
       <Text style={styles.amountSectionLabel}>Common prices</Text>
@@ -839,19 +830,12 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '600',
       marginTop: spacing.lg,
     },
-    amountInline: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    currencyToggle: {
+    currencyWheelWrap: {
       flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      paddingHorizontal: spacing.sm,
-      paddingVertical: 6,
-      borderRadius: radius.md,
-      backgroundColor: colors.cardElevated,
-      borderWidth: 1,
-      borderColor: colors.borderStrong,
+      height: 200,
+      marginTop: spacing.md,
+      justifyContent: 'center',
     },
-    currencyToggleText: { color: colors.textPrimary, fontSize: 22, fontWeight: '800' },
 
     presetRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
     preset: {
