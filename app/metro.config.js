@@ -35,4 +35,14 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
+// Firebase v11 (and many other packages) ship multiple builds via
+// package.json `exports` conditions. Without explicitly telling Metro
+// to prefer the `react-native` condition, the bundler picks the
+// browser build on native — which uses XMLHttpRequest paths that don't
+// work in React Native and surface as auth/network-request-failed on
+// every Firebase Auth call. Adding it to unstable_conditionNames makes
+// Metro pick the RN-specific exports for firebase/auth, etc.
+config.resolver.unstable_enablePackageExports = true;
+config.resolver.unstable_conditionNames = ['require', 'react-native', 'default'];
+
 module.exports = config;
