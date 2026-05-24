@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -55,9 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp: async (email, password) => {
         await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
       },
-      // Default Google provider only requests profile + email scopes — no
-      // Gmail/scraping scopes. Those are requested separately later.
+      // Google sign-in differs by platform:
+      //   - Web: signInWithPopup opens an oauth popup, returns a credential.
+      //   - Native: signInWithPopup isn't supported. Proper native flow needs
+      //     OAuth client IDs registered in Google Cloud Console with the
+      //     app's signing fingerprint, which isn't wired up yet. Throw a
+      //     readable error so the UI can show 'use email/password instead'
+      //     instead of the silent 'undefined is not a function'.
       signInWithGoogle: async () => {
+        if (Platform.OS !== 'web') {
+          throw Object.assign(new Error('Google sign-in is not yet available on the app.'), {
+            code: 'auth/operation-not-supported-in-this-environment',
+          });
+        }
         await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
       },
       signOut: async () => {

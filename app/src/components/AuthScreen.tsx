@@ -161,22 +161,30 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             <Text style={styles.primaryButtonText}>{submitting ? copy.busyCta : copy.cta}</Text>
           </Pressable>
 
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Or Continue With</Text>
-            <View style={styles.dividerLine} />
-          </View>
+          {/* Google sign-in only works on web today; the native flow needs
+              OAuth client IDs registered in Google Cloud against the app's
+              signing fingerprint and isn't wired up yet. Hide the button
+              on native so users don't tap something that always fails. */}
+          {Platform.OS === 'web' && (
+            <>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>Or Continue With</Text>
+                <View style={styles.dividerLine} />
+              </View>
 
-          <Pressable
-            style={({ pressed }) => [styles.socialButton, pressed && styles.pressed]}
-            onPress={onGoogle}
-            disabled={busy}
-          >
-            <Ionicons name="logo-google" size={20} color={ink.white} />
-            <Text style={styles.socialButtonText}>
-              {googleBusy ? 'Connecting…' : 'Continue with Google'}
-            </Text>
-          </Pressable>
+              <Pressable
+                style={({ pressed }) => [styles.socialButton, pressed && styles.pressed]}
+                onPress={onGoogle}
+                disabled={busy}
+              >
+                <Ionicons name="logo-google" size={20} color={ink.white} />
+                <Text style={styles.socialButtonText}>
+                  {googleBusy ? 'Connecting…' : 'Continue with Google'}
+                </Text>
+              </Pressable>
+            </>
+          )}
 
           <View style={styles.switchRow}>
             <Text style={styles.switchText}>

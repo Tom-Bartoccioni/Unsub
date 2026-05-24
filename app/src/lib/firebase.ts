@@ -1,5 +1,15 @@
+import { Platform } from 'react-native';
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
+import {
+  getAuth,
+  initializeAuth,
+  // Firebase v11 split the RN persistence export into a deep import
+  // path. The type isn't exported either, so we type the import loosely.
+  // @ts-expect-error — getReactNativePersistence is exported but not typed.
+  getReactNativePersistence,
+  type Auth,
+} from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -26,6 +36,16 @@ export function getFirebaseApp(): FirebaseApp {
 
 export function getFirebaseAuth(): Auth {
   if (auth) return auth;
-  auth = getAuth(getFirebaseApp());
+  // On native, the default getAuth() relies on IndexedDB/localStorage which
+  // don't exist — that surfaces as auth/network-request-failed once the
+  // partially-initialized auth hits the network. Use initializeAuth with
+  // AsyncStorage-backed persistence on native; getAuth on web.
+  if (Platform.OS === 'web') {
+    auth = getAuth(getFirebaseApp());
+  } else {
+    auth = initializeAuth(getFirebaseApp(), {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  }
   return auth;
 }
