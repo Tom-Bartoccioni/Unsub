@@ -441,10 +441,12 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
             zIndex: 0, // sits behind every brand avatar
           }}
         >
-          {/* Show the TOTAL upcoming count so the stack reads "there are
-              4 things" rather than "+2 you can't see". */}
+          {/* Count of subs that aren't shown as their own avatar — the
+              "+N more" reading. shown.length is the count of avatar
+              circles next to this chip; the chip itself accounts for the
+              rest of `subs`. */}
           <Text style={{ color: colors.textPrimary, fontSize: 11, fontWeight: '700' }}>
-            +{subs.length}
+            +{subs.length - shown.length}
           </Text>
         </View>
       ) : null}
