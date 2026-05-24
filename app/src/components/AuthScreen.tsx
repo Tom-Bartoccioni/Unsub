@@ -93,7 +93,12 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      // iOS uses 'padding' which adds bottom padding equal to the keyboard
+      // height. Android with softwareKeyboardLayoutMode 'resize' shrinks
+      // the window automatically — combine with 'height' so the inner
+      // ScrollView can scroll the form into view rather than the keyboard
+      // covering the password field and submit button.
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -232,6 +237,8 @@ function humanizeAuthError(e: unknown, mode: Mode): string {
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
       return 'Google sign-in was cancelled.';
+    case 'auth/network-request-failed':
+      return "Couldn't reach the auth service. Check your connection and try again.";
     case 'auth/too-many-requests':
       return 'Too many attempts. Try again in a moment.';
     default:
