@@ -48,8 +48,15 @@ type Draft = {
   startedAt: Date | null;
 };
 
+// Key used by the wizard's "Already tracked" detection. We compare on the
+// full normalized name — first-token-only would lump unrelated products
+// from the same brand together ("Apple TV+" vs "Apple Music"). The API's
+// dedup key (providerKey on the server) is intentionally first-token to
+// coalesce email-scan variants like "Atlassian" and "Atlassian Loom"; the
+// wizard's case is different — the user picks the exact name from the
+// library, so we should trust it.
 function providerKey(name: string): string {
-  return name.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 // Capitalize the first letter of each whitespace-separated word, leaving the
