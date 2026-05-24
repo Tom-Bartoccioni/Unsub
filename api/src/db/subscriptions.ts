@@ -249,21 +249,22 @@ export function createDrizzleSubscriptionStore(
           .set({ nextRenewalDate: newNext, updatedAt: new Date() })
           .where(eq(subscriptions.id, row.id));
         subsAdvanced++;
-        // Insert observed-charge events only if startedAt is set — that's
-        // the signal the user has acknowledged the cycle pattern. Without
-        // it we don't pretend we know they were charged.
-        if (row.startedAt) {
-          await db.insert(paymentEvents).values(
-            missed.map((d) => ({
-              subscriptionId: row.id,
-              chargedAt: d,
-              amountMinor: row.amountMinor,
-              currency: row.currency,
-              source: 'estimated',
-            })),
-          );
-          eventsInserted += missed.length;
-        }
+        // Insert an estimated payment_event for each rolled-over cycle.
+        // The rollover itself is evidence the charge happened — we're
+        // advancing the date because the prior next-renewal-date is in
+        // the past, which means that cycle ran. No startedAt guard needed
+        // for the cycles we observe rolling; only retroactive history
+        // before the user started tracking needs startedAt.
+        await db.insert(paymentEvents).values(
+          missed.map((d) => ({
+            subscriptionId: row.id,
+            chargedAt: d,
+            amountMinor: row.amountMinor,
+            currency: row.currency,
+            source: 'estimated',
+          })),
+        );
+        eventsInserted += missed.length;
       }
       return { subsAdvanced, eventsInserted };
     },
