@@ -36,7 +36,22 @@
       "Bash(awk '{print $NF}')",
       "Bash(xargs -I {} taskkill //PID {} //F)",
       "Bash(pnpm --filter @unsub/api dev)",
-      "Bash(curl -fsS http://localhost:3000/health)"
+      "Bash(curl -fsS http://localhost:3000/health)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx vitest *)",
+      "Bash(npx tsx *)",
+      "Bash(git restore *)",
+      "Bash(git checkout *)",
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)",
+      "Bash(git pull *)",
+      "Bash(git merge *)",
+      "Bash(git branch *)",
+      "Bash(cd \"C:/Users/tomba/Downloads/Unsub/api\" && npx tsc --noEmit 2>&1 | tail -5 && echo \"--- app ---\" && cd ../app && npx tsc --noEmit 2>&1 | tail -5)",
+      "Read(//c/Users/tomba/Downloads/**)",
+      "Bash(pnpm format:check)",
+      "Bash(pnpm format *)"
     ]
   }
 }

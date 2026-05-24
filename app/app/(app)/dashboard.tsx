@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
@@ -114,10 +107,7 @@ export default function Dashboard() {
     [sorted, selectedCategory],
   );
   const ghosted = useMemo(
-    () =>
-      selectedCategory != null
-        ? []
-        : sorted.filter((s) => s.status === 'cancelled'),
+    () => (selectedCategory != null ? [] : sorted.filter((s) => s.status === 'cancelled')),
     [sorted, selectedCategory],
   );
   const { segments, total } = useMemo(
@@ -125,7 +115,7 @@ export default function Dashboard() {
     [subs, prefs.displayCurrency],
   );
   const selectedSegment = useMemo(
-    () => (selectedCategory ? segments.find((s) => s.key === selectedCategory) ?? null : null),
+    () => (selectedCategory ? (segments.find((s) => s.key === selectedCategory) ?? null) : null),
     [segments, selectedCategory],
   );
 
@@ -238,9 +228,7 @@ export default function Dashboard() {
                   style={[styles.legendItem, dimmed && styles.legendItemDimmed]}
                 >
                   <View style={[styles.legendDot, { backgroundColor: s.color }]} />
-                  <Text
-                    style={[styles.legendText, isSelected && styles.legendTextSelected]}
-                  >
+                  <Text style={[styles.legendText, isSelected && styles.legendTextSelected]}>
                     {s.key}
                   </Text>
                 </Pressable>
@@ -255,9 +243,7 @@ export default function Dashboard() {
               <Text style={styles.summaryLabel}>Next 7 days</Text>
               <View style={styles.summaryValueRow}>
                 <Text style={styles.summaryValue}>
-                  {upcoming.count === 0
-                    ? '—'
-                    : formatPrice(upcoming.total, prefs.displayCurrency)}
+                  {upcoming.count === 0 ? '—' : formatPrice(upcoming.total, prefs.displayCurrency)}
                 </Text>
                 {upcoming.count > 0 ? <AvatarStack subs={upcoming.items} /> : null}
               </View>

@@ -146,13 +146,7 @@ function DashedConnector({ styles }: { styles: ReturnType<typeof makeStyles> }) 
   );
 }
 
-function Dot({
-  point,
-  styles,
-}: {
-  point: TimelinePoint;
-  styles: ReturnType<typeof makeStyles>;
-}) {
+function Dot({ point, styles }: { point: TimelinePoint; styles: ReturnType<typeof makeStyles> }) {
   if (point.kind === 'next') return <View style={[styles.dot, styles.dotNext]} />;
   if (point.kind === 'real') return <View style={[styles.dot, styles.dotReal]} />;
   if (point.kind === 'past') return <View style={[styles.dot, styles.dotPast]} />;

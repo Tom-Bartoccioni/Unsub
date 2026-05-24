@@ -189,6 +189,5 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         })),
       };
     });
-
   };
 }

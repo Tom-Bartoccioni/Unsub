@@ -1,13 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { SubscriptionCard } from './SubscriptionCard';
@@ -255,7 +247,14 @@ export function AddSubscriptionWizard({
             />
           )}
           {step === 'success' && created && (
-            <SuccessStep sub={created} onDone={() => { onCreated(created); close(); }} styles={styles} />
+            <SuccessStep
+              sub={created}
+              onDone={() => {
+                onCreated(created);
+                close();
+              }}
+              styles={styles}
+            />
           )}
         </View>
       </View>
@@ -404,7 +403,11 @@ function ServiceStep({
         {search.trim().length > 0 &&
           !filtered.some((s) => s.name.toLowerCase() === search.trim().toLowerCase()) && (
             <Pressable
-              style={({ pressed }) => [styles.serviceRow, styles.customRow, pressed && styles.rowPressed]}
+              style={({ pressed }) => [
+                styles.serviceRow,
+                styles.customRow,
+                pressed && styles.rowPressed,
+              ]}
               onPress={useCustom}
             >
               <View style={styles.customIcon}>
@@ -489,7 +492,9 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
   return (
     <View style={styles.stepBody}>
       <Text style={styles.stepTitle}>How much is it?</Text>
-      <Text style={styles.stepSubtitle}>Tap the amount to type · scroll the currency to change.</Text>
+      <Text style={styles.stepSubtitle}>
+        Tap the amount to type · scroll the currency to change.
+      </Text>
 
       <View style={styles.amountRow}>
         <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
@@ -533,7 +538,11 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
               />
             </View>
           </View>
-          {!editing && <Text style={styles.amountHint}>Tap to edit · scroll {currencySymbol(draft.currency)} to change</Text>}
+          {!editing && (
+            <Text style={styles.amountHint}>
+              Tap to edit · scroll {currencySymbol(draft.currency)} to change
+            </Text>
+          )}
         </View>
 
         <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
@@ -579,16 +588,10 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
   const now = new Date();
-  const years = useMemo(
-    () => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i),
-    [now],
-  );
+  const years = useMemo(() => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i), [now]);
   const d = draft.date;
   const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-  const days = useMemo(
-    () => Array.from({ length: daysInMonth }, (_, i) => i + 1),
-    [daysInMonth],
-  );
+  const days = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => i + 1), [daysInMonth]);
 
   const setPart = (part: 'y' | 'm' | 'd', value: number) => {
     setDraft((prev) => {
@@ -675,22 +678,16 @@ function StartedStep({
   // Suggest one cycle before the next-payment date so the user doesn't have
   // to scroll for the common "I'm midway through the first cycle" case.
   // Falls back to today if the cadence is unknown.
-  const suggested = useMemo(() => oneCycleBefore(draft.date, draft.frequency), [
-    draft.date,
-    draft.frequency,
-  ]);
+  const suggested = useMemo(
+    () => oneCycleBefore(draft.date, draft.frequency),
+    [draft.date, draft.frequency],
+  );
   const value = draft.startedAt ?? suggested;
 
   const now = new Date();
-  const years = useMemo(
-    () => Array.from({ length: 16 }, (_, i) => now.getFullYear() - i),
-    [now],
-  );
+  const years = useMemo(() => Array.from({ length: 16 }, (_, i) => now.getFullYear() - i), [now]);
   const daysInMonth = new Date(value.getFullYear(), value.getMonth() + 1, 0).getDate();
-  const days = useMemo(
-    () => Array.from({ length: daysInMonth }, (_, i) => i + 1),
-    [daysInMonth],
-  );
+  const days = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => i + 1), [daysInMonth]);
 
   const setPart = (part: 'y' | 'm' | 'd', v: number) => {
     setDraft((prev) => {

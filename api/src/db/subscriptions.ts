@@ -1,6 +1,11 @@
 import { and, desc, eq, lt } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { paymentEvents, subscriptions, type PaymentEventRow, type SubscriptionRow } from './schema.js';
+import {
+  paymentEvents,
+  subscriptions,
+  type PaymentEventRow,
+  type SubscriptionRow,
+} from './schema.js';
 
 export type SubscriptionInput = {
   userId: string;
@@ -63,10 +68,7 @@ export type SubscriptionStore = {
   ) => Promise<SubscriptionRow | null>;
   // Returns rows ordered newest-first. Returns null when the subscription
   // doesn't exist or isn't owned by the user (caller should 404).
-  listPaymentEvents: (
-    subscriptionId: string,
-    userId: string,
-  ) => Promise<PaymentEventRow[] | null>;
+  listPaymentEvents: (subscriptionId: string, userId: string) => Promise<PaymentEventRow[] | null>;
   // Inserts a manual event. Returns null on ownership failure.
   addPaymentEvent: (
     subscriptionId: string,
@@ -226,12 +228,7 @@ export function createDrizzleSubscriptionStore(
       const due = await db
         .select()
         .from(subscriptions)
-        .where(
-          and(
-            lt(subscriptions.nextRenewalDate, now),
-            eq(subscriptions.status, 'active'),
-          ),
-        );
+        .where(and(lt(subscriptions.nextRenewalDate, now), eq(subscriptions.status, 'active')));
       let subsAdvanced = 0;
       let eventsInserted = 0;
       for (const row of due) {

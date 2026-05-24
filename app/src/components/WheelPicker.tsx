@@ -39,7 +39,10 @@ export function WheelPicker<T = number>({
   const ITEM_HEIGHT = compact ? COMPACT_ITEM_HEIGHT : DEFAULT_ITEM_HEIGHT;
   const VISIBLE = compact ? COMPACT_VISIBLE : DEFAULT_VISIBLE;
   const PAD = (VISIBLE - 1) / 2;
-  const styles = useMemo(() => makeStyles(colors, ITEM_HEIGHT, VISIBLE, PAD), [colors, ITEM_HEIGHT, VISIBLE, PAD]);
+  const styles = useMemo(
+    () => makeStyles(colors, ITEM_HEIGHT, VISIBLE, PAD),
+    [colors, ITEM_HEIGHT, VISIBLE, PAD],
+  );
   const ref = useRef<ScrollView>(null);
   // Index the wheel currently rests on, per the user's last scroll. Guards
   // the sync effect from fighting an in-progress scroll.

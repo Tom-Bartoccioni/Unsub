@@ -33,7 +33,11 @@ export function AllTransactionsSheet({
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.root}>
-        <Pressable style={StyleSheet.absoluteFillObject} onPress={onClose} accessibilityLabel="Close" />
+        <Pressable
+          style={StyleSheet.absoluteFillObject}
+          onPress={onClose}
+          accessibilityLabel="Close"
+        />
         <View style={styles.sheet}>
           <View style={styles.header}>
             <Pressable onPress={onClose} hitSlop={8} style={styles.headerButton}>
@@ -57,17 +61,12 @@ export function AllTransactionsSheet({
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>{item.label}</Text>
-                  <Text style={styles.sectionTotal}>
-                    {formatPrice(item.total, sub.currency)}
-                  </Text>
+                  <Text style={styles.sectionTotal}>{formatPrice(item.total, sub.currency)}</Text>
                 </View>
                 {item.items.map((p) => {
                   const isEstimated = p.source === 'estimated';
                   return (
-                    <View
-                      key={p.id}
-                      style={[styles.row, isEstimated && styles.rowEstimated]}
-                    >
+                    <View key={p.id} style={[styles.row, isEstimated && styles.rowEstimated]}>
                       <BrandIcon provider={sub.provider} size={32} />
                       <View style={styles.rowBody}>
                         <Text

@@ -118,7 +118,10 @@ export function SubscriptionDetailModal({
           accessibilityLabel="Close"
         />
         <View style={styles.sheet}>
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             <Pressable style={styles.closeButton} onPress={onClose} hitSlop={8}>
               <Ionicons name="close" size={22} color={colors.textPrimary} />
             </Pressable>
@@ -141,9 +144,7 @@ export function SubscriptionDetailModal({
 
             <View style={styles.nextPaymentCard}>
               <Text style={styles.nextPaymentLabel}>Next Payment</Text>
-              <Text style={styles.nextPaymentAmount}>
-                −{formatPrice(sub.amount, sub.currency)}
-              </Text>
+              <Text style={styles.nextPaymentAmount}>−{formatPrice(sub.amount, sub.currency)}</Text>
               <Text style={styles.nextPaymentDate}>
                 {sub.nextRenewalDate
                   ? `Expected ${fmtLongDate(sub.nextRenewalDate)}`
@@ -156,8 +157,8 @@ export function SubscriptionDetailModal({
 
               {totalSpent != null && (
                 <Text style={styles.spentInline}>
-                  You’ve spent {formatPrice(totalSpent, sub.currency)} over{' '}
-                  {monthsTracked} month{monthsTracked === 1 ? '' : 's'} on this vendor.
+                  You’ve spent {formatPrice(totalSpent, sub.currency)} over {monthsTracked} month
+                  {monthsTracked === 1 ? '' : 's'} on this vendor.
                 </Text>
               )}
             </View>
@@ -348,7 +349,12 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '600',
       letterSpacing: -0.4,
     },
-    nextPaymentDate: { color: colors.textTertiary, fontSize: 11, marginBottom: spacing.md, fontWeight: '400' },
+    nextPaymentDate: {
+      color: colors.textTertiary,
+      fontSize: 11,
+      marginBottom: spacing.md,
+      fontWeight: '400',
+    },
     timelineWrap: { width: '100%', marginTop: spacing.sm },
 
     spentInline: {
