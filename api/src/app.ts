@@ -31,6 +31,8 @@ const stubUsers: UserStore = {
     throw new Error('UserStore not configured');
   },
   findByFirebaseUid: async () => null,
+  setTimezone: async () => null,
+  listAll: async () => [],
 };
 
 export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance> {

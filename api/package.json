@@ -16,6 +16,7 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
     "rollover": "tsx src/jobs/rollover.ts",
+    "notify-renewals": "tsx src/jobs/notify-renewals.ts",
     "backfill:recent-events": "tsx src/jobs/backfill-recent-events.ts"
   },
   "dependencies": {

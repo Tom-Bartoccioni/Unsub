@@ -9,6 +9,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase';
+import { sendTimezone } from '@/lib/push';
 
 type AuthContextValue = {
   user: User | null;
@@ -32,6 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe = onIdTokenChanged(auth, (next) => {
         setUser(next);
         setIsLoading(false);
+        // Best-effort: report the device's timezone whenever a user
+        // becomes authenticated, so the server picks the right hour
+        // to send their renewal notification. Fires on app launch
+        // (token persisted) and on sign-in. Silent failure.
+        if (next) void sendTimezone();
       });
     } catch {
       setIsLoading(false);

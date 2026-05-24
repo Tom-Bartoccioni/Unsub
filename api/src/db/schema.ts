@@ -4,6 +4,10 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   firebaseUid: text('firebase_uid').notNull().unique(),
   email: text('email').notNull(),
+  // IANA timezone (e.g. 'Europe/Paris'). Drives when to send the daily
+  // renewal notification — the cron picks each user up during the hour
+  // that's noon in their tz. Nullable: defaults to UTC if unset.
+  timezone: text('timezone'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

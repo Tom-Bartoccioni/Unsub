@@ -1,9 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { PushTokenStore } from '../db/push-tokens.js';
+import type { UserStore } from '../db/users.js';
 import { sendExpoPush } from '../lib/expo-push.js';
 
 export type MeRouteDeps = {
+  users: UserStore;
   pushTokens: PushTokenStore;
 };
 
@@ -21,6 +23,13 @@ const TestNotifyBody = z.object({
   enabled: z.boolean(),
 });
 
+const TimezoneBody = z.object({
+  // IANA timezone identifier ("Europe/Paris"). The app gets this from
+  // Intl.DateTimeFormat().resolvedOptions().timeZone at launch. Length
+  // bound is generous — longest IANA name is around 30 chars.
+  timezone: z.string().min(1).max(64),
+});
+
 export function makeMeRoutes(deps: MeRouteDeps) {
   return async function (fastify: FastifyInstance): Promise<void> {
     fastify.get('/me', async (req) => {
@@ -35,6 +44,20 @@ export function makeMeRoutes(deps: MeRouteDeps) {
           createdAt: auth.row.createdAt.toISOString(),
         },
       };
+    });
+
+    // Set or update the user's timezone. The app sends this on launch
+    // (auto-detected). Drives when the renewal-notification cron fires
+    // for this user — picked up during the hour that's noon in their tz.
+    fastify.patch('/me/timezone', async (req, reply) => {
+      const auth = await fastify.requireAuth(req);
+      const parsed = TimezoneBody.safeParse(req.body);
+      if (!parsed.success) {
+        return reply.code(400).send({ error: 'invalid_body', issues: parsed.error.issues });
+      }
+      const row = await deps.users.setTimezone(auth.row.id, parsed.data.timezone);
+      if (!row) return reply.code(404).send({ error: 'not_found' });
+      return reply.code(200).send({ timezone: row.timezone });
     });
 
     // Register / refresh an Expo push token for the current device.

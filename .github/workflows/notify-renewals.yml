@@ -1,0 +1,65 @@
+name: Hourly renewal notifications
+
+# Runs every hour. The /admin/notify-renewals endpoint walks users,
+# picks those for whom it's currently noon-in-their-timezone, and
+# pushes a digest of tomorrow's renewals. Users with no tomorrow
+# renewals or no push tokens are skipped.
+#
+# Required repo secrets:
+#   - UNSUB_API_URL       e.g. https://unsub-api.onrender.com
+#   - UNSUB_ROLLOVER_TOKEN must match the ROLLOVER_TOKEN env on the API
+#     (we reuse the same shared secret as the rollover endpoint)
+#
+# Note: GitHub disables scheduled workflows after 60 days of repo
+# inactivity. Push at least every two months or re-enable it from
+# the Actions tab.
+
+on:
+  schedule:
+    # Top of every hour, UTC. The endpoint figures out which users
+    # to notify based on their stored timezone.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: notify-renewals
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sanity-check secrets are configured
+        run: |
+          if [ -z "${UNSUB_API_URL:-}" ]; then
+            echo "::error::UNSUB_API_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${UNSUB_ROLLOVER_TOKEN:-}" ]; then
+            echo "::error::UNSUB_ROLLOVER_TOKEN secret is not set"
+            exit 1
+          fi
+          case "$UNSUB_API_URL" in
+            https://*|http://*) ;;
+            *) echo "::error::UNSUB_API_URL must start with http(s)://"; exit 1;;
+          esac
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
+
+      - name: POST /admin/notify-renewals
+        run: |
+          set -euo pipefail
+          set +e
+          curl --silent --show-error --fail-with-body \
+            -o response.json -w 'HTTP %{http_code}\n' \
+            -X POST "${UNSUB_API_URL%/}/admin/notify-renewals" \
+            -H "Authorization: Bearer $UNSUB_ROLLOVER_TOKEN"
+          status=$?
+          set -e
+          echo "--- response body ---"
+          cat response.json || echo "(no response body)"
+          exit $status
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}

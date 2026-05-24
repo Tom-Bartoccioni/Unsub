@@ -6,15 +6,18 @@ import { apiFetch } from './api';
 
 // Foreground behavior: show the banner + play sound when a push arrives
 // while the app is open. Without this, foreground pushes are silent and
-// the user has no idea they came in.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// the user has no idea they came in. expo-notifications throws on web
+// (no platform support), so the handler only runs on native.
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export type PushPlatform = 'ios' | 'android' | 'web';
 
@@ -85,4 +88,25 @@ export async function sendTestNotification(enabled: boolean): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ enabled }),
   });
+}
+
+// Tell the server which timezone this device is in. Drives when the
+// renewal-notification cron fires for this user (around local noon).
+// Auto-detected via Intl; no UI needed.
+export async function sendTimezone(): Promise<void> {
+  let tz: string | undefined;
+  try {
+    tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return; // tz not resolvable, skip silently
+  }
+  if (!tz) return;
+  try {
+    await apiFetch('/me/timezone', {
+      method: 'PATCH',
+      body: JSON.stringify({ timezone: tz }),
+    });
+  } catch {
+    // Best-effort — the cron defaults to UTC for users without a tz.
+  }
 }
