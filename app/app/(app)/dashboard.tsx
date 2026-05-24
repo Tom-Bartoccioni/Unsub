@@ -129,15 +129,19 @@ export default function Dashboard() {
   // inside 7 days, but our nextRenewalDate only points at the next one
   // — accepting the slight undercount keeps this simple).
   const upcoming = useMemo(() => {
+    // Compare in UTC days — nextRenewalDate is stored at UTC midnight, so
+    // using `new Date()` (instant in time) wrongly excludes a renewal
+    // dated today once the clock ticks past 00:00 UTC. Treat the window
+    // as today's UTC midnight through today + 7 days inclusive.
     const now = new Date();
-    const limit = new Date(now);
-    limit.setDate(limit.getDate() + 7);
+    const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const weekEnd = todayUtc + 7 * 86_400_000;
     const items: Subscription[] = [];
     let total = 0;
     for (const s of activeSubs) {
       if (!s.nextRenewalDate) continue;
-      const d = new Date(s.nextRenewalDate);
-      if (d >= now && d <= limit) {
+      const t = new Date(s.nextRenewalDate).getTime();
+      if (t >= todayUtc && t <= weekEnd) {
         items.push(s);
         total += convert(s.amount, s.currency, prefs.displayCurrency);
       }
