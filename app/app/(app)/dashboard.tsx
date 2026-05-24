@@ -387,9 +387,9 @@ function DecimalCenteredPrice({
 // width so they read as a stack. If the list is longer, the last slot
 // becomes a "+N" chip instead of a third logo.
 const AVATAR_SIZE = 26;
-// ~65% overlap so the stack feels tightly clustered (matches the
-// reference). Lower this for more breathing room between logos.
-const AVATAR_OVERLAP = 17;
+// ~50% overlap so the stack reads clustered but each logo still has
+// enough surface to be recognized. Lower this for more breathing room.
+const AVATAR_OVERLAP = 13;
 const AVATAR_MAX = 3;
 
 function AvatarStack({ subs }: { subs: Subscription[] }) {
@@ -421,10 +421,14 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
       {overflow > 0 ? (
         <View
           style={{
+            // Match the avatar wrapper's outer geometry exactly: AVATAR_SIZE
+            // content + 2px border on each side = identical bounding box.
+            // borderStrong as fill (instead of the subtler cardElevated) so
+            // the chip carries the same visual weight as the brand avatars.
             width: AVATAR_SIZE,
             height: AVATAR_SIZE,
             borderRadius: AVATAR_SIZE / 2,
-            backgroundColor: colors.cardElevated,
+            backgroundColor: colors.borderStrong,
             borderWidth: 2,
             borderColor: colors.card,
             marginLeft: shown.length === 0 ? 0 : -AVATAR_OVERLAP,
@@ -433,8 +437,10 @@ function AvatarStack({ subs }: { subs: Subscription[] }) {
             zIndex: 0, // sits behind every brand avatar
           }}
         >
-          <Text style={{ color: colors.textSecondary, fontSize: 10, fontWeight: '700' }}>
-            +{overflow}
+          {/* Show the TOTAL upcoming count so the stack reads "there are
+              4 things" rather than "+2 you can't see". */}
+          <Text style={{ color: colors.textPrimary, fontSize: 11, fontWeight: '700' }}>
+            +{subs.length}
           </Text>
         </View>
       ) : null}
