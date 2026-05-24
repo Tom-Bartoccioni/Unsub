@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { useTheme } from '@/state/preferences';
@@ -131,16 +131,30 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
 }
 
 // Custom dashed line. RN-Web's borderStyle: 'dashed' renders far too many
-// dashes; native ignores borderDashPattern. A flex row of fixed-size dashes
-// keeps the rhythm sparse and identical on both targets.
+// dashes; native ignores borderDashPattern. We measure the wrap's actual
+// width with onLayout and render however many fixed-size dashes fit at a
+// fixed spacing — so the dash rhythm stays consistent regardless of how
+// wide the gap between dots happens to be.
+const DASH_LENGTH = 4;
+const DASH_GAP = 6;
+
 function DashedConnector({ styles }: { styles: ReturnType<typeof makeStyles> }) {
-  // 5 dashes is enough to read as dashed at a typical cell width and matches
-  // the finpal cadence. Container fills the same coordinate space as the
-  // solid connector so vertical alignment is shared.
+  const [count, setCount] = useState(0);
   return (
-    <View style={styles.dashedWrap} pointerEvents="none">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <View key={i} style={styles.dash} />
+    <View
+      style={styles.dashedWrap}
+      pointerEvents="none"
+      onLayout={(e) => {
+        const w = e.nativeEvent.layout.width;
+        if (w <= 0) return;
+        // n dashes need n*DASH_LENGTH + (n-1)*DASH_GAP <= w
+        // => n <= (w + DASH_GAP) / (DASH_LENGTH + DASH_GAP)
+        const next = Math.max(0, Math.floor((w + DASH_GAP) / (DASH_LENGTH + DASH_GAP)));
+        if (next !== count) setCount(next);
+      }}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <View key={i} style={[styles.dash, i > 0 && { marginLeft: DASH_GAP }]} />
       ))}
     </View>
   );
@@ -200,10 +214,13 @@ function makeStyles(colors: ColorSet) {
       height: 1,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      // No justify/space — DashedConnector lays out dashes with a fixed
+      // marginLeft gap and a fixed width, so the rhythm is the same
+      // regardless of how wide the gap between two dots happens to be.
       paddingHorizontal: DOT_SIZE / 2 + 2,
+      overflow: 'hidden',
     },
-    dash: { width: 4, height: 1, backgroundColor: colors.borderStrong },
+    dash: { width: DASH_LENGTH, height: 1, backgroundColor: colors.borderStrong },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
