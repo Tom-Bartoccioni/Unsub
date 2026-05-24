@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
@@ -48,6 +49,7 @@ const COPY: Record<Mode, { title: string; subtitle: string; cta: string; busyCta
 };
 
 export function AuthScreen({ mode }: { mode: Mode }) {
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(), []);
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
@@ -101,7 +103,13 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[
+          styles.scroll,
+          // Bottom inset clears the system gesture/nav bar so the
+          // "Sign Up" link isn't covered by it (and content draws
+          // edge-to-edge instead of leaving a grey strip).
+          { paddingBottom: spacing.xl + insets.bottom },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
