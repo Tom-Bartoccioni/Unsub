@@ -5,7 +5,6 @@ import { BrandIcon } from './BrandIcon';
 import { SubscriptionCard } from './SubscriptionCard';
 import { WheelPicker } from './WheelPicker';
 import { POPULAR_SERVICES, type PopularService } from '@/data/popularServices';
-import { categoryColors } from '@/theme';
 import { categoryFor } from '@/lib/categories';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice, SUPPORTED_CURRENCIES } from '@/lib/money';
@@ -21,12 +20,12 @@ const FREQUENCIES: { label: string; value: Frequency }[] = [
   { label: 'Yearly', value: 'yearly' },
 ];
 
-const CATEGORIES = Object.keys(categoryColors);
-
 // Wizard steps. `success` is terminal; `service` is the entry point.
 // Billing interval lives on the `date` step (next-payment + cadence together).
-type Step = 'service' | 'category' | 'amount' | 'date' | 'started' | 'success';
-const FLOW: Step[] = ['service', 'category', 'amount', 'date', 'started'];
+// Category is derived automatically — library picks pull from categoryFor,
+// custom names default to 'Other' and can be edited from the detail screen.
+type Step = 'service' | 'amount' | 'date' | 'started' | 'success';
+const FLOW: Step[] = ['service', 'amount', 'date', 'started'];
 
 type Draft = {
   provider: string;
@@ -215,9 +214,6 @@ export function AddSubscriptionWizard({
               styles={styles}
               trackedKeys={trackedKeys}
             />
-          )}
-          {step === 'category' && (
-            <CategoryStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
           )}
           {step === 'amount' && (
             <AmountStep draft={draft} setDraft={setDraft} onNext={goNext} styles={styles} />
@@ -422,34 +418,6 @@ function ServiceStep({
 }
 
 // ---- Step 2: category ------------------------------------------------------
-
-function CategoryStep({ draft, setDraft, onNext, styles }: StepProps) {
-  return (
-    <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>Pick a category</Text>
-      <Text style={styles.stepSubtitle}>This colors {draft.provider} in your chart.</Text>
-
-      <View style={styles.chipWrap}>
-        {CATEGORIES.map((cat) => {
-          const active = draft.category === cat;
-          return (
-            <Pressable
-              key={cat}
-              style={[styles.chip, active && styles.chipActive]}
-              onPress={() => setDraft((d) => ({ ...d, category: cat }))}
-            >
-              <View style={[styles.chipDot, { backgroundColor: categoryColors[cat] }]} />
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{cat}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <View style={{ flex: 1 }} />
-      <PrimaryButton label="Continue" onPress={onNext} styles={styles} />
-    </View>
-  );
-}
 
 // ---- Step 3: amount --------------------------------------------------------
 
@@ -950,23 +918,6 @@ function makeStyles(colors: ColorSet) {
     },
     startedPreviewDate: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
     startedPreviewMeta: { color: colors.textTertiary, fontSize: 12 },
-
-    chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
-    chip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: 12,
-      borderRadius: radius.pill,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    chipActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
-    chipDot: { width: 10, height: 10, borderRadius: radius.pill },
-    chipText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
-    chipTextActive: { color: colors.bg },
 
     amountRow: {
       flexDirection: 'row',

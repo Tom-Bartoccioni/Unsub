@@ -5,6 +5,7 @@ import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
 import { RecentTransactions, type PaymentEvent } from './RecentTransactions';
 import { AllTransactionsSheet } from './AllTransactionsSheet';
+import { CategoryPickerSheet } from './CategoryPickerSheet';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatPrice, monthlyAmount } from '@/lib/money';
@@ -32,6 +33,7 @@ export function SubscriptionDetailModal({
   const [error, setError] = useState<string | null>(null);
   const [payments, setPayments] = useState<PaymentEvent[]>([]);
   const [seeAllOpen, setSeeAllOpen] = useState(false);
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
@@ -95,6 +97,19 @@ export function SubscriptionDetailModal({
     }
   };
 
+  const onChangeCategory = async (category: string) => {
+    setError(null);
+    try {
+      const res = await apiFetch<{ subscription: Subscription }>(`/subscriptions/${sub.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ category }),
+      });
+      onUpdated(res.subscription);
+    } catch (e) {
+      setError(humanize(e, 'update'));
+    }
+  };
+
   const onDelete = async () => {
     setError(null);
     setBusy(true);
@@ -134,11 +149,18 @@ export function SubscriptionDetailModal({
               <Text style={styles.heroTitle} numberOfLines={1}>
                 {sub.provider}
               </Text>
-              {brand?.category && (
-                <View style={[styles.categoryChip, { borderColor: accent }]}>
+              {(sub.category ?? brand?.category) && (
+                <Pressable
+                  onPress={() => setCategoryPickerOpen(true)}
+                  style={[styles.categoryChip, { borderColor: accent }]}
+                  accessibilityLabel="Change category"
+                >
                   <Ionicons name="pricetag-outline" size={11} color={accent} />
-                  <Text style={[styles.categoryChipText, { color: accent }]}>{brand.category}</Text>
-                </View>
+                  <Text style={[styles.categoryChipText, { color: accent }]}>
+                    {sub.category ?? brand?.category}
+                  </Text>
+                  <Ionicons name="chevron-down" size={11} color={accent} />
+                </Pressable>
               )}
             </View>
 
@@ -197,6 +219,13 @@ export function SubscriptionDetailModal({
         sub={sub}
         payments={payments}
         onClose={() => setSeeAllOpen(false)}
+      />
+
+      <CategoryPickerSheet
+        visible={categoryPickerOpen}
+        current={sub.category ?? brand?.category ?? null}
+        onSelect={onChangeCategory}
+        onClose={() => setCategoryPickerOpen(false)}
       />
     </Modal>
   );
