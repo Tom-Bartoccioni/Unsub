@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { PaymentTimeline, buildTimelinePoints } from './PaymentTimeline';
@@ -28,6 +29,7 @@ export function SubscriptionDetailModal({
 }) {
   const colors = useTheme();
   const { prefs } = usePrefs();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -134,7 +136,10 @@ export function SubscriptionDetailModal({
         />
         <View style={styles.sheet}>
           <ScrollView
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: spacing.md + insets.bottom },
+            ]}
             showsVerticalScrollIndicator={false}
           >
             <Pressable style={styles.closeButton} onPress={onClose} hitSlop={8}>

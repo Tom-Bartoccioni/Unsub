@@ -10,6 +10,30 @@ export const users = pgTable('users', {
 export type UserRow = typeof users.$inferSelect;
 export type UserInsert = typeof users.$inferInsert;
 
+// Expo push tokens registered by the user's installed app instances. One
+// user can have multiple devices; each device's token is unique. We
+// upsert on (user_id, token) so the same device can re-register safely.
+export const pushTokens = pgTable(
+  'push_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    token: text('token').notNull(),
+    // 'ios' | 'android' | 'web'. Free-form text for forward compatibility.
+    platform: text('platform').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('push_tokens_user_id_idx').on(t.userId),
+    unique('push_tokens_user_token_unique').on(t.userId, t.token),
+  ],
+);
+
+export type PushTokenRow = typeof pushTokens.$inferSelect;
+export type PushTokenInsert = typeof pushTokens.$inferInsert;
+
 export const googleAccounts = pgTable(
   'google_accounts',
   {

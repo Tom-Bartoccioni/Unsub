@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { SubscriptionCard } from './SubscriptionCard';
@@ -91,6 +92,7 @@ export function AddSubscriptionWizard({
   existing?: Subscription[];
 }) {
   const colors = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Set of provider keys the user already actively tracks. Cancelled subs
@@ -180,7 +182,7 @@ export function AddSubscriptionWizard({
           onPress={close}
           accessibilityLabel="Close"
         />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: spacing.xl + insets.bottom }]}>
           {step !== 'success' && (
             <View style={styles.header}>
               <Pressable
@@ -471,9 +473,6 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
         <View style={styles.amountDisplay}>
           <View style={styles.amountInlineRow}>
-            {/* Spacer mirroring the wheel width so the price stays centered. */}
-            <View style={styles.currencyWheelWrap} />
-
             {editing ? (
               <TextInput
                 style={styles.amountInput}
@@ -972,7 +971,7 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'center',
     },
     currencyWheelWrap: {
-      width: 64,
+      width: 56,
       flexDirection: 'row',
     },
 

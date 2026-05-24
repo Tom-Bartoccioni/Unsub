@@ -1,15 +1,66 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
 import { SUPPORTED_CURRENCIES } from '@/lib/money';
+import {
+  ensurePushToken,
+  registerPushToken,
+  sendTestNotification,
+  unregisterPushToken,
+} from '@/lib/push';
 import { radius, spacing, type ColorSet } from '@/theme';
 
 export function SettingsModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const colors = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { signOut } = useAuth();
   const { prefs, setTheme, setDisplayCurrency, setNotificationsEnabled } = usePrefs();
+  const [notifError, setNotifError] = useState<string | null>(null);
+  const [notifBusy, setNotifBusy] = useState(false);
+
+  // Toggle handler:
+  //   - on  → request permission, register the device's Expo push token,
+  //     persist the pref, fire a confirmation push.
+  //   - off → unregister the token (best effort), persist, fire a
+  //     "reminders off" push so the user sees the channel is wired up.
+  // Permission denial surfaces as inline copy under the toggle; the pref
+  // stays at its previous value so we don't lie about it being enabled.
+  const onToggleNotifications = async (next: boolean) => {
+    setNotifError(null);
+    setNotifBusy(true);
+    try {
+      if (next) {
+        const token = await ensurePushToken();
+        if (!token) {
+          setNotifError(
+            'Could not enable notifications — make sure you allowed notifications when prompted.',
+          );
+          return;
+        }
+        await registerPushToken(token);
+        setNotificationsEnabled(true);
+        await sendTestNotification(true);
+      } else {
+        const token = await ensurePushToken();
+        if (token) {
+          try {
+            await unregisterPushToken(token);
+          } catch {
+            // best effort
+          }
+        }
+        setNotificationsEnabled(false);
+        await sendTestNotification(false);
+      }
+    } catch (e) {
+      setNotifError(e instanceof Error ? e.message : 'Something went wrong.');
+    } finally {
+      setNotifBusy(false);
+    }
+  };
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
@@ -27,7 +78,12 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
             </Pressable>
           </View>
 
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: spacing.xl + insets.bottom },
+            ]}
+          >
             <Section title="Appearance" styles={styles}>
               <Row label="Theme" styles={styles}>
                 <SegmentedControl
@@ -71,15 +127,17 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
               <Row label="Pre-charge reminders" styles={styles}>
                 <Switch
                   value={prefs.notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
+                  onValueChange={onToggleNotifications}
+                  disabled={notifBusy}
                   trackColor={{ false: colors.borderStrong, true: colors.accentBlue }}
                   thumbColor={'#ffffff'}
                 />
               </Row>
               <Text style={styles.subtle}>
-                Native push notifications are coming soon. The toggle is saved now so we can wire it
-                up the moment the channel is live.
+                You’ll get a push the day before each subscription renews. Toggle on or off to send
+                a confirmation push to this device right away.
               </Text>
+              {notifError ? <Text style={styles.notifError}>{notifError}</Text> : null}
             </Section>
 
             <Section title="Account" styles={styles}>
@@ -202,6 +260,7 @@ function makeStyles(colors: ColorSet) {
     },
     rowLabel: { color: colors.textPrimary, fontSize: 14, fontWeight: '500' },
     subtle: { color: colors.textTertiary, fontSize: 12 },
+    notifError: { color: colors.danger, fontSize: 12, marginTop: 4 },
     segmented: {
       flexDirection: 'row',
       backgroundColor: colors.cardElevated,

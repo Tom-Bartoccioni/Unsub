@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './routes/health.js';
-import { meRoutes } from './routes/me.js';
+import { makeMeRoutes, type MeRouteDeps } from './routes/me.js';
 import { makeGoogleOAuthRoutes, type OAuthGoogleDeps } from './routes/oauth-google.js';
 import { makeScanRoutes, type ScanRouteDeps } from './routes/scan.js';
 import { makeSubscriptionsRoutes, type SubscriptionsRouteDeps } from './routes/subscriptions.js';
@@ -19,6 +19,7 @@ export type BuildOptions = {
   scan?: ScanRouteDeps;
   subscriptions?: SubscriptionsRouteDeps;
   admin?: AdminRouteDeps;
+  me?: MeRouteDeps;
 };
 
 const stubVerifier: TokenVerifier = async () => {
@@ -54,7 +55,9 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   });
 
   await fastify.register(healthRoutes);
-  await fastify.register(meRoutes);
+  if (opts.me) {
+    await fastify.register(makeMeRoutes(opts.me));
+  }
   if (opts.googleOAuth) {
     await fastify.register(makeGoogleOAuthRoutes(opts.googleOAuth));
   }

@@ -4,6 +4,7 @@ import { getDb } from './db/client.js';
 import { createDrizzleUserStore } from './db/users.js';
 import { createDrizzleGoogleAccountStore } from './db/google-accounts.js';
 import { createDrizzleSubscriptionStore } from './db/subscriptions.js';
+import { createDrizzlePushTokenStore } from './db/push-tokens.js';
 import { createFirebaseVerifier } from './firebase.js';
 
 async function main(): Promise<void> {
@@ -12,6 +13,7 @@ async function main(): Promise<void> {
   const users = createDrizzleUserStore(db);
   const googleStore = createDrizzleGoogleAccountStore(db);
   const subscriptionStore = createDrizzleSubscriptionStore(db);
+  const pushTokenStore = createDrizzlePushTokenStore(db);
   const verifier = createFirebaseVerifier(env);
 
   const oauthConfigured =
@@ -45,6 +47,7 @@ async function main(): Promise<void> {
       : undefined,
     subscriptions: { store: subscriptionStore },
     admin: { store: subscriptionStore, rolloverToken: env.ROLLOVER_TOKEN },
+    me: { pushTokens: pushTokenStore },
   });
   if (!oauthConfigured) {
     app.log.warn(

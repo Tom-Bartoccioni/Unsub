@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { formatPrice, frequencyLabel } from '@/lib/money';
@@ -20,6 +21,7 @@ export function AllTransactionsSheet({
   onClose: () => void;
 }) {
   const colors = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Group rows by month-year so the list reads as chunks of history rather
@@ -56,7 +58,10 @@ export function AllTransactionsSheet({
           <FlatList
             data={sections}
             keyExtractor={(s) => s.key}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: spacing.xl + insets.bottom },
+            ]}
             renderItem={({ item }) => (
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>

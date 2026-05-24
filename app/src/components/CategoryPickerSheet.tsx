@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { categoryColors, radius, spacing, type ColorSet } from '@/theme';
 import { useTheme } from '@/state/preferences';
@@ -23,6 +24,7 @@ export function CategoryPickerSheet({
   onClose: () => void;
 }) {
   const colors = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
@@ -33,7 +35,7 @@ export function CategoryPickerSheet({
           onPress={onClose}
           accessibilityLabel="Close"
         />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: spacing.xl + insets.bottom }]}>
           <View style={styles.header}>
             <Text style={styles.title}>Category</Text>
             <Pressable onPress={onClose} hitSlop={8}>

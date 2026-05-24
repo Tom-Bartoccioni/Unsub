@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { prefs } = usePrefs();
   const colors = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [subs, setSubs] = useState<Subscription[]>([]);
@@ -171,7 +173,12 @@ export default function Dashboard() {
       />
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          // Apply OS safe-area insets so the settings icon clears the
+          // status bar/notch and the list clears the gesture/nav bar.
+          { paddingTop: spacing.lg + insets.top, paddingBottom: 120 + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
@@ -314,7 +321,11 @@ export default function Dashboard() {
       </ScrollView>
 
       <Pressable
-        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        style={({ pressed }) => [
+          styles.fab,
+          { bottom: spacing.lg + insets.bottom },
+          pressed && styles.fabPressed,
+        ]}
         onPress={() => setAdding(true)}
         accessibilityLabel="Add subscription"
       >
@@ -510,17 +521,20 @@ function makeStyles(colors: ColorSet) {
     // them without contributing to the centering math.
     priceRow: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-end',
       justifyContent: 'center',
       marginTop: -10,
     },
+    // Symbol sits inline with the digits, smaller and muted. Inline (not
+    // absolute) so it stays inside the donut. Adds a tiny left margin
+    // for breathing room; the resulting micro-shift of the digit cluster
+    // is negligible at this font size.
     donutSymbol: {
-      position: 'absolute',
-      left: '100%',
-      marginLeft: 6,
       color: colors.textTertiary,
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: '600',
+      marginLeft: 4,
+      marginBottom: 4, // baseline-lift so it aligns optically
     },
     legend: {
       flexDirection: 'row',
