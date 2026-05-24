@@ -27,7 +27,7 @@
       "package": "com.simwego.unsub"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/miniature.png",
       "bundler": "metro",
       "output": "single"
     },
