@@ -4,12 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
 import { SUPPORTED_CURRENCIES } from '@/lib/money';
-import {
-  ensurePushToken,
-  registerPushToken,
-  sendTestNotification,
-  unregisterPushToken,
-} from '@/lib/push';
+import { ensurePushToken, registerPushToken, sendTestNotification } from '@/lib/push';
 import { radius, spacing, type ColorSet } from '@/theme';
 
 export function SettingsModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
@@ -24,34 +19,42 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
   // Toggle handler:
   //   - on  → request permission, register the device's Expo push token,
   //     persist the pref, fire a confirmation push.
-  //   - off → unregister the token (best effort), persist, fire a
-  //     "reminders off" push so the user sees the channel is wired up.
-  // Permission denial surfaces as inline copy under the toggle; the pref
-  // stays at its previous value so we don't lie about it being enabled.
+  //   - off → persist, fire a "reminders off" push so the user sees the
+  //     channel is wired up. Don't re-prompt for permission on disable.
+  // Failures surface as inline copy under the toggle; the pref stays at
+  // its previous value so we don't lie about it being enabled.
   const onToggleNotifications = async (next: boolean) => {
     setNotifError(null);
     setNotifBusy(true);
     try {
       if (next) {
-        const token = await ensurePushToken();
-        if (!token) {
-          setNotifError(
-            'Could not enable notifications — make sure you allowed notifications when prompted.',
-          );
+        const result = await ensurePushToken();
+        if (!result.ok) {
+          // Map the typed reason back to user-readable copy. The
+          // "token-fetch-failed" path is the most informative — that's
+          // where misconfigured FCM credentials surface.
+          switch (result.error.reason) {
+            case 'not-a-device':
+              setNotifError('Notifications only work on a physical device, not an emulator.');
+              break;
+            case 'permission-denied':
+              setNotifError(
+                'Notifications permission was denied. Allow it in your phone Settings and try again.',
+              );
+              break;
+            case 'no-project-id':
+              setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
+              break;
+            case 'token-fetch-failed':
+              setNotifError(`Push registration failed: ${result.error.detail}`);
+              break;
+          }
           return;
         }
-        await registerPushToken(token);
+        await registerPushToken(result.token);
         setNotificationsEnabled(true);
         await sendTestNotification(true);
       } else {
-        const token = await ensurePushToken();
-        if (token) {
-          try {
-            await unregisterPushToken(token);
-          } catch {
-            // best effort
-          }
-        }
         setNotificationsEnabled(false);
         await sendTestNotification(false);
       }

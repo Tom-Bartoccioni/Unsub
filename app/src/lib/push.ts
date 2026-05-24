@@ -21,15 +21,21 @@ if (Platform.OS !== 'web') {
 
 export type PushPlatform = 'ios' | 'android' | 'web';
 
+// Why ensurePushToken couldn't return a token. Lets the UI render a
+// useful message instead of the catch-all "make sure you allowed".
+export type PushTokenError =
+  | { reason: 'not-a-device' }
+  | { reason: 'permission-denied' }
+  | { reason: 'no-project-id' }
+  | { reason: 'token-fetch-failed'; detail: string };
+
+export type PushTokenResult = { ok: true; token: string } | { ok: false; error: PushTokenError };
+
 // Request notification permission (if not already granted) and return the
-// Expo push token. Returns null when:
-//   - we're on a simulator/emulator (Expo Push requires a real device)
-//   - the user denied permission
-//   - we couldn't obtain a token for any other reason
-// Designed to be called when the user opts in (e.g. flipping the
-// notifications toggle), not silently at app start.
-export async function ensurePushToken(): Promise<string | null> {
-  if (!Device.isDevice) return null;
+// Expo push token. Designed to be called when the user opts in (e.g.
+// flipping the notifications toggle), not silently at app start.
+export async function ensurePushToken(): Promise<PushTokenResult> {
+  if (!Device.isDevice) return { ok: false, error: { reason: 'not-a-device' } };
 
   if (Platform.OS === 'android') {
     // Required for heads-up display on Android 8+.
@@ -47,20 +53,21 @@ export async function ensurePushToken(): Promise<string | null> {
     const req = await Notifications.requestPermissionsAsync();
     granted = req.status === 'granted';
   }
-  if (!granted) return null;
+  if (!granted) return { ok: false, error: { reason: 'permission-denied' } };
 
   // The projectId is required so Expo knows which app the token is for.
   // It's set automatically by `eas init` in app.json under extra.eas.
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ??
     (Constants.easConfig as { projectId?: string } | undefined)?.projectId;
-  if (!projectId) return null;
+  if (!projectId) return { ok: false, error: { reason: 'no-project-id' } };
 
   try {
     const { data } = await Notifications.getExpoPushTokenAsync({ projectId });
-    return data;
-  } catch {
-    return null;
+    return { ok: true, token: data };
+  } catch (e) {
+    const detail = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: { reason: 'token-fetch-failed', detail } };
   }
 }
 
