@@ -1,6 +1,6 @@
 # Unsub
 
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/Tom-Bartoccioni/Unsub/actions/workflows/ci.yml)
+[![CI](https://github.com/Tom-Bartoccioni/Unsub/actions/workflows/ci.yml/badge.svg)](https://github.com/Tom-Bartoccioni/Unsub/actions/workflows/ci.yml)
 
 > Kill your subscription ghosts before they haunt your wallet.
 
