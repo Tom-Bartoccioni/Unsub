@@ -37,7 +37,12 @@
       "bundler": "metro",
       "output": "single"
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-notifications"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      "./plugins/withTransparentNavBar"
+    ],
     "experiments": {
       "typedRoutes": true
     },
