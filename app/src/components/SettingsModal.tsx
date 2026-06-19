@@ -23,41 +23,41 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
   //     channel is wired up. Don't re-prompt for permission on disable.
   // Failures surface as inline copy under the toggle; the pref stays at
   // its previous value so we don't lie about it being enabled.
+  // Optimistic flip + fire-and-forget test push so the switch responds
+  // instantly. Permission/registration still gate the ON path; failures
+  // revert the pref and surface inline.
   const onToggleNotifications = async (next: boolean) => {
     setNotifError(null);
+    if (!next) {
+      setNotificationsEnabled(false);
+      sendTestNotification(false).catch(() => {});
+      return;
+    }
     setNotifBusy(true);
     try {
-      if (next) {
-        const result = await ensurePushToken();
-        if (!result.ok) {
-          // Map the typed reason back to user-readable copy. The
-          // "token-fetch-failed" path is the most informative — that's
-          // where misconfigured FCM credentials surface.
-          switch (result.error.reason) {
-            case 'not-a-device':
-              setNotifError('Notifications only work on a physical device, not an emulator.');
-              break;
-            case 'permission-denied':
-              setNotifError(
-                'Notifications permission was denied. Allow it in your phone Settings and try again.',
-              );
-              break;
-            case 'no-project-id':
-              setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
-              break;
-            case 'token-fetch-failed':
-              setNotifError(`Push registration failed: ${result.error.detail}`);
-              break;
-          }
-          return;
+      const result = await ensurePushToken();
+      if (!result.ok) {
+        switch (result.error.reason) {
+          case 'not-a-device':
+            setNotifError('Notifications only work on a physical device, not an emulator.');
+            break;
+          case 'permission-denied':
+            setNotifError(
+              'Notifications permission was denied. Allow it in your phone Settings and try again.',
+            );
+            break;
+          case 'no-project-id':
+            setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
+            break;
+          case 'token-fetch-failed':
+            setNotifError(`Push registration failed: ${result.error.detail}`);
+            break;
         }
-        await registerPushToken(result.token);
-        setNotificationsEnabled(true);
-        await sendTestNotification(true);
-      } else {
-        setNotificationsEnabled(false);
-        await sendTestNotification(false);
+        return;
       }
+      setNotificationsEnabled(true);
+      registerPushToken(result.token).catch(() => {});
+      sendTestNotification(true).catch(() => {});
     } catch (e) {
       setNotifError(e instanceof Error ? e.message : 'Something went wrong.');
     } finally {

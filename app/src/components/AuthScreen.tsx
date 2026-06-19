@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -59,9 +59,17 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const [submitting, setSubmitting] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const copy = COPY[mode];
   const busy = submitting || googleBusy;
+
+  // Push the form past the keyboard when a field is focused, so the CTA
+  // and "Sign Up" link stay visible. iOS handles this with the
+  // KeyboardAvoidingView padding; Android needs an explicit scroll.
+  const onFieldFocus = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+  };
 
   const onSubmit = async () => {
     setError(null);
@@ -100,9 +108,10 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       // the window automatically — combine with 'height' so the inner
       // ScrollView can scroll the form into view rather than the keyboard
       // covering the password field and submit button.
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={[
           styles.scroll,
           // Bottom inset clears the system gesture/nav bar so the
@@ -131,6 +140,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
               autoComplete="email"
               keyboardType="email-address"
               editable={!busy}
+              onFocus={onFieldFocus}
               styles={styles}
             />
             <Field
@@ -141,6 +151,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
               secureTextEntry={!showPassword}
               autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
               editable={!busy}
+              onFocus={onFieldFocus}
               onSubmitEditing={onSubmit}
               styles={styles}
               trailing={
@@ -223,6 +234,7 @@ type FieldProps = {
   keyboardType?: 'email-address';
   secureTextEntry?: boolean;
   editable?: boolean;
+  onFocus?: () => void;
   onSubmitEditing?: () => void;
 };
 
