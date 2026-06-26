@@ -27,6 +27,25 @@ export type PushPlatform = 'ios' | 'android' | 'web';
 // HIGH-importance channel so pushes show as heads-up banners.
 const ANDROID_CHANNEL_ID = 'reminders';
 
+// Register the HIGH-importance channel. HIGH is what makes Android show pushes
+// as heads-up banners (+ sound). Call this at app start so the channel always
+// exists, independent of whether the user has opted in yet — Android needs the
+// channel registered before any push tagged with its id can use its settings.
+// Idempotent; safe to call repeatedly. No-op off Android.
+export async function ensureAndroidChannel(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  try {
+    await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+      name: 'Renewal reminders',
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  } catch {
+    // Non-fatal — worst case pushes land without heads-up styling.
+  }
+}
+
 // Why ensurePushToken couldn't return a token. Lets the UI render a
 // useful message instead of the catch-all "make sure you allowed".
 export type PushTokenError =
@@ -41,22 +60,11 @@ export type PushTokenResult = { ok: true; token: string } | { ok: false; error: 
 // Expo push token. Designed to be called when the user opts in (e.g.
 // flipping the notifications toggle), not silently at app start.
 export async function ensurePushToken(): Promise<PushTokenResult> {
-  if (!Device.isDevice) return { ok: false, error: { reason: 'not-a-device' } };
+  // Register the channel first, unconditionally — even before the device check
+  // so it exists regardless of how this is reached.
+  await ensureAndroidChannel();
 
-  if (Platform.OS === 'android') {
-    // HIGH importance is what triggers the heads-up banner (the floating
-    // pop-up) + sound. Android locks a channel's importance once created, so we
-    // use a fresh channel id ('reminders') rather than mutating the old
-    // DEFAULT-importance 'default' channel — the server sends with this same
-    // channelId. (The renamed channel sidesteps the locked-importance issue
-    // without needing the user to clear app data.)
-    await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
-      name: 'Renewal reminders',
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
+  if (!Device.isDevice) return { ok: false, error: { reason: 'not-a-device' } };
 
   const existing = await Notifications.getPermissionsAsync();
   let granted = existing.status === 'granted';

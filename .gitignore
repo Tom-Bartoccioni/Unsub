@@ -65,3 +65,4 @@ drizzle/
 
 # Local build logs
 app/build-log.txt
+app/build-samsung.txt
