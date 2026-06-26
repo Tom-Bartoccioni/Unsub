@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Image,
+  Animated,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -59,16 +59,97 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const [submitting, setSubmitting] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
 
   const copy = COPY[mode];
   const busy = submitting || googleBusy;
 
-  // Push the form past the keyboard when a field is focused, so the CTA
-  // and "Sign Up" link stay visible. iOS handles this with the
-  // KeyboardAvoidingView padding; Android needs an explicit scroll.
-  const onFieldFocus = () => {
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+  // Shrink the logo while the keyboard is up so the whole form fits on screen
+  // without scrolling. Drive a 0→1 progress value off the keyboard show/hide
+  // events and interpolate the logo's size + margins from it. The boolean
+  // mirror flips the (non-animatable) vertical alignment: centered at rest,
+  // top-anchored once the keyboard is up so the form sits high, not glued to it.
+  const kb = useRef(new Animated.Value(0)).current;
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const animate = (toValue: number) =>
+      Animated.timing(kb, {
+        toValue,
+        duration: 220,
+        // width/height/margin aren't supported by the native driver.
+        useNativeDriver: false,
+      }).start();
+    const showSub = Keyboard.addListener(showEvt, () => {
+      setKeyboardOpen(true);
+      animate(1);
+    });
+    const hideSub = Keyboard.addListener(hideEvt, () => {
+      setKeyboardOpen(false);
+      animate(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [kb]);
+
+  // Resting logo geometry (matches the dashboard donut sizing); collapses to a
+  // compact mark when the keyboard is open. The smaller negative bottom margin
+  // in the open state opens up breathing room between the logo and the title.
+  const logoSize = kb.interpolate({ inputRange: [0, 1], outputRange: [600, 360] });
+  const logoMarginTop = kb.interpolate({ inputRange: [0, 1], outputRange: [-143, -110] });
+  const logoMarginBottom = kb.interpolate({ inputRange: [0, 1], outputRange: [-172, -90] });
+
+  // Manual password masking. Some IMEs (Huawei's) break the native
+  // secureTextEntry "brief last-char reveal" so that only the first character
+  // ever renders. To dodge it we keep the TextInput in plain (non-secure) mode
+  // and feed it a bullet string; this handler reconstructs the real password
+  // from the edited bullet text. The TextInput shows `maskedPassword`, the real
+  // value lives in `password`. On append we reveal the just-typed character for
+  // 1.5s before masking it, mimicking the native reveal but on our terms.
+  const REVEAL_MS = 1500;
+  const [revealIndex, setRevealIndex] = useState<number | null>(null);
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (revealTimer.current) clearTimeout(revealTimer.current);
+    },
+    [],
+  );
+
+  const maskedPassword = showPassword
+    ? password
+    : password
+        .split('')
+        .map((ch, i) => (i === revealIndex ? ch : '•'))
+        .join('');
+
+  const onPasswordChange = (next: string) => {
+    if (revealTimer.current) clearTimeout(revealTimer.current);
+    if (showPassword) {
+      setRevealIndex(null);
+      setPassword(next);
+      return;
+    }
+    if (next.length > password.length) {
+      // Characters appended — the tail of `next` past the old length is the
+      // real new input (bullets only exist in the unchanged prefix).
+      const added = next.slice(password.length);
+      const updated = password + added;
+      setPassword(updated);
+      const last = updated.length - 1;
+      setRevealIndex(last);
+      revealTimer.current = setTimeout(() => {
+        setRevealIndex((cur) => (cur === last ? null : cur));
+      }, REVEAL_MS);
+    } else {
+      // Shrunk (backspace/clear) — truncate the real value, mask immediately.
+      setRevealIndex(null);
+      setPassword(password.slice(0, next.length));
+    }
   };
 
   const onSubmit = async () => {
@@ -103,27 +184,41 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      // iOS uses 'padding' which adds bottom padding equal to the keyboard
-      // height. Android with softwareKeyboardLayoutMode 'resize' shrinks
-      // the window automatically — combine with 'height' so the inner
-      // ScrollView can scroll the form into view rather than the keyboard
-      // covering the password field and submit button.
+      // iOS adds bottom padding equal to the keyboard height so the centered
+      // form lifts above it. Android with softwareKeyboardLayoutMode 'resize'
+      // shrinks the window itself, and the logo collapses, so the form fits
+      // without any avoidance behavior.
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={[
-          styles.scroll,
-          // Bottom inset clears the system gesture/nav bar so the
-          // "Sign Up" link isn't covered by it (and content draws
-          // edge-to-edge instead of leaving a grey strip).
-          { paddingBottom: spacing.xl + insets.bottom },
+      <View
+        style={[
+          styles.body,
+          // Centered while idle; top-anchored once the keyboard is up so the
+          // form rides high on screen instead of being pushed against the
+          // keyboard. Top inset keeps the logo clear of the status bar; bottom
+          // inset clears the system gesture/nav bar so the "Sign Up" link isn't
+          // covered (and content draws edge-to-edge, no grey strip).
+          {
+            justifyContent: keyboardOpen ? 'flex-start' : 'center',
+            paddingTop: insets.top + (keyboardOpen ? spacing.xl : 0),
+            paddingBottom: spacing.lg + insets.bottom,
+          },
         ]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
-          <Image source={logo} style={styles.logo} resizeMode="contain" />
+          <Animated.Image
+            source={logo}
+            style={[
+              styles.logo,
+              {
+                width: logoSize,
+                height: logoSize,
+                marginTop: logoMarginTop,
+                marginBottom: logoMarginBottom,
+              },
+            ]}
+            resizeMode="contain"
+          />
 
           <View style={styles.headings}>
             <Text style={styles.title}>{copy.title}</Text>
@@ -140,22 +235,27 @@ export function AuthScreen({ mode }: { mode: Mode }) {
               autoComplete="email"
               keyboardType="email-address"
               editable={!busy}
-              onFocus={onFieldFocus}
               styles={styles}
             />
             <Field
               icon="lock-closed-outline"
               placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
+              value={maskedPassword}
+              onChangeText={onPasswordChange}
+              autoCapitalize="none"
+              autoComplete="off"
               editable={!busy}
-              onFocus={onFieldFocus}
               onSubmitEditing={onSubmit}
               styles={styles}
               trailing={
-                <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
+                <Pressable
+                  onPress={() => {
+                    if (revealTimer.current) clearTimeout(revealTimer.current);
+                    setRevealIndex(null);
+                    setShowPassword((v) => !v);
+                  }}
+                  hitSlop={8}
+                >
                   <Ionicons
                     name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                     size={18}
@@ -209,7 +309,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             </Pressable>
           </View>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -222,11 +322,9 @@ type FieldProps = {
   styles: ReturnType<typeof makeStyles>;
   trailing?: React.ReactNode;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  autoComplete?: 'email' | 'new-password' | 'current-password';
+  autoComplete?: 'email' | 'new-password' | 'current-password' | 'off';
   keyboardType?: 'email-address';
-  secureTextEntry?: boolean;
   editable?: boolean;
-  onFocus?: () => void;
   onSubmitEditing?: () => void;
 };
 
@@ -269,16 +367,17 @@ function humanizeAuthError(e: unknown, mode: Mode): string {
 function makeStyles() {
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: ink.bg },
-    // Top-anchor so the logo's visible center can be pinned to the same y
-    // as the dashboard donut. Without this the card vertical-centered and
-    // floated with viewport height.
-    scroll: { flexGrow: 1, paddingHorizontal: spacing.xl, paddingBottom: spacing.xl },
+    // Fixed (non-scrolling) layout. The card is centered; the logo shrinks
+    // when the keyboard is up so everything stays on screen.
+    body: {
+      flex: 1,
+      paddingHorizontal: spacing.xl,
+    },
     card: { width: '100%', maxWidth: 400, alignSelf: 'center', gap: spacing.lg },
-    // Sized so the logo's visible glyph (after the PNG's transparent padding
-    // is cropped by negative margins) matches the dashboard donut's 240px
-    // diameter. Visible center should land at y=204 — bounding-box center
-    // is at top + height/2, so marginTop = 204 - height/2.
-    logo: { width: 780, height: 780, alignSelf: 'center', marginTop: -186, marginBottom: -224 },
+    // Size/margins are animated inline (resting 780px with negative margins so
+    // the PNG's transparent padding is cropped and the glyph matches the
+    // dashboard donut; collapses while typing). alignSelf stays here.
+    logo: { alignSelf: 'center' },
     headings: { gap: 6 },
     title: { fontSize: 28, fontWeight: '800', color: ink.textPrimary, letterSpacing: -0.5 },
     subtitle: { fontSize: 14, color: ink.textSecondary, lineHeight: 20 },
@@ -294,7 +393,16 @@ function makeStyles() {
       paddingHorizontal: spacing.lg,
       height: 54,
     },
-    fieldInput: { flex: 1, color: ink.textPrimary, fontSize: 15, padding: 0 },
+    fieldInput: {
+      flex: 1,
+      color: ink.textPrimary,
+      fontSize: 15,
+      padding: 0,
+      // Drop Android's extra font padding and center vertically so glyphs sit
+      // on the line instead of riding high.
+      includeFontPadding: false,
+      textAlignVertical: 'center',
+    },
     error: { color: ink.danger, fontSize: 13 },
     primaryButton: {
       backgroundColor: ink.white,
