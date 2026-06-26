@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { PushTokenStore } from '../db/push-tokens.js';
 import type { UserStore } from '../db/users.js';
-import { sendExpoPush } from '../lib/expo-push.js';
+import { ANDROID_CHANNEL_ID, sendExpoPush } from '../lib/expo-push.js';
 
 export type MeRouteDeps = {
   users: UserStore;
@@ -109,7 +109,14 @@ export function makeMeRoutes(deps: MeRouteDeps) {
             body: 'You won’t be notified before renewals.',
           };
       const result = await sendExpoPush(
-        tokens.map((t) => ({ to: t.token, title, body, sound: 'default' })),
+        tokens.map((t) => ({
+          to: t.token,
+          title,
+          body,
+          sound: 'default',
+          priority: 'high',
+          channelId: ANDROID_CHANNEL_ID,
+        })),
       );
       req.log.info(result, 'notifications.test_sent');
       return reply.code(200).send(result);

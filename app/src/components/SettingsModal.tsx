@@ -14,55 +14,54 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
   const { signOut } = useAuth();
   const { prefs, setTheme, setDisplayCurrency, setNotificationsEnabled } = usePrefs();
   const [notifError, setNotifError] = useState<string | null>(null);
-  const [notifBusy, setNotifBusy] = useState(false);
 
-  // Toggle handler:
-  //   - on  → request permission, register the device's Expo push token,
-  //     persist the pref, fire a confirmation push.
-  //   - off → persist, fire a "reminders off" push so the user sees the
-  //     channel is wired up. Don't re-prompt for permission on disable.
-  // Failures surface as inline copy under the toggle; the pref stays at
-  // its previous value so we don't lie about it being enabled.
-  // Optimistic flip + fire-and-forget test push so the switch responds
-  // instantly. Permission/registration still gate the ON path; failures
-  // revert the pref and surface inline.
-  const onToggleNotifications = async (next: boolean) => {
+  // Toggle handler. Both directions flip the pref OPTIMISTICALLY so the Switch
+  // (a controlled component bound to prefs.notificationsEnabled) animates once,
+  // instantly, with no ON→OFF→ON flicker from awaiting permission first.
+  //   - on  → flip on now, then request permission + register the token in the
+  //     background. If that fails, revert to off and surface the reason.
+  //   - off → flip off now; fire a "reminders off" confirmation push. Don't
+  //     re-prompt for permission on disable.
+  const onToggleNotifications = (next: boolean) => {
     setNotifError(null);
     if (!next) {
       setNotificationsEnabled(false);
       sendTestNotification(false).catch(() => {});
       return;
     }
-    setNotifBusy(true);
-    try {
-      const result = await ensurePushToken();
-      if (!result.ok) {
-        switch (result.error.reason) {
-          case 'not-a-device':
-            setNotifError('Notifications only work on a physical device, not an emulator.');
-            break;
-          case 'permission-denied':
-            setNotifError(
-              'Notifications permission was denied. Allow it in your phone Settings and try again.',
-            );
-            break;
-          case 'no-project-id':
-            setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
-            break;
-          case 'token-fetch-failed':
-            setNotifError(`Push registration failed: ${result.error.detail}`);
-            break;
+
+    setNotificationsEnabled(true);
+    void (async () => {
+      try {
+        const result = await ensurePushToken();
+        if (!result.ok) {
+          // Revert — we can't actually deliver, so don't claim it's on.
+          setNotificationsEnabled(false);
+          switch (result.error.reason) {
+            case 'not-a-device':
+              setNotifError('Notifications only work on a physical device, not an emulator.');
+              break;
+            case 'permission-denied':
+              setNotifError(
+                'Notifications permission was denied. Allow it in your phone Settings and try again.',
+              );
+              break;
+            case 'no-project-id':
+              setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
+              break;
+            case 'token-fetch-failed':
+              setNotifError(`Push registration failed: ${result.error.detail}`);
+              break;
+          }
+          return;
         }
-        return;
+        registerPushToken(result.token).catch(() => {});
+        sendTestNotification(true).catch(() => {});
+      } catch (e) {
+        setNotificationsEnabled(false);
+        setNotifError(e instanceof Error ? e.message : 'Something went wrong.');
       }
-      setNotificationsEnabled(true);
-      registerPushToken(result.token).catch(() => {});
-      sendTestNotification(true).catch(() => {});
-    } catch (e) {
-      setNotifError(e instanceof Error ? e.message : 'Something went wrong.');
-    } finally {
-      setNotifBusy(false);
-    }
+    })();
   };
 
   return (
@@ -131,7 +130,6 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
                 <Switch
                   value={prefs.notificationsEnabled}
                   onValueChange={onToggleNotifications}
-                  disabled={notifBusy}
                   trackColor={{ false: colors.borderStrong, true: colors.accentBlue }}
                   thumbColor={'#ffffff'}
                 />

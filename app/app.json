@@ -40,7 +40,13 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/miniature_no_bg.png",
+          "color": "#ffffff"
+        }
+      ],
       "./plugins/withTransparentNavBar",
       "@react-native-google-signin/google-signin"
     ],

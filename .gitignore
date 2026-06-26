@@ -62,3 +62,6 @@ drizzle/
 
 # Claude Code local overrides (machine-specific permissions)
 .claude/settings.local.json
+
+# Local build logs
+app/build-log.txt

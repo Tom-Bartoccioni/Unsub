@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
+import { maybePromptForNotificationsOnFirstLogin } from '@/lib/push';
 import { categoryColor, categoryFor } from '@/lib/categories';
 import { convert, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
@@ -51,7 +52,7 @@ function buildSegments(subs: Subscription[], displayCurrency: string) {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { prefs } = usePrefs();
+  const { prefs, setNotificationsEnabled } = usePrefs();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -93,6 +94,25 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [user]);
+
+  // First login: notifications default on, so just ask for the OS permission
+  // once. If the user denies it, flip the pref off so Settings reflects reality.
+  // Runs at most once per account (the helper persists a per-uid flag).
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    maybePromptForNotificationsOnFirstLogin(user.uid)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.prompted && !res.granted) setNotificationsEnabled(false);
+      })
+      .catch(() => {
+        // Non-fatal — leave the pref at its default.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, setNotificationsEnabled]);
 
   const sorted = useMemo(() => [...subs].sort(compareSubs), [subs]);
   // When a category is selected we narrow both the active list and hide the

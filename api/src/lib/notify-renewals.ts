@@ -12,7 +12,7 @@ import { eq, gte, lt, and } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { paymentEvents, pushTokens, subscriptions } from '../db/schema.js';
 import type { UserStore } from '../db/users.js';
-import { sendExpoPush } from './expo-push.js';
+import { ANDROID_CHANNEL_ID, sendExpoPush } from './expo-push.js';
 
 export type NotifyRenewalsResult = {
   scannedUsers: number;
@@ -168,7 +168,14 @@ export async function notifyRenewals(deps: NotifyRenewalsDeps): Promise<NotifyRe
         : `${previewProviders}${more} — ${totalsLine}.`;
 
     const push = await sendExpoPush(
-      tokens.map((t) => ({ to: t.token, title, body, sound: 'default' })),
+      tokens.map((t) => ({
+        to: t.token,
+        title,
+        body,
+        sound: 'default',
+        priority: 'high',
+        channelId: ANDROID_CHANNEL_ID,
+      })),
     );
     result.notifiedUsers++;
     result.pushesSent += push.sent;

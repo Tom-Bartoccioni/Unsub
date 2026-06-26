@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -21,6 +22,11 @@ if (Platform.OS !== 'web') {
 
 export type PushPlatform = 'ios' | 'android' | 'web';
 
+// Must match the server's ANDROID_CHANNEL_ID (api/src/lib/expo-push.ts). The
+// server tags each push with this channelId; the app registers it as a
+// HIGH-importance channel so pushes show as heads-up banners.
+const ANDROID_CHANNEL_ID = 'reminders';
+
 // Why ensurePushToken couldn't return a token. Lets the UI render a
 // useful message instead of the catch-all "make sure you allowed".
 export type PushTokenError =
@@ -38,10 +44,15 @@ export async function ensurePushToken(): Promise<PushTokenResult> {
   if (!Device.isDevice) return { ok: false, error: { reason: 'not-a-device' } };
 
   if (Platform.OS === 'android') {
-    // Required for heads-up display on Android 8+.
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'Default',
-      importance: Notifications.AndroidImportance.DEFAULT,
+    // HIGH importance is what triggers the heads-up banner (the floating
+    // pop-up) + sound. Android locks a channel's importance once created, so we
+    // use a fresh channel id ('reminders') rather than mutating the old
+    // DEFAULT-importance 'default' channel — the server sends with this same
+    // channelId. (The renamed channel sidesteps the locked-importance issue
+    // without needing the user to clear app data.)
+    await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+      name: 'Renewal reminders',
+      importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FF231F7C',
     });
@@ -69,6 +80,46 @@ export async function ensurePushToken(): Promise<PushTokenResult> {
     const detail = e instanceof Error ? e.message : String(e);
     return { ok: false, error: { reason: 'token-fetch-failed', detail } };
   }
+}
+
+// Per-user flag: have we already shown the OS notification prompt to this
+// user once? Keyed by uid so each account gets its own first-login prompt.
+const promptKey = (uid: string) => `unsub.notif-prompted.${uid}`;
+
+export type FirstLoginPromptResult =
+  | { prompted: false } // already asked before, or skipped (web/non-device)
+  | { prompted: true; granted: boolean };
+
+// On a user's FIRST login, ask for notification permission. Notifications
+// default to on, so the only thing left is the OS permission grant. If granted,
+// register the push token; if denied, the caller flips the pref back off so the
+// UI doesn't claim notifications are on when the OS won't deliver them. Asked at
+// most once per account — the flag is persisted so later logins stay quiet.
+export async function maybePromptForNotificationsOnFirstLogin(
+  uid: string,
+): Promise<FirstLoginPromptResult> {
+  if (Platform.OS === 'web' || !Device.isDevice) return { prompted: false };
+
+  const key = promptKey(uid);
+  try {
+    if (await AsyncStorage.getItem(key)) return { prompted: false };
+  } catch {
+    // Storage unreadable — fall through and prompt; worst case we ask twice.
+  }
+
+  const result = await ensurePushToken();
+  // Mark as prompted regardless of outcome so we don't nag on every login.
+  try {
+    await AsyncStorage.setItem(key, '1');
+  } catch {
+    // ignore — non-fatal
+  }
+
+  if (result.ok) {
+    registerPushToken(result.token).catch(() => {});
+    return { prompted: true, granted: true };
+  }
+  return { prompted: true, granted: false };
 }
 
 // Register the token with our API so the server can push to this device.

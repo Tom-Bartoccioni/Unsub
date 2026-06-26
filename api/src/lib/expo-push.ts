@@ -10,6 +10,11 @@ export type ExpoPushMessage = {
   body?: string;
   data?: Record<string, unknown>;
   sound?: 'default' | null;
+  // 'high' is required for the heads-up banner on Android (and timely delivery
+  // on iOS). channelId must match a HIGH-importance channel registered on the
+  // device, otherwise Android falls back to the channel's own importance.
+  priority?: 'default' | 'normal' | 'high';
+  channelId?: string;
 };
 
 export type ExpoPushTicket =
@@ -23,6 +28,11 @@ export type ExpoPushResult = {
 
 const ENDPOINT = 'https://exp.host/--/api/v2/push/send';
 const BATCH = 100;
+
+// Must match the HIGH-importance channel the app registers (see app push.ts).
+// Sending with this channelId + priority 'high' is what gives the heads-up
+// banner on Android.
+export const ANDROID_CHANNEL_ID = 'reminders';
 
 export async function sendExpoPush(messages: ExpoPushMessage[]): Promise<ExpoPushResult> {
   const result: ExpoPushResult = { sent: 0, errors: [] };
