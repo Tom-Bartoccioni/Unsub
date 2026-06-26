@@ -41,7 +41,8 @@
       "expo-router",
       "expo-secure-store",
       "expo-notifications",
-      "./plugins/withTransparentNavBar"
+      "./plugins/withTransparentNavBar",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true

@@ -4,12 +4,14 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   onIdTokenChanged,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase';
+import { nativeGoogleSignIn } from '@/lib/googleSignin';
 import { sendTimezone } from '@/lib/push';
 
 type AuthContextValue = {
@@ -58,18 +60,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       // Google sign-in differs by platform:
       //   - Web: signInWithPopup opens an oauth popup, returns a credential.
-      //   - Native: signInWithPopup isn't supported. Proper native flow needs
-      //     OAuth client IDs registered in Google Cloud Console with the
-      //     app's signing fingerprint, which isn't wired up yet. Throw a
-      //     readable error so the UI can show 'use email/password instead'
-      //     instead of the silent 'undefined is not a function'.
+      //   - Native: signInWithPopup can't open a popup. The native Google
+      //     account picker returns an id token, which we exchange for a
+      //     Firebase credential via signInWithCredential. A dismissed picker
+      //     yields null — treat it as a silent no-op, not an error.
       signInWithGoogle: async () => {
-        if (Platform.OS !== 'web') {
-          throw Object.assign(new Error('Google sign-in is not yet available on the app.'), {
-            code: 'auth/operation-not-supported-in-this-environment',
-          });
+        if (Platform.OS === 'web') {
+          await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+          return;
         }
-        await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+        const idToken = await nativeGoogleSignIn();
+        if (!idToken) return;
+        const credential = GoogleAuthProvider.credential(idToken);
+        await signInWithCredential(getFirebaseAuth(), credential);
       },
       signOut: async () => {
         await firebaseSignOut(getFirebaseAuth());
