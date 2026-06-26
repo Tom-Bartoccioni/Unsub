@@ -29,10 +29,10 @@ export type ExpoPushResult = {
 const ENDPOINT = 'https://exp.host/--/api/v2/push/send';
 const BATCH = 100;
 
-// Must match the HIGH-importance channel the app registers (see app push.ts).
-// Sending with this channelId + priority 'high' is what gives the heads-up
-// banner on Android.
-export const ANDROID_CHANNEL_ID = 'reminders';
+// Must match the channel id the app registers (see app push.ts). Sending with
+// this channelId + priority 'high' is what gives the heads-up banner on Android.
+// Keep in sync with the app's ANDROID_CHANNEL_ID.
+export const ANDROID_CHANNEL_ID = 'reminders-v2';
 
 export async function sendExpoPush(messages: ExpoPushMessage[]): Promise<ExpoPushResult> {
   const result: ExpoPushResult = { sent: 0, errors: [] };

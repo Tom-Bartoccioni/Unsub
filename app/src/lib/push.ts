@@ -24,20 +24,25 @@ export type PushPlatform = 'ios' | 'android' | 'web';
 
 // Must match the server's ANDROID_CHANNEL_ID (api/src/lib/expo-push.ts). The
 // server tags each push with this channelId; the app registers it as a
-// HIGH-importance channel so pushes show as heads-up banners.
-const ANDROID_CHANNEL_ID = 'reminders';
+// MAX-importance channel so pushes show as heads-up banners.
+// NOTE: a channel's importance is immutable once created — to change it you
+// MUST use a new id. Bump the suffix if the importance ever needs to change.
+const ANDROID_CHANNEL_ID = 'reminders-v2';
 
-// Register the HIGH-importance channel. HIGH is what makes Android show pushes
-// as heads-up banners (+ sound). Call this at app start so the channel always
-// exists, independent of whether the user has opted in yet — Android needs the
-// channel registered before any push tagged with its id can use its settings.
-// Idempotent; safe to call repeatedly. No-op off Android.
+// Register the MAX-importance channel. MAX is what makes Android show pushes as
+// heads-up banners (the "Prioritaire"/"Urgent" level). Call this at app start so
+// the channel always exists. Idempotent; no-op off Android.
+//
+// NOTE: some manufacturer ROMs (e.g. RedMagic/Nubia) cap the importance of
+// channels from non-whitelisted apps to DEFAULT, suppressing the banner
+// regardless of what we request. That's a device-level restriction, not
+// something the app can override. Works on stock Android.
 export async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
   try {
     await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
       name: 'Renewal reminders',
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FF231F7C',
     });
