@@ -77,10 +77,25 @@ export function SubscriptionDetailModal({
   if (!sub) return null;
 
   const isGhost = sub.status === 'cancelled';
-  const joinedAt = sub.sourceDate ?? sub.updatedAt;
+
+  // Lifetime spend. Prefer the real payment history (observed + backfilled
+  // charges cover the whole life of the subscription); fall back to a
+  // monthly-rate estimate only while payments are still loading / empty.
   const monthly = monthlyAmount(sub.amount, sub.frequency);
+  const joinedAt = sub.sourceDate ?? sub.updatedAt;
   const monthsTracked = monthsBetween(new Date(joinedAt), new Date());
-  const totalSpent = monthly != null ? monthly * Math.max(0, monthsTracked) : null;
+  const totalSpent =
+    payments.length > 0
+      ? payments.reduce((sum, p) => sum + p.amount, 0)
+      : monthly != null
+        ? monthly * Math.max(0, monthsTracked)
+        : null;
+  // Anchor the "since" date on the first real charge when we have history,
+  // else on the subscription's start date.
+  const firstChargeAt =
+    payments.length > 0
+      ? payments.reduce((min, p) => (p.chargedAt < min ? p.chargedAt : min), payments[0]!.chargedAt)
+      : joinedAt;
 
   const onGhost = async () => {
     setError(null);
@@ -184,8 +199,8 @@ export function SubscriptionDetailModal({
 
               {totalSpent != null && (
                 <Text style={styles.spentInline}>
-                  You’ve spent {formatPrice(totalSpent, sub.currency)} over {monthsTracked} month
-                  {monthsTracked === 1 ? '' : 's'} on this vendor.
+                  You’ve spent {formatPrice(totalSpent, sub.currency)} on this vendor since{' '}
+                  {fmtLongDate(firstChargeAt)}.
                 </Text>
               )}
             </View>
