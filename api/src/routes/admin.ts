@@ -2,8 +2,14 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { SubscriptionStore } from '../db/subscriptions.js';
 import type { UserStore } from '../db/users.js';
-import type { paymentEvents, pushTokens, subscriptions } from '../db/schema.js';
+import type {
+  catalogServices,
+  paymentEvents,
+  pushTokens,
+  subscriptions,
+} from '../db/schema.js';
 import { notifyRenewals } from '../lib/notify-renewals.js';
+import { syncCancellationsWith } from '../jobs/sync-cancellations.js';
 
 export type AdminRouteDeps = {
   store: SubscriptionStore;
@@ -12,6 +18,7 @@ export type AdminRouteDeps = {
     subscriptions: typeof subscriptions;
     pushTokens: typeof pushTokens;
     paymentEvents: typeof paymentEvents;
+    catalogServices: typeof catalogServices;
   }>;
   // Shared secret required in Authorization: Bearer <token>. When
   // undefined the endpoints are disabled so deploys without the env var
@@ -50,6 +57,18 @@ export function makeAdminRoutes(deps: AdminRouteDeps) {
       if (!auth.ok) return reply.code(auth.code).send({ error: auth.error });
       const result = await notifyRenewals({ db: deps.db, users: deps.users });
       req.log.info(result, 'notify_renewals.completed');
+      return result;
+    });
+
+    // Weekly job: refresh catalog cancellation links/difficulty from the
+    // JustDeleteMe dataset. Idempotent — re-running just re-applies the same
+    // matches. Triggered by a GitHub Actions cron (see
+    // .github/workflows/sync-cancellations.yml).
+    fastify.post('/admin/sync-cancellations', async (req, reply) => {
+      const auth = authorize(req);
+      if (!auth.ok) return reply.code(auth.code).send({ error: auth.error });
+      const result = await syncCancellationsWith(deps.db);
+      req.log.info(result, 'sync_cancellations.completed');
       return result;
     });
   };

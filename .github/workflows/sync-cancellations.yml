@@ -1,0 +1,65 @@
+name: Weekly cancellation-link sync
+
+# Refreshes the catalog's cancellation links/difficulty from the JustDeleteMe
+# dataset by POSTing to the API's /admin/sync-cancellations endpoint, using the
+# same shared bearer token as the other admin jobs.
+#
+# Required repo secrets (same ones the rollover/notify jobs use):
+#   - UNSUB_API_URL       e.g. https://unsub-api.onrender.com
+#   - UNSUB_ROLLOVER_TOKEN must match the ROLLOVER_TOKEN env on the API
+#
+# Note: GitHub disables scheduled workflows after 60 days of repo inactivity.
+# Push at least once every two months or re-enable it in the Actions tab.
+
+on:
+  schedule:
+    # 05:00 UTC every Monday — cancellation data changes slowly, weekly is plenty.
+    - cron: '0 5 * * 1'
+  # Lets the maintainer trigger it on demand from the Actions tab.
+  workflow_dispatch:
+
+concurrency:
+  group: sync-cancellations
+  cancel-in-progress: false
+
+jobs:
+  sync-cancellations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sanity-check secrets are configured
+        run: |
+          if [ -z "${UNSUB_API_URL:-}" ]; then
+            echo "::error::UNSUB_API_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${UNSUB_ROLLOVER_TOKEN:-}" ]; then
+            echo "::error::UNSUB_ROLLOVER_TOKEN secret is not set"
+            exit 1
+          fi
+          url_len=${#UNSUB_API_URL}
+          echo "UNSUB_API_URL length: $url_len"
+          case "$UNSUB_API_URL" in
+            https://*) echo "scheme: https";;
+            http://*) echo "scheme: http (not recommended for prod)";;
+            *) echo "::error::UNSUB_API_URL must start with http(s)://"; exit 1;;
+          esac
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
+
+      - name: POST /admin/sync-cancellations
+        run: |
+          set -euo pipefail
+          set +e
+          curl --silent --show-error --fail-with-body \
+            -o response.json -w 'HTTP %{http_code}\n' \
+            -X POST "${UNSUB_API_URL%/}/admin/sync-cancellations" \
+            -H "Authorization: Bearer $UNSUB_ROLLOVER_TOKEN"
+          status=$?
+          set -e
+          echo "--- response body ---"
+          cat response.json || echo "(no response body)"
+          exit $status
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+          UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
