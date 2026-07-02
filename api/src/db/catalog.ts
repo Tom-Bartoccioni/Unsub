@@ -34,10 +34,14 @@ export function createDrizzleCatalogStore(
     },
 
     async latestUpdatedAt() {
+      // pg returns max() of a raw SQL timestamp expression as a STRING, not a
+      // Date (unlike selecting the column directly). Coerce so the Date|null
+      // contract actually holds — callers do latest.toISOString().
       const [row] = await db
-        .select({ max: sql<Date | null>`max(${catalogServices.updatedAt})` })
+        .select({ max: sql<string | null>`max(${catalogServices.updatedAt})` })
         .from(catalogServices);
-      return row?.max ?? null;
+      const max = row?.max ?? null;
+      return max ? new Date(max) : null;
     },
 
     async upsertMany(rows) {
