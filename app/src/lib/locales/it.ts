@@ -122,6 +122,7 @@ export const it = {
     priceLabel: 'Prezzo',
     cycleLabel: 'Ciclo di fatturazione',
     nextRenewalLabel: 'Prossimo pagamento',
+    startedLabel: 'Da quando',
     confirm: 'Riattiva',
     busy: 'Riattivazione…',
     failed: 'Riattivazione non riuscita',

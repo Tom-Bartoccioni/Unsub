@@ -136,8 +136,19 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
           startedAt,
         });
         if (reactivated) {
-          // Don't regenerate estimated events — that would wipe the old
-          // period's history. The resumed period accrues from the rollover.
+          // Re-adding via the wizard is "treat as a fresh subscription from the
+          // start date you gave": if startedAt is provided, (re)generate the
+          // estimated events for that window so the timeline reflects it. When
+          // startedAt is null (a plain resume), leave events as-is.
+          if (startedAt) {
+            await deps.store.regenerateEstimatedEvents(
+              reactivated.id,
+              startedAt,
+              reactivated.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
+              reactivated.amountMinor,
+              reactivated.currency,
+            );
+          }
           return reply.code(201).send({ subscription: toDTO(reactivated) });
         }
       }
@@ -235,11 +246,19 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         startedAt,
       });
       if (!row) return reply.code(404).send({ error: 'not_found' });
-      // Deliberately do NOT regenerate estimated events here: that wipes ALL
-      // 'estimated' rows and would erase the previous period's history
-      // (e.g. a Sep→Dec stretch) when resuming today. The resumed period
-      // starts now with no past charges; the daily rollover fills its future
-      // cycles, and the old period's events stay intact for the timeline.
+      // If the user set a start date (they can pick a past date on the resume
+      // sheet), (re)generate the estimated events from it so the timeline shows
+      // that history. If startedAt is null — a plain "resume today" — leave the
+      // events alone so we neither invent a past nor erase the old period.
+      if (startedAt) {
+        await deps.store.regenerateEstimatedEvents(
+          row.id,
+          startedAt,
+          row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
+          row.amountMinor,
+          row.currency,
+        );
+      }
       return { subscription: toDTO(row) };
     });
 

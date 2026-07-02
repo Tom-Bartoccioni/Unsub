@@ -93,6 +93,10 @@ export function ReactivateModal({
     oneCycleAfter(new Date(), normalizeFreq(sub?.frequency ?? 'monthly')),
   );
   const [dateAuto, setDateAuto] = useState(true);
+  // When the subscription (re)started. Defaults to today, but the user can pick
+  // a past date (e.g. "I'd actually been subscribed for 4 months") — the API
+  // then backfills estimated charges for that window.
+  const [startedAt, setStartedAt] = useState(() => new Date());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,6 +119,7 @@ export function ReactivateModal({
     setFrequencyState(freq);
     setDate(oneCycleAfter(new Date(), freq));
     setDateAuto(true);
+    setStartedAt(new Date());
     setError(null);
   }, [visible, sub]);
 
@@ -136,6 +141,36 @@ export function ReactivateModal({
   const setPart = (part: 'y' | 'm' | 'd', value: number) => {
     setDateAuto(false); // explicit user choice — stop auto-deriving from cadence
     setDate((cur) => {
+      let y = cur.getFullYear();
+      let m = cur.getMonth();
+      let d = cur.getDate();
+      if (part === 'y') y = value;
+      if (part === 'm') m = value;
+      if (part === 'd') d = value;
+      const maxDay = new Date(y, m + 1, 0).getDate();
+      return new Date(y, m, Math.min(d, maxDay));
+    });
+  };
+
+  // Start-date wheels: past years (this year back 15) since the sub may have run
+  // for a while before the user reactivates.
+  const now = useMemo(() => new Date(), []);
+  const startYears = useMemo(
+    () => Array.from({ length: 16 }, (_, i) => now.getFullYear() - i),
+    [now],
+  );
+  const startDaysInMonth = new Date(
+    startedAt.getFullYear(),
+    startedAt.getMonth() + 1,
+    0,
+  ).getDate();
+  const startDays = useMemo(
+    () => Array.from({ length: startDaysInMonth }, (_, i) => i + 1),
+    [startDaysInMonth],
+  );
+
+  const setStartPart = (part: 'y' | 'm' | 'd', value: number) => {
+    setStartedAt((cur) => {
       let y = cur.getFullYear();
       let m = cur.getMonth();
       let d = cur.getDate();
@@ -170,8 +205,9 @@ export function ReactivateModal({
             currency: currency.toUpperCase(),
             frequency,
             nextRenewalDate: startOfUtcDay(date).toISOString(),
-            // Resume date = today; the reactivated period starts now.
-            startedAt: startOfUtcDay(new Date()).toISOString(),
+            // The user-picked resume/start date (defaults to today, can be
+            // backdated). The API backfills estimated charges from here.
+            startedAt: startOfUtcDay(startedAt).toISOString(),
           }),
         },
       );
@@ -294,6 +330,25 @@ export function ReactivateModal({
                 values={years.map((n) => ({ label: String(n), value: n }))}
                 selected={date.getFullYear()}
                 onChange={(v) => setPart('y', v)}
+              />
+            </View>
+
+            <Text style={styles.sectionLabel}>{t('reactivate.startedLabel')}</Text>
+            <View style={styles.wheelRow}>
+              <WheelPicker
+                values={MONTHS.map((label, i) => ({ label, value: i }))}
+                selected={startedAt.getMonth()}
+                onChange={(v) => setStartPart('m', v)}
+              />
+              <WheelPicker
+                values={startDays.map((n) => ({ label: String(n), value: n }))}
+                selected={startedAt.getDate()}
+                onChange={(v) => setStartPart('d', v)}
+              />
+              <WheelPicker
+                values={startYears.map((n) => ({ label: String(n), value: n }))}
+                selected={startedAt.getFullYear()}
+                onChange={(v) => setStartPart('y', v)}
               />
             </View>
 

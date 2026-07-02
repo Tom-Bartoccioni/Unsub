@@ -120,6 +120,7 @@ export const en = {
     priceLabel: 'Price',
     cycleLabel: 'Billing cycle',
     nextRenewalLabel: 'Next payment',
+    startedLabel: 'Since when',
     confirm: 'Reactivate',
     busy: 'Reactivating…',
     failed: 'Failed to reactivate',

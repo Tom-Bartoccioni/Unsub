@@ -121,6 +121,7 @@ export const fr = {
     priceLabel: 'Prix',
     cycleLabel: 'Cycle de facturation',
     nextRenewalLabel: 'Prochain paiement',
+    startedLabel: 'Depuis quand',
     confirm: 'Réactiver',
     busy: 'Réactivation…',
     failed: 'Échec de la réactivation',
