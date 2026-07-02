@@ -110,6 +110,13 @@ export type SubscriptionStore = {
   // All life-cycle periods for a user's subscriptions, used by the savings
   // stat (sum over CLOSED periods). Joined + ownership-scoped.
   listPeriodsByUserId: (userId: string) => Promise<SubscriptionPeriodRow[]>;
+  // Periods for a single subscription, oldest-first, ownership-scoped. Drives
+  // the detail timeline's "cancelled from X to Y" pause markers. Returns null
+  // if the sub doesn't exist / isn't the user's.
+  listPeriodsBySubscription: (
+    subscriptionId: string,
+    userId: string,
+  ) => Promise<SubscriptionPeriodRow[] | null>;
   // Reactivate a ghosted subscription: flip status back to active, apply the
   // (possibly new) price/cycle from the modal, and open a fresh period. The
   // previously-closed period is left intact so its savings stay frozen.
@@ -118,6 +125,13 @@ export type SubscriptionStore = {
     id: string,
     userId: string,
     input: ReactivateInput,
+  ) => Promise<SubscriptionRow | null>;
+  // Most-recently-cancelled subscription for a provider key, if any. Lets the
+  // create flow reactivate an existing ghosted sub (preserving its history)
+  // instead of leaving a stale cancelled duplicate behind.
+  findCancelledByProviderKey: (
+    userId: string,
+    providerKey: string,
   ) => Promise<SubscriptionRow | null>;
 };
 
@@ -347,6 +361,33 @@ export function createDrizzleSubscriptionStore(
         eventsInserted += missed.length;
       }
       return { subsAdvanced, eventsInserted };
+    },
+    async listPeriodsBySubscription(subscriptionId, userId) {
+      const [sub] = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.userId, userId)));
+      if (!sub) return null;
+      return db
+        .select()
+        .from(subscriptionPeriods)
+        .where(eq(subscriptionPeriods.subscriptionId, subscriptionId))
+        .orderBy(subscriptionPeriods.startedAt);
+    },
+    async findCancelledByProviderKey(userId, providerKey) {
+      const [row] = await db
+        .select()
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.userId, userId),
+            eq(subscriptions.providerKey, providerKey),
+            eq(subscriptions.status, 'cancelled'),
+          ),
+        )
+        .orderBy(desc(subscriptions.updatedAt))
+        .limit(1);
+      return row ?? null;
     },
     async listPeriodsByUserId(userId) {
       const rows = await db

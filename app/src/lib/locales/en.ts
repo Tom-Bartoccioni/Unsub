@@ -84,6 +84,7 @@ export const en = {
     summary: '{{count}} payment · {{total}} total',
     summary_plural: '{{count}} payments · {{total}} total',
     noHistory: 'No payment history yet.',
+    paused: 'Paused',
   },
   detail: {
     statusGhosted: 'Ghosted',

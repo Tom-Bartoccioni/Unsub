@@ -46,6 +46,10 @@ type Draft = {
   currency: string;
   frequency: Frequency;
   date: Date;
+  // True while `date` is still the auto default (today + 1 cycle). Flips false
+  // the moment the user scrolls the date wheels, so a later frequency change
+  // stops overriding their explicit pick.
+  dateAuto: boolean;
   // Optional: when the user started this subscription. If set, the API
   // generates one 'estimated' payment_event per cycle from this date.
   startedAt: Date | null;
@@ -285,10 +289,12 @@ function emptyDraft(): Draft {
     amount: 9.99,
     currency: 'EUR',
     frequency: 'monthly',
-    // Default to today rather than today+1mo so the user must deliberately
-    // scroll forward — a glance-default of "in a month" silently committed
-    // the wrong year when the user only adjusted day/month.
-    date: new Date(),
+    // Assume the user just signed up: the next payment defaults to one cycle
+    // from today (today + 1 month for monthly, etc). `dateAuto` stays true
+    // until the user scrolls the wheels, so changing the frequency re-derives
+    // this default instead of leaving a stale date.
+    date: oneCycleAfter(new Date(), 'monthly'),
+    dateAuto: true,
     startedAt: null,
   };
 }
@@ -297,13 +303,13 @@ function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
 }
 
-// One cycle earlier than `base`. Used as the suggested start date on the
-// StartedStep — "next payment is May 28, monthly" → suggests April 28.
-function oneCycleBefore(base: Date, frequency: Frequency): Date {
+// One cycle after `base`. Used for the default next-payment date (today + 1
+// cycle) — we assume a brand-new signup, so the first renewal is one cycle out.
+function oneCycleAfter(base: Date, frequency: Frequency): Date {
   const d = new Date(base);
-  if (frequency === 'monthly') d.setMonth(d.getMonth() - 1);
-  else if (frequency === 'yearly') d.setFullYear(d.getFullYear() - 1);
-  else if (frequency === 'weekly') d.setDate(d.getDate() - 7);
+  if (frequency === 'monthly') d.setMonth(d.getMonth() + 1);
+  else if (frequency === 'yearly') d.setFullYear(d.getFullYear() + 1);
+  else if (frequency === 'weekly') d.setDate(d.getDate() + 7);
   return d;
 }
 
@@ -361,6 +367,10 @@ function ServiceStep({
       amount: plan.amount,
       currency: plan.currency,
       frequency: plan.frequency,
+      // Re-derive the auto next-payment default for the picked plan's cadence
+      // (unless the user already set the date explicitly, which they can't have
+      // yet on this step, but keep it correct if the flow changes).
+      date: d.dateAuto ? oneCycleAfter(new Date(), plan.frequency) : d.date,
     }));
     onNext();
   };
@@ -606,8 +616,19 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
       if (part === 'm') m = value;
       if (part === 'd') day = value;
       const maxDay = new Date(y, m + 1, 0).getDate();
-      return { ...prev, date: new Date(y, m, Math.min(day, maxDay)) };
+      // The user scrolled → this is now an explicit choice; stop auto-deriving.
+      return { ...prev, date: new Date(y, m, Math.min(day, maxDay)), dateAuto: false };
     });
+  };
+
+  const setFrequency = (value: Frequency) => {
+    setDraft((prev) => ({
+      ...prev,
+      frequency: value,
+      // Keep the auto default in sync with the chosen cadence (today + 1 cycle)
+      // until the user picks a date themselves.
+      date: prev.dateAuto ? oneCycleAfter(new Date(), value) : prev.date,
+    }));
   };
 
   return (
@@ -646,7 +667,7 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
               <Pressable
                 key={f.value}
                 style={[styles.freqPill, active && styles.freqPillActive]}
-                onPress={() => setDraft((dd) => ({ ...dd, frequency: f.value }))}
+                onPress={() => setFrequency(f.value)}
               >
                 <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
                   {t(f.labelKey)}
@@ -684,13 +705,11 @@ function StartedStep({
   onForceSubmitWith: (startedAt: Date | null) => void;
 }) {
   const { t } = useT();
-  // Suggest one cycle before the next-payment date so the user doesn't have
-  // to scroll for the common "I'm midway through the first cycle" case.
-  // Falls back to today if the cadence is unknown.
-  const suggested = useMemo(
-    () => oneCycleBefore(draft.date, draft.frequency),
-    [draft.date, draft.frequency],
-  );
+  // Default the start date to TODAY — we assume a brand-new signup, so the
+  // subscription started now and its first renewal is one cycle out (set on the
+  // previous step). The user can scroll back if they'd been subscribed before
+  // they started tracking.
+  const suggested = useMemo(() => new Date(), []);
   const value = draft.startedAt ?? suggested;
 
   const now = new Date();
@@ -865,13 +884,12 @@ function makeStyles(colors: ColorSet) {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.md,
       paddingBottom: spacing.xl,
-      // Was a hard height:'88%'. maxHeight lets the sheet hug shorter steps
-      // and shrink under the keyboard (flexShrink) while still capping tall
-      // steps; the step bodies scroll internally past this cap. minHeight
-      // keeps the wheel-picker steps from collapsing awkwardly on tall screens.
-      maxHeight: '92%',
-      minHeight: '60%',
-      flexShrink: 1,
+      // Fixed, generous height so the wheel-picker steps (triple 200px pickers
+      // + title + CTA) always have room. The step bodies scroll internally, so
+      // content is never clipped; the KeyboardAvoidingView lifts it above the
+      // keyboard. (An earlier maxHeight+flexShrink combo let the sheet contract
+      // too far and looked cropped.)
+      height: '90%',
     },
     header: {
       flexDirection: 'row',

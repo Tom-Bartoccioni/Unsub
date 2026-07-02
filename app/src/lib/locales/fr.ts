@@ -84,6 +84,7 @@ export const fr = {
     summary: '{{count}} paiement · {{total}} au total',
     summary_plural: '{{count}} paiements · {{total}} au total',
     noHistory: 'Aucun historique de paiement pour le moment.',
+    paused: 'En pause',
   },
   detail: {
     statusGhosted: 'Résilié',

@@ -85,6 +85,7 @@ export const es = {
     summary: '{{count}} pago · {{total}} en total',
     summary_plural: '{{count}} pagos · {{total}} en total',
     noHistory: 'Aún no hay historial de pagos.',
+    paused: 'En pausa',
   },
   detail: {
     statusGhosted: 'Fantasma',

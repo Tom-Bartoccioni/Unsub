@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { formatDate } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { useT, useTheme } from '@/state/preferences';
@@ -10,17 +11,22 @@ export type TimelinePoint = {
   // 'past' = mocked past based on cycle math (hollow ring)
   // 'next' = the immediate next renewal (filled accent)
   // 'future' = projected later renewal (hollow grey)
-  kind: 'real' | 'past' | 'next' | 'future';
+  // 'gap'  = a "cancelled from X to Y" pause between two life-cycle periods
+  kind: 'real' | 'past' | 'next' | 'future' | 'gap';
 };
 
-// Past dots are MOCKED right now. The API has a payment_events table but no
-// rows yet — once real charges flow in, replace the mocked points with the
-// /subscriptions/:id/payments response.
+// A closed pause between two life-cycle periods: the sub was ghosted at `from`
+// and resumed at `to`. Rendered as a dashed "cancelled" marker in the timeline.
+export type TimelineGap = { from: Date; to: Date };
+
+// Past dots come from the /subscriptions/:id/payments response.
 export function buildTimelinePoints(opts: {
   nextRenewal: Date | null;
   frequency: string;
   // Observed past charges (any order — we sort and take the most recent).
   pastEvents?: Date[];
+  // Ghost→reactivate pauses to mark between charges.
+  gaps?: TimelineGap[];
   mockedPastCount?: number;
   futureCount?: number;
   realPastCount?: number;
@@ -29,6 +35,7 @@ export function buildTimelinePoints(opts: {
     nextRenewal,
     frequency,
     pastEvents = [],
+    gaps = [],
     mockedPastCount = 2,
     futureCount = 2,
     realPastCount = 4,
@@ -41,11 +48,31 @@ export function buildTimelinePoints(opts: {
   const sortedReal = [...pastEvents].sort((a, b) => a.getTime() - b.getTime());
 
   if (sortedReal.length > 0) {
-    // History mode: show the last N real charges as filled dots leading up
-    // to the next renewal. No future dots — once we have data, project the
-    // user's actual cadence, not hypotheticals.
-    for (const d of sortedReal.slice(-realPastCount)) {
+    // History mode: show the last N real charges as filled dots leading up to
+    // the next renewal, with any ghost→reactivate pause marked in between. No
+    // future dots — once we have data, project the user's actual cadence.
+    const shown = sortedReal.slice(-realPastCount);
+    // Only mark gaps that fall within the shown window.
+    const shownGaps = gaps
+      .filter((g) => g.to.getTime() > (shown[0]?.getTime() ?? 0))
+      .sort((a, b) => a.from.getTime() - b.from.getTime());
+    let gi = 0;
+    for (let i = 0; i < shown.length; i++) {
+      const d = shown[i]!;
+      // Insert any pause whose start falls before this charge.
+      while (gi < shownGaps.length && shownGaps[gi]!.from.getTime() <= d.getTime()) {
+        const g = shownGaps[gi]!;
+        // midpoint date just for label positioning
+        points.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' });
+        gi++;
+      }
       points.push({ date: d, kind: 'real' });
+    }
+    // Any remaining pause after the last shown charge but before renewal.
+    while (gi < shownGaps.length) {
+      const g = shownGaps[gi]!;
+      points.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' });
+      gi++;
     }
     points.push({ date: nextRenewal, kind: 'next' });
   } else {
@@ -113,16 +140,17 @@ export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
                     ]}
                   />
                 ) : null}
-                <Dot point={p} styles={styles} />
+                <Dot point={p} styles={styles} gapColor={colors.warning} />
               </View>
               <Text
                 style={[
                   styles.monthLabel,
                   p.kind === 'next' && styles.monthLabelNext,
                   p.kind === 'real' && styles.monthLabelReal,
+                  p.kind === 'gap' && styles.monthLabelGap,
                 ]}
               >
-                {monthLabel(p.date)}
+                {p.kind === 'gap' ? t('transactions.paused') : monthLabel(p.date)}
               </Text>
             </View>
           );
@@ -162,7 +190,24 @@ function DashedConnector({ styles }: { styles: ReturnType<typeof makeStyles> }) 
   );
 }
 
-function Dot({ point, styles }: { point: TimelinePoint; styles: ReturnType<typeof makeStyles> }) {
+function Dot({
+  point,
+  styles,
+  gapColor,
+}: {
+  point: TimelinePoint;
+  styles: ReturnType<typeof makeStyles>;
+  gapColor: string;
+}) {
+  if (point.kind === 'gap') {
+    // A "cancelled" pause marker — a small scissors chip, matching the ghost
+    // action's iconography.
+    return (
+      <View style={styles.gapMark}>
+        <Ionicons name="cut-outline" size={12} color={gapColor} />
+      </View>
+    );
+  }
   if (point.kind === 'next') return <View style={[styles.dot, styles.dotNext]} />;
   if (point.kind === 'real') return <View style={[styles.dot, styles.dotReal]} />;
   if (point.kind === 'past') return <View style={[styles.dot, styles.dotPast]} />;
@@ -262,9 +307,22 @@ function makeStyles(colors: ColorSet) {
       borderWidth: 1.5,
       borderColor: colors.borderStrong,
     },
+    // "Cancelled pause" marker between two life-cycle periods.
+    gapMark: {
+      width: DOT_NEXT_SIZE + 4,
+      height: DOT_NEXT_SIZE + 4,
+      borderRadius: radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.warning,
+      zIndex: 1,
+    },
     monthLabel: { color: colors.textTertiary, fontSize: 11 },
     monthLabelNext: { color: colors.textPrimary, fontWeight: '600' },
     monthLabelReal: { color: colors.textPrimary, fontWeight: '500' },
+    monthLabelGap: { color: colors.warning, fontSize: 10, fontWeight: '600' },
     empty: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,

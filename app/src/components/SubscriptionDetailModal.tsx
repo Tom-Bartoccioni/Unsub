@@ -38,6 +38,7 @@ export function SubscriptionDetailModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payments, setPayments] = useState<PaymentEvent[]>([]);
+  const [periods, setPeriods] = useState<{ startedAt: string; endedAt: string | null }[]>([]);
   const [seeAllOpen, setSeeAllOpen] = useState(false);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   // Provider name captured when the user ghosts, to drive the unsubscribe
@@ -57,12 +58,19 @@ export function SubscriptionDetailModal({
   useEffect(() => {
     if (!visible || !sub) {
       setPayments([]);
+      setPeriods([]);
       return;
     }
     let cancelled = false;
-    apiFetch<{ payments: PaymentEvent[] }>(`/subscriptions/${sub.id}/payments`)
+    apiFetch<{
+      payments: PaymentEvent[];
+      periods?: { startedAt: string; endedAt: string | null }[];
+    }>(`/subscriptions/${sub.id}/payments`)
       .then((res) => {
-        if (!cancelled) setPayments(res.payments);
+        if (!cancelled) {
+          setPayments(res.payments);
+          setPeriods(res.periods ?? []);
+        }
       })
       .catch(() => {
         // Non-fatal — leave payments empty; the section just hides itself.
@@ -72,6 +80,21 @@ export function SubscriptionDetailModal({
     };
   }, [visible, sub]);
 
+  // Ghost→reactivate pauses: each closed period's end paired with the start of
+  // the next period is a "cancelled" gap to mark in the timeline.
+  const gaps = useMemo(() => {
+    const sorted = [...periods]
+      .map((p) => ({ startedAt: new Date(p.startedAt), endedAt: p.endedAt ? new Date(p.endedAt) : null }))
+      .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
+    const out: { from: Date; to: Date }[] = [];
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const end = sorted[i]!.endedAt;
+      const nextStart = sorted[i + 1]!.startedAt;
+      if (end && nextStart.getTime() > end.getTime()) out.push({ from: end, to: nextStart });
+    }
+    return out;
+  }, [periods]);
+
   const points = useMemo(
     () =>
       sub
@@ -79,9 +102,10 @@ export function SubscriptionDetailModal({
             nextRenewal: sub.nextRenewalDate ? new Date(sub.nextRenewalDate) : null,
             frequency: sub.frequency,
             pastEvents: payments.map((p) => new Date(p.chargedAt)),
+            gaps,
           })
         : [],
-    [sub, payments],
+    [sub, payments, gaps],
   );
 
   if (!sub) return null;

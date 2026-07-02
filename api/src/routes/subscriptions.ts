@@ -121,10 +121,31 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       }
       const body = parsed.data;
       const startedAt = body.startedAt ? new Date(body.startedAt) : null;
+      const providerKey = firstProviderToken(body.provider);
+
+      // If the user re-adds a subscription they'd previously ghosted, reactivate
+      // that existing row (opening a fresh period, preserving its history)
+      // instead of creating a second, still-cancelled duplicate.
+      const cancelled = await deps.store.findCancelledByProviderKey(auth.row.id, providerKey);
+      if (cancelled) {
+        const reactivated = await deps.store.reactivate(cancelled.id, auth.row.id, {
+          amountMinor: Math.round(body.amount * 100),
+          currency: body.currency,
+          frequency: body.frequency,
+          nextRenewalDate: body.nextRenewalDate ? new Date(body.nextRenewalDate) : null,
+          startedAt,
+        });
+        if (reactivated) {
+          // Don't regenerate estimated events — that would wipe the old
+          // period's history. The resumed period accrues from the rollover.
+          return reply.code(201).send({ subscription: toDTO(reactivated) });
+        }
+      }
+
       const row = await deps.store.upsert({
         userId: auth.row.id,
         provider: body.provider,
-        providerKey: firstProviderToken(body.provider),
+        providerKey,
         category: body.category ?? null,
         amountMinor: Math.round(body.amount * 100),
         currency: body.currency,
@@ -214,16 +235,11 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         startedAt,
       });
       if (!row) return reply.code(404).send({ error: 'not_found' });
-      // Rebuild estimated events for the resumed period.
-      if (startedAt) {
-        await deps.store.regenerateEstimatedEvents(
-          row.id,
-          startedAt,
-          row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
-          row.amountMinor,
-          row.currency,
-        );
-      }
+      // Deliberately do NOT regenerate estimated events here: that wipes ALL
+      // 'estimated' rows and would erase the previous period's history
+      // (e.g. a Sep→Dec stretch) when resuming today. The resumed period
+      // starts now with no past charges; the daily rollover fills its future
+      // cycles, and the old period's events stay intact for the timeline.
       return { subscription: toDTO(row) };
     });
 
@@ -240,7 +256,10 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       const auth = await fastify.requireAuth(req);
       const parsed = IdParam.safeParse(req.params);
       if (!parsed.success) return reply.code(400).send({ error: 'invalid_id' });
-      const events = await deps.store.listPaymentEvents(parsed.data.id, auth.row.id);
+      const [events, periods] = await Promise.all([
+        deps.store.listPaymentEvents(parsed.data.id, auth.row.id),
+        deps.store.listPeriodsBySubscription(parsed.data.id, auth.row.id),
+      ]);
       if (events === null) return reply.code(404).send({ error: 'not_found' });
       return {
         payments: events.map((e) => ({
@@ -249,6 +268,12 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
           amount: e.amountMinor / 100,
           currency: e.currency,
           source: e.source,
+        })),
+        // Life-cycle periods so the timeline can mark the gap when a sub was
+        // ghosted then reactivated (a closed period followed by a later one).
+        periods: (periods ?? []).map((p) => ({
+          startedAt: p.startedAt.toISOString(),
+          endedAt: p.endedAt ? p.endedAt.toISOString() : null,
         })),
       };
     });

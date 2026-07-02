@@ -49,6 +49,16 @@ function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
 }
 
+// One cycle after `base` — the default next-payment date on reactivation
+// (resuming today, so the next charge is one cycle out).
+function oneCycleAfter(base: Date, frequency: Frequency): Date {
+  const d = new Date(base);
+  if (frequency === 'monthly') d.setMonth(d.getMonth() + 1);
+  else if (frequency === 'yearly') d.setFullYear(d.getFullYear() + 1);
+  else if (frequency === 'weekly') d.setDate(d.getDate() + 7);
+  return d;
+}
+
 // Shown when the user reactivates a ghosted subscription. Re-asks the details
 // that may have changed while it was cancelled (price, cycle, next renewal) and
 // opens a fresh life-cycle period via POST /subscriptions/:id/reactivate. The
@@ -74,22 +84,37 @@ export function ReactivateModal({
   const [text, setText] = useState((sub ? sub.amount : 9.99).toFixed(2));
   const [editing, setEditing] = useState(false);
   const [currency, setCurrency] = useState(sub?.currency ?? 'EUR');
-  const [frequency, setFrequency] = useState<Frequency>(normalizeFreq(sub?.frequency ?? 'monthly'));
-  const [date, setDate] = useState(() => new Date());
+  const [frequency, setFrequencyState] = useState<Frequency>(
+    normalizeFreq(sub?.frequency ?? 'monthly'),
+  );
+  // Next payment defaults to today + 1 cycle; `dateAuto` keeps it in sync with
+  // the chosen cadence until the user scrolls the wheels themselves.
+  const [date, setDate] = useState(() =>
+    oneCycleAfter(new Date(), normalizeFreq(sub?.frequency ?? 'monthly')),
+  );
+  const [dateAuto, setDateAuto] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Wrap the frequency setter so switching cadence re-derives the auto date.
+  const setFrequency = (value: Frequency) => {
+    setFrequencyState(value);
+    if (dateAuto) setDate(oneCycleAfter(new Date(), value));
+  };
 
   // Re-seed the form from the sub each time the sheet opens, so reusing the
   // single modal instance across different subscriptions never shows stale
   // values (useState only reads its initializer on first mount).
   useEffect(() => {
     if (!visible || !sub) return;
+    const freq = normalizeFreq(sub.frequency);
     setAmount(sub.amount);
     setText(sub.amount.toFixed(2));
     setEditing(false);
     setCurrency(sub.currency);
-    setFrequency(normalizeFreq(sub.frequency));
-    setDate(new Date());
+    setFrequencyState(freq);
+    setDate(oneCycleAfter(new Date(), freq));
+    setDateAuto(true);
     setError(null);
   }, [visible, sub]);
 
@@ -109,6 +134,7 @@ export function ReactivateModal({
   );
 
   const setPart = (part: 'y' | 'm' | 'd', value: number) => {
+    setDateAuto(false); // explicit user choice — stop auto-deriving from cadence
     setDate((cur) => {
       let y = cur.getFullYear();
       let m = cur.getMonth();
