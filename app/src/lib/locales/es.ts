@@ -117,6 +117,16 @@ export const es = {
       impossible: 'Muy difícil de cancelar',
     },
   },
+  reactivate: {
+    title: 'Reactivar {{provider}}',
+    subtitle: 'Confirma el precio y el ciclo — pueden haber cambiado desde la cancelación.',
+    priceLabel: 'Precio',
+    cycleLabel: 'Ciclo de facturación',
+    nextRenewalLabel: 'Próximo pago',
+    confirm: 'Reactivar',
+    busy: 'Reactivando…',
+    failed: 'Error al reactivar',
+  },
   settings: {
     title: 'Ajustes',
     appearance: 'Apariencia',

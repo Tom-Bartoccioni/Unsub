@@ -116,6 +116,16 @@ export const fr = {
       impossible: 'Très difficile à résilier',
     },
   },
+  reactivate: {
+    title: 'Réactiver {{provider}}',
+    subtitle: 'Confirme le prix et le cycle — ils ont pu changer depuis la résiliation.',
+    priceLabel: 'Prix',
+    cycleLabel: 'Cycle de facturation',
+    nextRenewalLabel: 'Prochain paiement',
+    confirm: 'Réactiver',
+    busy: 'Réactivation…',
+    failed: 'Échec de la réactivation',
+  },
   settings: {
     title: 'Réglages',
     appearance: 'Apparence',

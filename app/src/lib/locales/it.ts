@@ -117,6 +117,16 @@ export const it = {
       impossible: 'Molto difficile da disdire',
     },
   },
+  reactivate: {
+    title: 'Riattiva {{provider}}',
+    subtitle: 'Conferma prezzo e ciclo — potrebbero essere cambiati dalla disdetta.',
+    priceLabel: 'Prezzo',
+    cycleLabel: 'Ciclo di fatturazione',
+    nextRenewalLabel: 'Prossimo pagamento',
+    confirm: 'Riattiva',
+    busy: 'Riattivazione…',
+    failed: 'Riattivazione non riuscita',
+  },
   settings: {
     title: 'Impostazioni',
     appearance: 'Aspetto',

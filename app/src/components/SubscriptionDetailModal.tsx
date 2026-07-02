@@ -8,6 +8,7 @@ import { RecentTransactions, type PaymentEvent } from './RecentTransactions';
 import { AllTransactionsSheet } from './AllTransactionsSheet';
 import { CategoryPickerSheet } from './CategoryPickerSheet';
 import { UnsubscribeModal } from './UnsubscribeModal';
+import { ReactivateModal } from './ReactivateModal';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
 import { formatDate, formatPrice, monthlyAmount } from '@/lib/money';
@@ -42,6 +43,9 @@ export function SubscriptionDetailModal({
   // Provider name captured when the user ghosts, to drive the unsubscribe
   // helper sheet. Non-null while that sheet is open.
   const [unsubProvider, setUnsubProvider] = useState<string | null>(null);
+  // Open the reactivation modal (re-asks price/cycle) instead of a silent
+  // un-ghost, so a fresh life-cycle period is created with current values.
+  const [reactivateOpen, setReactivateOpen] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
   const brandColor = brand?.brandColor ?? colors.card;
@@ -104,23 +108,22 @@ export function SubscriptionDetailModal({
       : joinedAt;
 
   const onGhost = async () => {
+    // Reactivating opens a modal that re-asks price/cycle and starts a fresh
+    // life-cycle period — handled by ReactivateModal, not a silent PATCH.
+    if (isGhost) {
+      setReactivateOpen(true);
+      return;
+    }
+    // Ghosting: mark cancelled, then help the user finish on the vendor side.
     setError(null);
     setBusy(true);
-    const wasGhosting = !isGhost; // capture before the row flips to cancelled
     try {
       const res = await apiFetch<{ subscription: Subscription }>(`/subscriptions/${sub.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: isGhost ? 'active' : 'cancelled' }),
+        body: JSON.stringify({ status: 'cancelled' }),
       });
       onUpdated(res.subscription);
-      if (wasGhosting) {
-        // Now that it's marked cancelled here, help the user finish the job on
-        // the vendor's side with a deep-link to the cancellation page.
-        setUnsubProvider(res.subscription.provider);
-      } else {
-        // Reactivating — nothing more to do, just dismiss.
-        onClose();
-      }
+      setUnsubProvider(res.subscription.provider);
     } catch (e) {
       setError(humanize(e, 'update', t));
     } finally {
@@ -281,6 +284,17 @@ export function SubscriptionDetailModal({
           setUnsubProvider(null);
           // Ghosting is done; close the detail sheet too so the user lands
           // back on the dashboard with the sub now marked cancelled.
+          onClose();
+        }}
+      />
+
+      <ReactivateModal
+        sub={sub}
+        visible={reactivateOpen}
+        onClose={() => setReactivateOpen(false)}
+        onReactivated={(s) => {
+          onUpdated(s);
+          setReactivateOpen(false);
           onClose();
         }}
       />

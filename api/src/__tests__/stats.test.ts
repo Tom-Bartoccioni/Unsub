@@ -1,6 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { computeStats, monthlyMinor, monthsBetween } from '../lib/stats.js';
-import type { SubscriptionRow } from '../db/schema.js';
+import type { SubscriptionPeriodRow, SubscriptionRow } from '../db/schema.js';
+
+// Minimal SubscriptionPeriodRow factory for the period-based savings tests.
+function period(overrides: Partial<SubscriptionPeriodRow>): SubscriptionPeriodRow {
+  return {
+    id: 'p',
+    subscriptionId: 'id',
+    startedAt: new Date('2026-01-01T00:00:00.000Z'),
+    endedAt: null,
+    amountMinor: 1000,
+    currency: 'EUR',
+    frequency: 'monthly',
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    ...overrides,
+  } as SubscriptionPeriodRow;
+}
 
 // Minimal SubscriptionRow factory — only the fields computeStats reads matter.
 function sub(overrides: Partial<SubscriptionRow>): SubscriptionRow {
@@ -102,6 +117,48 @@ describe('computeStats', () => {
       NOW,
     );
     expect(r.saved.EUR).toBeCloseTo(20); // 10 × 2 months
+  });
+
+  it('computes saved from CLOSED periods when periods are provided', () => {
+    // Same Spotify/Netflix example, now via periods: Spotify 15€ ended 2mo ago,
+    // Netflix 10€ ended 1mo ago → 15×2 + 10×1 = 40.
+    const rows = [sub({ status: 'cancelled' }), sub({ id: 'id2', status: 'cancelled' })];
+    const periods = [
+      period({ amountMinor: 1500, endedAt: new Date('2026-04-01T00:00:00.000Z') }),
+      period({
+        id: 'p2',
+        subscriptionId: 'id2',
+        amountMinor: 1000,
+        endedAt: new Date('2026-05-01T00:00:00.000Z'),
+      }),
+    ];
+    const r = computeStats(rows, NOW, 0, periods);
+    expect(r.saved.EUR).toBeCloseTo(40);
+  });
+
+  it('ignores OPEN periods in saved (an active resubscription accrues nothing)', () => {
+    // A sub that was ghosted (closed period, 2mo) then reactivated (open
+    // period): only the closed stretch counts toward savings.
+    const rows = [sub({ status: 'active' })];
+    const periods = [
+      period({ amountMinor: 1000, endedAt: new Date('2026-04-01T00:00:00.000Z') }), // closed 2mo
+      period({ id: 'p2', amountMinor: 1200, endedAt: null }), // open, current
+    ];
+    const r = computeStats(rows, NOW, 0, periods);
+    expect(r.saved.EUR).toBeCloseTo(20); // 10 × 2, the open period contributes 0
+  });
+
+  it('sums multiple closed periods across a ghost→reactivate→ghost cycle', () => {
+    // One subscription, cancelled twice at different prices: 10€ ended 3mo ago
+    // and 12€ ended 1mo ago → 10×3 + 12×1 = 42. A single cancelledAt could
+    // never remember both.
+    const rows = [sub({ status: 'cancelled' })];
+    const periods = [
+      period({ amountMinor: 1000, endedAt: new Date('2026-03-01T00:00:00.000Z') }),
+      period({ id: 'p2', amountMinor: 1200, endedAt: new Date('2026-05-01T00:00:00.000Z') }),
+    ];
+    const r = computeStats(rows, NOW, 0, periods);
+    expect(r.saved.EUR).toBeCloseTo(42);
   });
 
   it('does not count active subs in saved', () => {

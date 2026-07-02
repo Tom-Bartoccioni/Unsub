@@ -192,3 +192,38 @@ export const catalogServices = pgTable(
 
 export type CatalogServiceRow = typeof catalogServices.$inferSelect;
 export type CatalogServiceInsert = typeof catalogServices.$inferInsert;
+
+// Life-cycle periods of a subscription. Each ghost→reactivate cycle closes the
+// current period and opens a new one, so the "saved by cancelling" stat can be
+// frozen per period (an old cancelled stretch keeps accruing savings even after
+// the user resubscribes at a possibly different price). Exactly one OPEN period
+// (endedAt IS NULL) per subscription while it is active; closing it on ghost,
+// opening a fresh one on reactivation.
+export const subscriptionPeriods = pgTable(
+  'subscription_periods',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    subscriptionId: uuid('subscription_id')
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: 'cascade' }),
+    // When this stretch of the subscription began (signup or reactivation).
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+    // When it was cancelled/ghosted. Null while this is the active period.
+    endedAt: timestamp('ended_at', { withTimezone: true }),
+    // Price/cadence for THIS period — captured at open time so a later price
+    // change on reactivation doesn't rewrite a closed period's savings.
+    amountMinor: integer('amount_minor').notNull(),
+    currency: text('currency').notNull(),
+    frequency: text('frequency').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('subscription_periods_subscription_id_idx').on(t.subscriptionId),
+    // Partial-ish lookup of the open period; a plain index on ended_at helps
+    // the "closed periods" scan the savings stat does.
+    index('subscription_periods_ended_at_idx').on(t.endedAt),
+  ],
+);
+
+export type SubscriptionPeriodRow = typeof subscriptionPeriods.$inferSelect;
+export type SubscriptionPeriodInsert = typeof subscriptionPeriods.$inferInsert;

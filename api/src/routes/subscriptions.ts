@@ -38,6 +38,20 @@ const PatchBody = z
 
 const IdParam = z.object({ id: z.string().uuid() });
 
+// Reactivating a ghosted sub: the modal re-asks price/cycle/renewal (they may
+// have changed since it was cancelled). startedAt is the resume date.
+const ReactivateBody = z.object({
+  amount: z.number().positive().max(1_000_000),
+  currency: z
+    .string()
+    .trim()
+    .length(3)
+    .transform((s) => s.toUpperCase()),
+  frequency: z.enum(['monthly', 'yearly', 'weekly', 'unknown']),
+  nextRenewalDate: z.string().datetime().nullable().optional(),
+  startedAt: z.string().datetime().nullable().optional(),
+});
+
 function firstProviderToken(provider: string): string {
   return provider.split(/\s+/)[0]?.toLowerCase() ?? '';
 }
@@ -91,11 +105,12 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
     // user's display currency); counters drive badge unlocks.
     fastify.get('/me/stats', async (req) => {
       const auth = await fastify.requireAuth(req);
-      const [rows, transactions] = await Promise.all([
+      const [rows, transactions, periods] = await Promise.all([
         deps.store.listByUserId(auth.row.id),
         deps.store.countPaymentEvents(auth.row.id),
+        deps.store.listPeriodsByUserId(auth.row.id),
       ]);
-      return computeStats(rows, new Date(), transactions);
+      return computeStats(rows, new Date(), transactions, periods);
     });
 
     fastify.post('/subscriptions', async (req, reply) => {
@@ -169,6 +184,41 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         await deps.store.regenerateEstimatedEvents(
           row.id,
           row.startedAt,
+          row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
+          row.amountMinor,
+          row.currency,
+        );
+      }
+      return { subscription: toDTO(row) };
+    });
+
+    // Reactivate a ghosted subscription: opens a fresh life-cycle period with
+    // the (possibly new) price/cycle, leaving the closed period's savings
+    // frozen. The old PATCH status:'active' path still works for a plain
+    // un-ghost, but this endpoint is what the reactivation modal calls.
+    fastify.post('/subscriptions/:id/reactivate', async (req, reply) => {
+      const auth = await fastify.requireAuth(req);
+      const idParsed = IdParam.safeParse(req.params);
+      if (!idParsed.success) return reply.code(400).send({ error: 'invalid_id' });
+      const bodyParsed = ReactivateBody.safeParse(req.body);
+      if (!bodyParsed.success) {
+        return reply.code(400).send({ error: 'invalid_body', issues: bodyParsed.error.issues });
+      }
+      const body = bodyParsed.data;
+      const startedAt = body.startedAt ? new Date(body.startedAt) : null;
+      const row = await deps.store.reactivate(idParsed.data.id, auth.row.id, {
+        amountMinor: Math.round(body.amount * 100),
+        currency: body.currency,
+        frequency: body.frequency,
+        nextRenewalDate: body.nextRenewalDate ? new Date(body.nextRenewalDate) : null,
+        startedAt,
+      });
+      if (!row) return reply.code(404).send({ error: 'not_found' });
+      // Rebuild estimated events for the resumed period.
+      if (startedAt) {
+        await deps.store.regenerateEstimatedEvents(
+          row.id,
+          startedAt,
           row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
           row.amountMinor,
           row.currency,

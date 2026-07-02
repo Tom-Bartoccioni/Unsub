@@ -1,4 +1,4 @@
-import type { SubscriptionRow } from '../db/schema.js';
+import type { SubscriptionPeriodRow, SubscriptionRow } from '../db/schema.js';
 
 export type Frequency = 'monthly' | 'yearly' | 'weekly' | 'unknown';
 
@@ -55,6 +55,7 @@ export function computeStats(
   rows: SubscriptionRow[],
   now: Date,
   transactionCount = 0,
+  periods: SubscriptionPeriodRow[] = [],
 ): StatsResult {
   const monthlySpend: Record<string, number> = {};
   const annualSpend: Record<string, number> = {};
@@ -80,22 +81,39 @@ export function computeStats(
       }
     }
 
-    if (row.status === 'cancelled') {
-      cancelled++;
-      // Saved = monthly amount × months since cancellation. Fall back to
-      // updatedAt when cancelledAt isn't set (rows cancelled before the
-      // column existed) — updatedAt is the cancel timestamp unless edited after.
-      const since = row.cancelledAt ?? row.updatedAt;
-      if (monthly != null) {
-        const months = monthsBetween(since, now);
-        add(saved, row.currency, (monthly * months) / 100);
-      }
-    }
+    if (row.status === 'cancelled') cancelled++;
 
     // Lifetime spend estimate: monthly × months since the user started paying.
     if (monthly != null && row.startedAt) {
       const months = monthsBetween(row.startedAt, now);
       add(lifetimeSpent, row.currency, (monthly * months) / 100);
+    }
+  }
+
+  // Saved by cancelling, summed over CLOSED periods (endedAt set): each closed
+  // stretch keeps accruing monthly × months-since-it-ended, at the price it had
+  // when it was cancelled. This survives ghost→reactivate→ghost cycles, where a
+  // single cancelledAt on the row would only remember the latest cancellation.
+  //
+  // Back-compat: if no periods exist yet (pre-migration data reaching this code
+  // path), fall back to the old cancelledAt-based estimate so the number never
+  // silently drops to zero.
+  if (periods.length > 0) {
+    for (const p of periods) {
+      if (!p.endedAt) continue; // open period — not "saved"
+      const monthly = monthlyMinor(p.amountMinor, p.frequency);
+      if (monthly == null) continue;
+      const months = monthsBetween(p.endedAt, now);
+      add(saved, p.currency, (monthly * months) / 100);
+    }
+  } else {
+    for (const row of rows) {
+      if (row.status !== 'cancelled') continue;
+      const monthly = monthlyMinor(row.amountMinor, row.frequency);
+      if (monthly == null) continue;
+      const since = row.cancelledAt ?? row.updatedAt;
+      const months = monthsBetween(since, now);
+      add(saved, row.currency, (monthly * months) / 100);
     }
   }
 

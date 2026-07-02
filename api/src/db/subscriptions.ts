@@ -1,9 +1,11 @@
-import { and, count, desc, eq, lt } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, lt } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   paymentEvents,
+  subscriptionPeriods,
   subscriptions,
   type PaymentEventRow,
+  type SubscriptionPeriodRow,
   type SubscriptionRow,
 } from './schema.js';
 
@@ -33,6 +35,17 @@ export type SubscriptionPatch = {
   nextRenewalDate?: Date | null;
   startedAt?: Date | null;
   status?: 'active' | 'trial' | 'cancelled';
+};
+
+// Reactivating a ghosted subscription: the modal re-asks price/cycle/renewal
+// (they may have changed), and we open a fresh period from `startedAt` (the
+// resume date, defaulting to now) while leaving the closed period untouched.
+export type ReactivateInput = {
+  amountMinor: number;
+  currency: string;
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown';
+  nextRenewalDate: Date | null;
+  startedAt: Date | null;
 };
 
 // Cycle dates strictly BEFORE `end`, starting at `start` and stepping by
@@ -94,6 +107,18 @@ export type SubscriptionStore = {
   // Total number of recorded payment events across all of the user's
   // subscriptions (observed + estimated). Drives the "Total transactions" stat.
   countPaymentEvents: (userId: string) => Promise<number>;
+  // All life-cycle periods for a user's subscriptions, used by the savings
+  // stat (sum over CLOSED periods). Joined + ownership-scoped.
+  listPeriodsByUserId: (userId: string) => Promise<SubscriptionPeriodRow[]>;
+  // Reactivate a ghosted subscription: flip status back to active, apply the
+  // (possibly new) price/cycle from the modal, and open a fresh period. The
+  // previously-closed period is left intact so its savings stay frozen.
+  // Returns null on ownership failure.
+  reactivate: (
+    id: string,
+    userId: string,
+    input: ReactivateInput,
+  ) => Promise<SubscriptionRow | null>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -141,6 +166,25 @@ export function createDrizzleSubscriptionStore(
         })
         .returning();
       if (!row) throw new Error('subscriptions.upsert returned no row');
+      // Open an initial period the first time we see this subscription (a real
+      // insert, or an existing row that predates the periods table). Idempotent
+      // via the existence guard so a conflicting upsert doesn't add a second
+      // open period.
+      const [hasPeriod] = await db
+        .select({ id: subscriptionPeriods.id })
+        .from(subscriptionPeriods)
+        .where(eq(subscriptionPeriods.subscriptionId, row.id))
+        .limit(1);
+      if (!hasPeriod) {
+        await db.insert(subscriptionPeriods).values({
+          subscriptionId: row.id,
+          startedAt: row.startedAt ?? row.createdAt,
+          endedAt: row.status === 'cancelled' ? (row.cancelledAt ?? new Date()) : null,
+          amountMinor: row.amountMinor,
+          currency: row.currency,
+          frequency: row.frequency,
+        });
+      }
       return row;
     },
     async listByUserId(userId) {
@@ -167,17 +211,34 @@ export function createDrizzleSubscriptionStore(
       }
       // Stamp cancelledAt when transitioning into 'cancelled'; clear it on any
       // other status so reactivation resets the saved-money clock.
+      const now = new Date();
       const statusFields =
         patch.status === undefined
           ? {}
           : patch.status === 'cancelled'
-            ? { cancelledAt: new Date() }
+            ? { cancelledAt: now }
             : { cancelledAt: null };
       const [row] = await db
         .update(subscriptions)
-        .set({ ...patch, ...statusFields, updatedAt: new Date() })
+        .set({ ...patch, ...statusFields, updatedAt: now })
         .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
         .returning();
+      if (!row) return null;
+      // Ghosting closes the currently-open period (if any) so the savings stat
+      // starts accruing from `now`. Reactivation is NOT handled here — it goes
+      // through reactivate(), which opens a fresh period. Other status changes
+      // (active<->trial) leave periods alone.
+      if (patch.status === 'cancelled') {
+        await db
+          .update(subscriptionPeriods)
+          .set({ endedAt: now })
+          .where(
+            and(
+              eq(subscriptionPeriods.subscriptionId, row.id),
+              isNull(subscriptionPeriods.endedAt),
+            ),
+          );
+      }
       return row ?? null;
     },
     async listPaymentEvents(subscriptionId, userId) {
@@ -286,6 +347,54 @@ export function createDrizzleSubscriptionStore(
         eventsInserted += missed.length;
       }
       return { subsAdvanced, eventsInserted };
+    },
+    async listPeriodsByUserId(userId) {
+      const rows = await db
+        .select({ period: subscriptionPeriods })
+        .from(subscriptionPeriods)
+        .innerJoin(subscriptions, eq(subscriptionPeriods.subscriptionId, subscriptions.id))
+        .where(eq(subscriptions.userId, userId));
+      return rows.map((r) => r.period);
+    },
+    async reactivate(id, userId, input) {
+      const now = new Date();
+      // Ownership-scoped flip back to active + apply the resumed price/cycle.
+      const [row] = await db
+        .update(subscriptions)
+        .set({
+          status: 'active',
+          cancelledAt: null,
+          amountMinor: input.amountMinor,
+          currency: input.currency,
+          frequency: input.frequency,
+          nextRenewalDate: input.nextRenewalDate,
+          startedAt: input.startedAt,
+          updatedAt: now,
+        })
+        .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
+        .returning();
+      if (!row) return null;
+      // Defensive: close any period that's still open (shouldn't happen for a
+      // cancelled sub, but guarantees the single-open-period invariant), then
+      // open a fresh one from the resume date.
+      await db
+        .update(subscriptionPeriods)
+        .set({ endedAt: now })
+        .where(
+          and(
+            eq(subscriptionPeriods.subscriptionId, row.id),
+            isNull(subscriptionPeriods.endedAt),
+          ),
+        );
+      await db.insert(subscriptionPeriods).values({
+        subscriptionId: row.id,
+        startedAt: input.startedAt ?? now,
+        endedAt: null,
+        amountMinor: input.amountMinor,
+        currency: input.currency,
+        frequency: input.frequency,
+      });
+      return row;
     },
   };
 }

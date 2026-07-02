@@ -115,6 +115,16 @@ export const en = {
       impossible: 'Very hard to cancel',
     },
   },
+  reactivate: {
+    title: 'Reactivate {{provider}}',
+    subtitle: 'Confirm the price and cycle — they may have changed since you cancelled.',
+    priceLabel: 'Price',
+    cycleLabel: 'Billing cycle',
+    nextRenewalLabel: 'Next payment',
+    confirm: 'Reactivate',
+    busy: 'Reactivating…',
+    failed: 'Failed to reactivate',
+  },
   settings: {
     title: 'Settings',
     appearance: 'Appearance',
