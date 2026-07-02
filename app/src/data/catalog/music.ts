@@ -1,0 +1,198 @@
+import type { CatalogService } from './types';
+
+// MUSIC & AUDIO streaming (music, podcasts, audiobooks).
+// Audience: French / European. Native currency (EUR where sold in Europe,
+// USD for US-only services). Prices researched for 2026-07 — see NOTES at the
+// bottom of the associated report for skips and uncertain values.
+
+export const MUSIC_AUDIO: CatalogService[] = [
+  {
+    id: 'spotify',
+    name: 'Spotify',
+    aliases: ['spotify'],
+    domain: 'spotify.com',
+    category: 'Music',
+    plans: [
+      { name: 'Individuel', amount: 12.14, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Duo', amount: 17.20, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Famille', amount: 21.24, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Étudiant', amount: 7.07, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'apple-music',
+    name: 'Apple Music',
+    aliases: ['apple music', 'applemusic'],
+    domain: 'music.apple.com',
+    category: 'Music',
+    plans: [
+      { name: 'Individuel', amount: 10.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Famille', amount: 16.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Étudiant', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'youtube-music',
+    name: 'YouTube Music',
+    aliases: ['youtube music', 'yt music', 'youtube premium'],
+    domain: 'music.youtube.com',
+    category: 'Music',
+    plans: [
+      { name: 'Individuel', amount: 10.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Famille', amount: 17.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Étudiant', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'amazon-music-unlimited',
+    name: 'Amazon Music Unlimited',
+    aliases: ['amazon music', 'amazon music unlimited'],
+    domain: 'music.amazon.fr',
+    category: 'Music',
+    plans: [
+      { name: 'Individuel', amount: 12.14, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Prime', amount: 10.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Famille', amount: 21.24, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'deezer',
+    name: 'Deezer',
+    aliases: ['deezer'],
+    domain: 'deezer.com',
+    category: 'Music',
+    plans: [
+      { name: 'Premium', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Duo', amount: 15.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Famille', amount: 19.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Étudiant', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'qobuz',
+    name: 'Qobuz',
+    aliases: ['qobuz'],
+    domain: 'qobuz.com',
+    category: 'Music',
+    plans: [
+      { name: 'Studio Solo', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Studio Duo', amount: 19.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Studio Famille', amount: 21.90, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Studio Solo (annuel)', amount: 129.99, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'tidal',
+    name: 'Tidal',
+    aliases: ['tidal'],
+    domain: 'tidal.com',
+    category: 'Music',
+    plans: [
+      { name: 'Individuel', amount: 10.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Famille', amount: 16.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Étudiant', amount: 5.49, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'soundcloud',
+    name: 'SoundCloud',
+    aliases: ['soundcloud', 'soundcloud go', 'soundcloud go+'],
+    domain: 'soundcloud.com',
+    category: 'Music',
+    plans: [
+      { name: 'Go+', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Go', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'pandora',
+    name: 'Pandora',
+    aliases: ['pandora'],
+    domain: 'pandora.com',
+    category: 'Music',
+    plans: [
+      { name: 'Premium', amount: 10.99, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Plus', amount: 4.99, currency: 'USD', frequency: 'monthly' },
+      { name: 'Premium Family', amount: 17.99, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'audible',
+    name: 'Audible',
+    aliases: ['audible'],
+    domain: 'audible.fr',
+    category: 'News',
+    plans: [
+      { name: 'Premium', amount: 9.95, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Standard', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'storytel',
+    name: 'Storytel',
+    aliases: ['storytel'],
+    domain: 'storytel.com',
+    category: 'News',
+    plans: [
+      { name: 'Illimité', amount: 14.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'nextory',
+    name: 'Nextory',
+    aliases: ['nextory'],
+    domain: 'nextory.com',
+    category: 'News',
+    plans: [
+      { name: 'Standard', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Premium', amount: 14.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Famille', amount: 19.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'kobo-plus',
+    name: 'Kobo Plus',
+    aliases: ['kobo plus', 'kobo'],
+    domain: 'kobo.com',
+    category: 'News',
+    plans: [
+      { name: 'Lecture + Écoute', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Lecture', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'podimo',
+    name: 'Podimo',
+    aliases: ['podimo'],
+    domain: 'podimo.com',
+    category: 'News',
+    plans: [
+      { name: 'Premium', amount: 4.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'patreon',
+    name: 'Patreon',
+    aliases: ['patreon'],
+    domain: 'patreon.com',
+    category: 'News',
+    plans: [
+      { name: 'Membership', amount: 5.00, currency: 'USD', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+];

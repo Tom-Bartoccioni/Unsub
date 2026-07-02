@@ -1,0 +1,504 @@
+import type { CatalogService } from './types';
+
+// Cloud storage + Security/privacy (VPN, password managers, secure email,
+// antivirus). Prices researched mid-2026, EUR-first for the French/European
+// audience (USD kept as-is where the vendor prices only in USD — no conversion).
+//
+// Billing conventions used here:
+//  - VPNs advertise a low "per month" price but bill 1–2 years upfront. We store
+//    the advertised per-month figure with frequency 'monthly' (the number the
+//    user actually sees), EXCEPT true monthly services (Mullvad) and services
+//    that bill a clean single year (Windscribe) which use their real terms.
+//  - Antivirus is billed yearly and deeply discounts the first year; we store
+//    the STANDARD / renewal price (what a typical multi-year subscriber pays).
+
+export const CLOUD_SECURITY: CatalogService[] = [
+  // ---------------------------------------------------------------- CLOUD ---
+  {
+    id: 'icloud-plus',
+    name: 'iCloud+',
+    aliases: ['icloud'],
+    domain: 'icloud.com',
+    category: 'Cloud',
+    plans: [
+      { name: '50 GB', amount: 0.99, currency: 'EUR', frequency: 'monthly' },
+      { name: '200 GB', amount: 2.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: '2 TB', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
+      { name: '6 TB', amount: 29.99, currency: 'EUR', frequency: 'monthly' },
+      { name: '12 TB', amount: 59.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'google-one',
+    name: 'Google One',
+    aliases: ['google drive', 'googleone'],
+    domain: 'one.google.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Basic 100 GB', amount: 1.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Standard 200 GB', amount: 2.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Premium 2 TB', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'dropbox',
+    name: 'Dropbox',
+    aliases: ['dropbox'],
+    domain: 'dropbox.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Plus 2 TB', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Essentials 3 TB', amount: 19.99, currency: 'USD', frequency: 'monthly' },
+      { name: 'Family 2 TB', amount: 19.99, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'onedrive',
+    name: 'Microsoft OneDrive',
+    aliases: ['onedrive', 'microsoft 365', 'office 365'],
+    domain: 'onedrive.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Microsoft 365 Basic 100 GB', amount: 2.0, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Microsoft 365 Personnel 1 TB', amount: 10.0, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Microsoft 365 Famille 6 TB', amount: 13.0, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'pcloud',
+    name: 'pCloud',
+    aliases: ['pcloud'],
+    domain: 'pcloud.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Premium 500 GB', amount: 4.99, currency: 'USD', frequency: 'monthly' },
+      { name: 'Premium Plus 2 TB', amount: 9.99, currency: 'USD', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'proton-drive',
+    name: 'Proton Drive',
+    aliases: ['proton drive'],
+    domain: 'proton.me',
+    category: 'Cloud',
+    plans: [
+      { name: 'Drive Plus 200 GB', amount: 4.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'box',
+    name: 'Box',
+    aliases: ['box'],
+    domain: 'box.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Personal Pro 100 GB', amount: 14.0, currency: 'USD', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'mega',
+    name: 'MEGA',
+    aliases: ['mega', 'mega.nz'],
+    domain: 'mega.io',
+    category: 'Cloud',
+    plans: [
+      { name: 'Pro Lite 400 GB', amount: 4.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Pro I 2 TB', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Pro II 8 TB', amount: 19.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Pro III 16 TB', amount: 29.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'backblaze',
+    name: 'Backblaze',
+    aliases: ['backblaze'],
+    domain: 'backblaze.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Personal Backup (monthly)', amount: 9.0, currency: 'USD', frequency: 'monthly' },
+      { name: 'Personal Backup (yearly)', amount: 99.0, currency: 'USD', frequency: 'yearly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'sync-com',
+    name: 'Sync.com',
+    aliases: ['sync', 'sync.com'],
+    domain: 'sync.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Solo Basic 2 TB', amount: 8.0, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Solo Professional 6 TB', amount: 20.0, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'kdrive',
+    name: 'kDrive',
+    aliases: ['kdrive', 'infomaniak'],
+    domain: 'infomaniak.com',
+    category: 'Cloud',
+    plans: [
+      { name: 'Solo 3 TB', amount: 4.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Team 3 TB', amount: 19.98, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+
+  // ------------------------------------------------------------- VPN ---------
+  {
+    id: 'nordvpn',
+    name: 'NordVPN',
+    aliases: ['nord vpn', 'nordvpn'],
+    domain: 'nordvpn.com',
+    category: 'Security',
+    plans: [
+      { name: 'Standard (2-yr)', amount: 2.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Plus (2-yr)', amount: 3.49, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Complete (2-yr)', amount: 6.19, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'expressvpn',
+    name: 'ExpressVPN',
+    aliases: ['express vpn', 'expressvpn'],
+    domain: 'expressvpn.com',
+    category: 'Security',
+    plans: [
+      { name: 'Basic (2-yr)', amount: 3.49, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Advanced (2-yr)', amount: 4.49, currency: 'USD', frequency: 'monthly' },
+      { name: 'Pro (2-yr)', amount: 7.49, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'surfshark',
+    name: 'Surfshark',
+    aliases: ['surf shark', 'surfshark'],
+    domain: 'surfshark.com',
+    category: 'Security',
+    plans: [
+      { name: 'Starter (2-yr)', amount: 1.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'One (2-yr)', amount: 2.29, currency: 'EUR', frequency: 'monthly' },
+      { name: 'One+ (2-yr)', amount: 4.19, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'protonvpn',
+    name: 'Proton VPN',
+    aliases: ['proton vpn', 'protonvpn'],
+    domain: 'protonvpn.com',
+    category: 'Security',
+    plans: [
+      { name: 'VPN Plus (2-yr)', amount: 2.99, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'VPN Plus (1-yr)', amount: 3.99, currency: 'EUR', frequency: 'monthly' },
+      { name: 'VPN Plus (monthly)', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'cyberghost',
+    name: 'CyberGhost',
+    aliases: ['cyber ghost', 'cyberghost'],
+    domain: 'cyberghostvpn.com',
+    category: 'Security',
+    plans: [
+      { name: '2-year', amount: 1.59, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Monthly', amount: 12.99, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'mullvad',
+    name: 'Mullvad',
+    aliases: ['mullvad'],
+    domain: 'mullvad.net',
+    category: 'Security',
+    plans: [
+      { name: 'Mullvad VPN', amount: 5.0, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'pia-vpn',
+    name: 'Private Internet Access',
+    aliases: ['pia', 'private internet access'],
+    domain: 'privateinternetaccess.com',
+    category: 'Security',
+    plans: [
+      { name: '2-year', amount: 2.19, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Monthly', amount: 11.99, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'windscribe',
+    name: 'Windscribe',
+    aliases: ['windscribe'],
+    domain: 'windscribe.com',
+    category: 'Security',
+    plans: [
+      { name: 'Pro (yearly)', amount: 69.0, currency: 'USD', frequency: 'yearly', default: true },
+      { name: 'Pro (monthly)', amount: 9.0, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+
+  // ------------------------------------------------ PASSWORD MANAGERS --------
+  {
+    id: '1password',
+    name: '1Password',
+    aliases: ['1password', 'onepassword'],
+    domain: '1password.com',
+    category: 'Security',
+    plans: [
+      { name: 'Individual', amount: 3.99, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Families', amount: 5.99, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'bitwarden',
+    name: 'Bitwarden Premium',
+    aliases: ['bitwarden'],
+    domain: 'bitwarden.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium', amount: 19.8, currency: 'USD', frequency: 'yearly', default: true },
+      { name: 'Families', amount: 3.99, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'dashlane',
+    name: 'Dashlane',
+    aliases: ['dashlane'],
+    domain: 'dashlane.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium', amount: 4.99, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Friends & Family', amount: 7.49, currency: 'USD', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'lastpass',
+    name: 'LastPass',
+    aliases: ['last pass', 'lastpass'],
+    domain: 'lastpass.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium', amount: 3.0, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Families', amount: 4.0, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'nordpass',
+    name: 'NordPass',
+    aliases: ['nord pass', 'nordpass'],
+    domain: 'nordpass.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium (2-yr)', amount: 1.29, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Premium (1-yr)', amount: 1.69, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'keeper',
+    name: 'Keeper',
+    aliases: ['keeper'],
+    domain: 'keepersecurity.com',
+    category: 'Security',
+    plans: [
+      { name: 'Unlimited', amount: 42.99, currency: 'USD', frequency: 'yearly', default: true },
+      { name: 'Family', amount: 91.99, currency: 'USD', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'proton-pass',
+    name: 'Proton Pass',
+    aliases: ['proton pass'],
+    domain: 'proton.me',
+    category: 'Security',
+    plans: [
+      { name: 'Pass Plus', amount: 1.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+
+  // ------------------------------------------------------- SECURE EMAIL ------
+  {
+    id: 'proton-mail',
+    name: 'Proton Mail',
+    aliases: ['protonmail', 'proton mail'],
+    domain: 'proton.me',
+    category: 'Security',
+    plans: [
+      { name: 'Mail Plus', amount: 3.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'proton-unlimited',
+    name: 'Proton Unlimited',
+    aliases: ['proton', 'proton unlimited'],
+    domain: 'proton.me',
+    category: 'Security',
+    plans: [
+      { name: 'Unlimited', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'tuta',
+    name: 'Tuta',
+    aliases: ['tutanota', 'tuta'],
+    domain: 'tuta.com',
+    category: 'Security',
+    plans: [
+      { name: 'Revolutionary', amount: 3.0, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Legend', amount: 8.0, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'mailbox-org',
+    name: 'Mailbox.org',
+    aliases: ['mailbox', 'mailbox.org'],
+    domain: 'mailbox.org',
+    category: 'Security',
+    plans: [
+      { name: 'Light', amount: 1.0, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Standard', amount: 2.5, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Premium', amount: 7.5, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'fastmail',
+    name: 'Fastmail',
+    aliases: ['fast mail', 'fastmail'],
+    domain: 'fastmail.com',
+    category: 'Security',
+    plans: [
+      { name: 'Basic', amount: 3.0, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Standard', amount: 5.0, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Professional', amount: 9.0, currency: 'EUR', frequency: 'monthly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+
+  // --------------------------------------------------------- ANTIVIRUS -------
+  {
+    id: 'norton-360',
+    name: 'Norton 360',
+    aliases: ['norton'],
+    domain: 'norton.com',
+    category: 'Security',
+    plans: [
+      { name: 'Standard', amount: 94.99, currency: 'USD', frequency: 'yearly' },
+      { name: 'Deluxe', amount: 124.99, currency: 'USD', frequency: 'yearly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'mcafee',
+    name: 'McAfee',
+    aliases: ['mcafee', 'mcafee+'],
+    domain: 'mcafee.com',
+    category: 'Security',
+    plans: [
+      { name: 'Total Protection Essential', amount: 109.95, currency: 'EUR', frequency: 'yearly' },
+      { name: 'McAfee+ Premium', amount: 129.95, currency: 'EUR', frequency: 'yearly', default: true },
+      { name: 'McAfee+ Advanced', amount: 149.95, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'bitdefender',
+    name: 'Bitdefender',
+    aliases: ['bitdefender'],
+    domain: 'bitdefender.com',
+    category: 'Security',
+    plans: [
+      { name: 'Antivirus Plus', amount: 59.99, currency: 'EUR', frequency: 'yearly' },
+      { name: 'Internet Security', amount: 84.99, currency: 'EUR', frequency: 'yearly' },
+      { name: 'Total Security', amount: 69.98, currency: 'EUR', frequency: 'yearly', default: true },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'kaspersky',
+    name: 'Kaspersky',
+    aliases: ['kaspersky'],
+    domain: 'kaspersky.com',
+    category: 'Security',
+    plans: [
+      { name: 'Standard', amount: 34.99, currency: 'EUR', frequency: 'yearly' },
+      { name: 'Plus', amount: 59.99, currency: 'EUR', frequency: 'yearly', default: true },
+      { name: 'Premium', amount: 84.99, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'malwarebytes',
+    name: 'Malwarebytes',
+    aliases: ['malwarebytes'],
+    domain: 'malwarebytes.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium Security', amount: 44.99, currency: 'USD', frequency: 'yearly', default: true },
+      { name: 'Premium + Privacy VPN', amount: 84.99, currency: 'USD', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'avast',
+    name: 'Avast',
+    aliases: ['avast'],
+    domain: 'avast.com',
+    category: 'Security',
+    plans: [
+      { name: 'Premium Security (10 devices)', amount: 99.99, currency: 'EUR', frequency: 'yearly', default: true },
+      { name: 'One Ultimate (10 devices)', amount: 139.99, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'avg',
+    name: 'AVG',
+    aliases: ['avg'],
+    domain: 'avg.com',
+    category: 'Security',
+    plans: [
+      { name: 'Internet Security (10 devices)', amount: 99.99, currency: 'EUR', frequency: 'yearly', default: true },
+      { name: 'Ultimate (10 devices)', amount: 139.99, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+  {
+    id: 'eset',
+    name: 'ESET',
+    aliases: ['eset', 'nod32'],
+    domain: 'eset.com',
+    category: 'Security',
+    plans: [
+      { name: 'HOME Security Essential', amount: 49.99, currency: 'EUR', frequency: 'yearly', default: true },
+      { name: 'HOME Security Premium', amount: 59.99, currency: 'EUR', frequency: 'yearly' },
+    ],
+    pricesUpdatedAt: '2026-07',
+  },
+];

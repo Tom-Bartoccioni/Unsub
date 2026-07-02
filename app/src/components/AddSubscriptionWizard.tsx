@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { SubscriptionCard } from './SubscriptionCard';
 import { WheelPicker } from './WheelPicker';
-import { POPULAR_SERVICES, type PopularService } from '@/data/popularServices';
+import { CATALOG, defaultPlan, searchCatalog, type CatalogService } from '@/data/catalog';
 import { categoryFor } from '@/lib/categories';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice, SUPPORTED_CURRENCIES } from '@/lib/money';
@@ -343,20 +343,22 @@ function ServiceStep({
   const { t } = useT();
   const [search, setSearch] = useState(draft.provider);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return POPULAR_SERVICES;
-    return POPULAR_SERVICES.filter((s) => s.name.toLowerCase().includes(q));
-  }, [search]);
+  const filtered = useMemo(
+    () => (search.trim() ? searchCatalog(search) : CATALOG.slice(0, 40)),
+    [search],
+  );
 
-  const pick = (svc: PopularService) => {
+  const pick = (svc: CatalogService) => {
+    const plan = defaultPlan(svc);
     setDraft((d) => ({
       ...d,
       provider: svc.name,
-      category: categoryFor(svc.name).category,
-      amount: svc.defaultAmount,
-      currency: svc.defaultCurrency,
-      frequency: svc.defaultFrequency,
+      // Prefer the catalog's own category (already normalized to a donut
+      // bucket); fall back to the name heuristic for safety.
+      category: svc.category || categoryFor(svc.name).category,
+      amount: plan.amount,
+      currency: plan.currency,
+      frequency: plan.frequency,
     }));
     onNext();
   };
@@ -405,9 +407,12 @@ function ServiceStep({
             >
               <BrandIcon provider={svc.name} size={40} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.serviceName}>{svc.name}</Text>
-                <Text style={styles.serviceMeta}>
-                  {formatPrice(svc.defaultAmount, svc.defaultCurrency)} · {svc.defaultFrequency}
+                <Text style={styles.serviceName} numberOfLines={1}>
+                  {svc.name}
+                </Text>
+                <Text style={styles.serviceMeta} numberOfLines={1}>
+                  {formatPrice(defaultPlan(svc).amount, defaultPlan(svc).currency)} ·{' '}
+                  {t(`frequency.${defaultPlan(svc).frequency}`)}
                 </Text>
               </View>
               {tracked ? (
