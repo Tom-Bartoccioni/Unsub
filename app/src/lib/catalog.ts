@@ -14,8 +14,11 @@ import {
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 const CACHE_KEY = 'catalog.cache.v1';
-// Don't hammer the endpoint on every mount — refresh at most this often.
-const MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12h
+// Anti-spam guard: at most one network refresh per session-ish window. The
+// cache is for INSTANT display, not for avoiding the network — we always try to
+// refresh in the background (stale-while-revalidate) so server-side price and
+// cancellation-link updates land on the next app open, not up to a day later.
+const MIN_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 
 type CachePayload = { version: string | null; fetchedAt: number; services: CatalogService[] };
 
@@ -85,11 +88,15 @@ export async function initCatalog(): Promise<void> {
 
   const cached = await readCache();
   if (cached) {
+    // Show cached data instantly…
     publish(cached.services);
-    // Skip the network if the cache is recent enough.
-    if (Date.now() - cached.fetchedAt < MAX_AGE_MS) return;
+    // …but only skip the network if we refreshed VERY recently (avoids
+    // hammering on rapid re-mounts, not a day-long staleness window).
+    if (Date.now() - cached.fetchedAt < MIN_REFRESH_INTERVAL_MS) return;
   }
 
+  // Always revalidate in the background so server updates (prices, cancellation
+  // links) show up on the next open.
   const remote = await fetchRemote();
   if (remote) {
     publish(remote.services);
