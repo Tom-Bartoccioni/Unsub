@@ -1,4 +1,4 @@
-import { and, desc, eq, lt } from 'drizzle-orm';
+import { and, count, desc, eq, lt } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   paymentEvents,
@@ -91,6 +91,9 @@ export type SubscriptionStore = {
   // per cycle that was crossed. Idempotent — running twice in the same day
   // touches no rows the second time. Returns counts for observability.
   rolloverDueRenewals: () => Promise<{ subsAdvanced: number; eventsInserted: number }>;
+  // Total number of recorded payment events across all of the user's
+  // subscriptions (observed + estimated). Drives the "Total transactions" stat.
+  countPaymentEvents: (userId: string) => Promise<number>;
 };
 
 export function createDrizzleSubscriptionStore(
@@ -162,9 +165,17 @@ export function createDrizzleSubscriptionStore(
           .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)));
         return row ?? null;
       }
+      // Stamp cancelledAt when transitioning into 'cancelled'; clear it on any
+      // other status so reactivation resets the saved-money clock.
+      const statusFields =
+        patch.status === undefined
+          ? {}
+          : patch.status === 'cancelled'
+            ? { cancelledAt: new Date() }
+            : { cancelledAt: null };
       const [row] = await db
         .update(subscriptions)
-        .set({ ...patch, updatedAt: new Date() })
+        .set({ ...patch, ...statusFields, updatedAt: new Date() })
         .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
         .returning();
       return row ?? null;
@@ -182,6 +193,14 @@ export function createDrizzleSubscriptionStore(
         .from(paymentEvents)
         .where(eq(paymentEvents.subscriptionId, subscriptionId))
         .orderBy(desc(paymentEvents.chargedAt));
+    },
+    async countPaymentEvents(userId) {
+      const [row] = await db
+        .select({ n: count() })
+        .from(paymentEvents)
+        .innerJoin(subscriptions, eq(paymentEvents.subscriptionId, subscriptions.id))
+        .where(eq(subscriptions.userId, userId));
+      return row?.n ?? 0;
     },
     async addPaymentEvent(subscriptionId, userId, input) {
       const [sub] = await db

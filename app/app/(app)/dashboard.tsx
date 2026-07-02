@@ -16,6 +16,7 @@ import { SubscriptionCard, type SubscriptionCardData } from '@/components/Subscr
 import { SubscriptionDetailModal } from '@/components/SubscriptionDetailModal';
 import { AddSubscriptionWizard } from '@/components/AddSubscriptionWizard';
 import { SettingsModal } from '@/components/SettingsModal';
+import { StatsModal } from '@/components/StatsModal';
 import type { Subscription, SubscriptionsResponse } from '@/types';
 
 function compareSubs(a: Subscription, b: Subscription): number {
@@ -63,6 +64,7 @@ export default function Dashboard() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   // null = no filter; otherwise narrows the donut highlight and the list.
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   // True after the first-load splash morph has finished. Subsequent loads
@@ -202,6 +204,13 @@ export default function Dashboard() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
+          <Pressable
+            style={styles.iconButton}
+            onPress={() => setStatsOpen(true)}
+            accessibilityLabel="Statistics"
+          >
+            <Ionicons name="stats-chart-outline" size={20} color={colors.textSecondary} />
+          </Pressable>
           <Pressable
             style={styles.iconButton}
             onPress={() => setSettingsOpen(true)}
@@ -368,6 +377,7 @@ export default function Dashboard() {
       />
 
       <SettingsModal visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <StatsModal visible={statsOpen} onClose={() => setStatsOpen(false)} />
     </View>
   );
 }
@@ -504,7 +514,7 @@ function makeStyles(colors: ColorSet) {
     scrollContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: 120 },
     header: {
       flexDirection: 'row',
-      justifyContent: 'flex-end',
+      justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: spacing.lg,
     },

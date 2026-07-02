@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { SubscriptionStore } from '../db/subscriptions.js';
 import type { SubscriptionRow } from '../db/schema.js';
+import { computeStats } from '../lib/stats.js';
 
 const CreateBody = z.object({
   provider: z.string().trim().min(1).max(120),
@@ -83,6 +84,18 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       const auth = await fastify.requireAuth(req);
       const rows = await deps.store.listByUserId(auth.row.id);
       return { subscriptions: rows.map(toDTO) };
+    });
+
+    // Aggregated statistics for the stats/achievements screen. Amounts are
+    // grouped by the subscription's own currency (the app converts to the
+    // user's display currency); counters drive badge unlocks.
+    fastify.get('/me/stats', async (req) => {
+      const auth = await fastify.requireAuth(req);
+      const [rows, transactions] = await Promise.all([
+        deps.store.listByUserId(auth.row.id),
+        deps.store.countPaymentEvents(auth.row.id),
+      ]);
+      return computeStats(rows, new Date(), transactions);
     });
 
     fastify.post('/subscriptions', async (req, reply) => {

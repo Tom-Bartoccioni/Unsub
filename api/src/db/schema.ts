@@ -86,6 +86,10 @@ export const subscriptions = pgTable(
     startedAt: timestamp('started_at', { withTimezone: true }),
     confidence: real('confidence').notNull(),
     status: text('status').notNull().default('active'),
+    // When the subscription was cancelled (status set to 'cancelled'). Drives
+    // the "saved by cancelling" stat: monthly amount × months since this date.
+    // Null while active/trial; cleared on reactivation.
+    cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     sourceMessageId: text('source_message_id'),
     sourceDate: timestamp('source_date', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
