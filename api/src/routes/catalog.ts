@@ -54,8 +54,12 @@ export function makeCatalogRoutes(deps: CatalogRouteDeps) {
         return reply.code(304).send();
       }
       if (etag) reply.header('etag', etag);
-      // Let clients/proxies cache briefly; the app also caches locally.
-      reply.header('cache-control', 'public, max-age=3600');
+      // no-cache = clients MAY store but MUST revalidate via the ETag before
+      // reuse. Critical: a plain max-age let the RN Android HTTP client (OkHttp)
+      // serve a stale empty response for an hour after a cold start that hit the
+      // API before the catalog seed finished. Revalidation returns a cheap 304
+      // when unchanged, fresh data when it moved.
+      reply.header('cache-control', 'no-cache');
 
       return {
         version,

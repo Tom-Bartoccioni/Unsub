@@ -13,14 +13,16 @@ import {
 } from '@/data/catalog';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-const CACHE_KEY = 'catalog.cache.v1';
-// Anti-spam guard: at most one network refresh per session-ish window. The
-// cache is for INSTANT display, not for avoiding the network — we always try to
-// refresh in the background (stale-while-revalidate) so server-side price and
-// cancellation-link updates land on the next app open, not up to a day later.
-const MIN_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 min
+// Bumped to v2 when the cache payload gained an etag + the always-revalidate
+// behavior — discards any stale v1 cache (which could be pre-cancellation-link).
+const CACHE_KEY = 'catalog.cache.v2';
 
-type CachePayload = { version: string | null; fetchedAt: number; services: CatalogService[] };
+type CachePayload = {
+  version: string | null;
+  etag?: string | null;
+  fetchedAt: number;
+  services: CatalogService[];
+};
 
 type CatalogSnapshot = {
   services: CatalogService[];
@@ -64,18 +66,36 @@ async function writeCache(payload: CachePayload): Promise<void> {
   }
 }
 
-async function fetchRemote(): Promise<{ version: string | null; services: CatalogService[] } | null> {
+type RemoteResult =
+  | { status: 'not-modified' }
+  | { status: 'ok'; version: string | null; etag: string | null; services: CatalogService[] }
+  | { status: 'error' };
+
+async function fetchRemote(prevEtag?: string | null): Promise<RemoteResult> {
   try {
-    const res = await fetch(`${API_URL}/catalog`, { headers: { accept: 'application/json' } });
-    if (!res.ok) return null;
+    const headers: Record<string, string> = { accept: 'application/json' };
+    // Conditional GET: if nothing changed the server answers 304 (tiny), so we
+    // can safely revalidate on every launch without re-downloading ~115KB.
+    if (prevEtag) headers['if-none-match'] = prevEtag;
+    // cache: 'no-store' bypasses the RN Android HTTP client (OkHttp) cache
+    // entirely — we do our own AsyncStorage caching + ETag revalidation, and an
+    // OkHttp-cached empty body (from a pre-seed cold start) must never win.
+    const res = await fetch(`${API_URL}/catalog`, { headers, cache: 'no-store' });
+    if (res.status === 304) return { status: 'not-modified' };
+    if (!res.ok) return { status: 'error' };
     const body = (await res.json()) as {
       version: string | null;
       services: CatalogService[];
     };
-    if (!Array.isArray(body.services) || body.services.length === 0) return null;
-    return { version: body.version, services: body.services };
+    if (!Array.isArray(body.services) || body.services.length === 0) return { status: 'error' };
+    return {
+      status: 'ok',
+      version: body.version,
+      etag: res.headers.get('etag'),
+      services: body.services,
+    };
   } catch {
-    return null;
+    return { status: 'error' };
   }
 }
 
@@ -88,24 +108,25 @@ export async function initCatalog(): Promise<void> {
 
   const cached = await readCache();
   if (cached) {
-    // Show cached data instantly…
+    // Show cached data instantly for a fast first paint.
     publish(cached.services);
-    // …but only skip the network if we refreshed VERY recently (avoids
-    // hammering on rapid re-mounts, not a day-long staleness window).
-    if (Date.now() - cached.fetchedAt < MIN_REFRESH_INTERVAL_MS) return;
   }
 
-  // Always revalidate in the background so server updates (prices, cancellation
-  // links) show up on the next open.
-  const remote = await fetchRemote();
-  if (remote) {
+  // Always revalidate on launch. The conditional GET makes this cheap: a 304
+  // when nothing changed, a full body only when the catalog actually moved
+  // (price edit, justdeleteme cancellation-link sync). This is what makes
+  // server-side updates show up on the next open.
+  const remote = await fetchRemote(cached?.etag);
+  if (remote.status === 'ok') {
     publish(remote.services);
     await writeCache({
       version: remote.version,
+      etag: remote.etag,
       fetchedAt: Date.now(),
       services: remote.services,
     });
   }
+  // 'not-modified' → cache already current; 'error' → keep cache/bundle.
 }
 
 // Reactive hook: returns the current snapshot and re-renders on refresh.
