@@ -36,4 +36,7 @@ COPY --from=build /repo/packages/shared/src ./packages/shared/src
 RUN pnpm install --frozen-lockfile --prod
 WORKDIR /app/api
 EXPOSE 3000
-CMD ["sh", "-c", "node dist/db/migrate.js && node dist/index.js"]
+# migrate -> seed the catalog (idempotent upsert, preserves cancel* columns) ->
+# start. seed-catalog.js reads dist/db/catalog-seed.json, which `pnpm build`
+# copies into dist via scripts/copy-assets.mjs.
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/db/seed-catalog.js && node dist/index.js"]
