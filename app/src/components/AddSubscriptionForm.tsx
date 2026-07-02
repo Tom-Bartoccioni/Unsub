@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ApiError, apiFetch } from '@/lib/api';
+import { useT } from '@/state/preferences';
 
 type Frequency = 'monthly' | 'yearly' | 'weekly' | 'unknown';
 
@@ -17,11 +18,11 @@ type Subscription = {
   updatedAt: string;
 };
 
-const FREQUENCIES: { label: string; value: Frequency }[] = [
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Yearly', value: 'yearly' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'One-off', value: 'unknown' },
+const FREQUENCIES: { labelKey: string; value: Frequency }[] = [
+  { labelKey: 'frequency.monthly', value: 'monthly' },
+  { labelKey: 'frequency.yearly', value: 'yearly' },
+  { labelKey: 'frequency.weekly', value: 'weekly' },
+  { labelKey: 'frequency.oneOff', value: 'unknown' },
 ];
 
 export type SubscriptionFormProps = {
@@ -31,6 +32,7 @@ export type SubscriptionFormProps = {
 };
 
 export function AddSubscriptionForm({ onSaved, onCancel, initial }: SubscriptionFormProps) {
+  const { t } = useT();
   const [provider, setProvider] = useState(initial?.provider ?? '');
   const [amount, setAmount] = useState(initial ? String(initial.amount) : '');
   const [currency, setCurrency] = useState(initial?.currency ?? 'EUR');
@@ -47,18 +49,18 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
     setError(null);
     const amountNum = Number(amount.replace(',', '.'));
     if (!provider.trim() || !Number.isFinite(amountNum) || amountNum <= 0) {
-      setError('Provider and a positive amount are required.');
+      setError(t('form.errProviderAmount'));
       return;
     }
     if (currency.trim().length !== 3) {
-      setError('Currency must be a 3-letter code (e.g. EUR, USD).');
+      setError(t('form.errCurrency'));
       return;
     }
     let renewalIso: string | undefined;
     if (nextRenewalDate.trim()) {
       const parts = nextRenewalDate.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if (!parts) {
-        setError('Next renewal date must be YYYY-MM-DD.');
+        setError(t('form.errDate'));
         return;
       }
       renewalIso = new Date(
@@ -88,12 +90,12 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
     } catch (e) {
       const msg =
         e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
+          ? t('common.apiError', { status: e.status, message: e.message })
           : e instanceof Error
             ? e.message
             : initial
-              ? 'Failed to save changes'
-              : 'Failed to add subscription';
+              ? t('form.failedSave')
+              : t('form.failedAdd');
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -104,7 +106,7 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
     <View style={styles.form}>
       <TextInput
         style={styles.input}
-        placeholder="Provider (e.g. Netflix)"
+        placeholder={t('form.providerPlaceholder')}
         autoCapitalize="words"
         value={provider}
         onChangeText={setProvider}
@@ -112,14 +114,14 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
       <View style={styles.row}>
         <TextInput
           style={[styles.input, styles.flex]}
-          placeholder="Amount"
+          placeholder={t('form.amountPlaceholder')}
           keyboardType="decimal-pad"
           value={amount}
           onChangeText={setAmount}
         />
         <TextInput
           style={[styles.input, styles.currencyInput]}
-          placeholder="EUR"
+          placeholder={t('form.currencyPlaceholder')}
           autoCapitalize="characters"
           maxLength={3}
           value={currency}
@@ -136,14 +138,14 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
             <Text
               style={[styles.freqButtonText, frequency === f.value && styles.freqButtonTextActive]}
             >
-              {f.label}
+              {t(f.labelKey)}
             </Text>
           </Pressable>
         ))}
       </View>
       <TextInput
         style={styles.input}
-        placeholder="Next renewal (YYYY-MM-DD, optional)"
+        placeholder={t('form.nextRenewalPlaceholder')}
         autoCapitalize="none"
         value={nextRenewalDate}
         onChangeText={setNextRenewalDate}
@@ -155,14 +157,16 @@ export function AddSubscriptionForm({ onSaved, onCancel, initial }: Subscription
           onPress={onCancel}
           disabled={submitting}
         >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
         </Pressable>
         <Pressable
           style={[styles.saveButton, styles.flex, submitting && styles.disabled]}
           onPress={onSubmit}
           disabled={submitting}
         >
-          <Text style={styles.saveButtonText}>{submitting ? 'Saving…' : 'Save'}</Text>
+          <Text style={styles.saveButtonText}>
+            {submitting ? t('common.saving') : t('common.save')}
+          </Text>
         </Pressable>
       </View>
     </View>

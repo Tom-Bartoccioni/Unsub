@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandIcon } from './BrandIcon';
-import { formatPrice, frequencyLabel } from '@/lib/money';
+import { formatDate, formatPrice, frequencyLabel } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
+import { useT, useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 export type PaymentEvent = {
@@ -29,6 +29,7 @@ export function RecentTransactions({
   onSeeAll?: () => void;
 }) {
   const colors = useTheme();
+  const { t } = useT();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Caller decides whether to render at all; an empty list collapses to null
@@ -42,10 +43,12 @@ export function RecentTransactions({
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <Text style={styles.title}>Recent Transactions</Text>
+        <Text style={styles.title}>{t('transactions.recent')}</Text>
         {hasMore && onSeeAll && (
           <Pressable onPress={onSeeAll} hitSlop={8}>
-            <Text style={styles.seeAll}>See All ({payments.length})</Text>
+            <Text style={styles.seeAll}>
+              {t('transactions.seeAll', { count: payments.length })}
+            </Text>
           </Pressable>
         )}
       </View>
@@ -64,8 +67,9 @@ export function RecentTransactions({
                   {sub.provider}
                 </Text>
                 <Text style={styles.rowSub} numberOfLines={1}>
-                  {fmtDate(p.chargedAt)} · {frequencyLabel(sub.frequency)}
-                  {isEstimated && ' · estimated'}
+                  {formatDate(p.chargedAt, { month: 'short', day: 'numeric' })} ·{' '}
+                  {frequencyLabel(sub.frequency)}
+                  {isEstimated && t('transactions.estimated')}
                 </Text>
               </View>
               <Text style={[styles.amount, isEstimated && styles.amountEstimated]}>
@@ -77,11 +81,6 @@ export function RecentTransactions({
       </View>
     </View>
   );
-}
-
-function fmtDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
 
 function makeStyles(colors: ColorSet) {

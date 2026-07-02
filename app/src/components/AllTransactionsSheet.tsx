@@ -3,9 +3,9 @@ import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
-import { formatPrice, frequencyLabel } from '@/lib/money';
+import { formatDate, formatPrice, frequencyLabel } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
+import { useT, useTheme } from '@/state/preferences';
 import type { PaymentEvent } from './RecentTransactions';
 import type { Subscription } from '@/types';
 
@@ -21,6 +21,7 @@ export function AllTransactionsSheet({
   onClose: () => void;
 }) {
   const colors = useTheme();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -38,7 +39,7 @@ export function AllTransactionsSheet({
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         />
         <View style={styles.sheet}>
           <View style={styles.header}>
@@ -46,10 +47,12 @@ export function AllTransactionsSheet({
               <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
             </Pressable>
             <View style={styles.headerTitleWrap}>
-              <Text style={styles.headerTitle}>All transactions</Text>
+              <Text style={styles.headerTitle}>{t('transactions.all')}</Text>
               <Text style={styles.headerSub}>
-                {payments.length} payment{payments.length === 1 ? '' : 's'} ·{' '}
-                {formatPrice(total, sub.currency)} total
+                {t('transactions.summary', {
+                  count: payments.length,
+                  total: formatPrice(total, sub.currency),
+                })}
               </Text>
             </View>
             <View style={styles.headerButton} />
@@ -82,7 +85,7 @@ export function AllTransactionsSheet({
                         </Text>
                         <Text style={styles.rowSub} numberOfLines={1}>
                           {fmtDay(p.chargedAt)} · {frequencyLabel(sub.frequency)}
-                          {isEstimated && ' · estimated'}
+                          {isEstimated && t('transactions.estimated')}
                         </Text>
                       </View>
                       <Text style={[styles.amount, isEstimated && styles.amountEstimated]}>
@@ -111,11 +114,7 @@ function groupByMonth(payments: PaymentEvent[]): Section[] {
   for (const p of sorted) {
     const d = new Date(p.chargedAt);
     const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
-    const label = d.toLocaleDateString(undefined, {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-    });
+    const label = formatDate(d, { month: 'long', year: 'numeric' });
     const existing = map.get(key);
     if (existing) {
       existing.items.push(p);
@@ -128,8 +127,7 @@ function groupByMonth(payments: PaymentEvent[]): Section[] {
 }
 
 function fmtDay(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  return formatDate(iso, { day: 'numeric', month: 'short' });
 }
 
 function makeStyles(colors: ColorSet) {

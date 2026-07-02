@@ -9,11 +9,19 @@ import {
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colorsByTheme, type ColorSet, type ThemeName } from '@/theme';
+import {
+  DEFAULT_LANGUAGE,
+  deviceLanguage,
+  setLanguage as applyLanguage,
+  t as translate,
+  type LanguageCode,
+} from '@/lib/i18n';
 
 export type Preferences = {
   theme: ThemeName;
   displayCurrency: string;
   notificationsEnabled: boolean;
+  language: LanguageCode;
 };
 
 const DEFAULTS: Preferences = {
@@ -24,6 +32,9 @@ const DEFAULTS: Preferences = {
   // Notifications opt-out by default: on unless the user turns them off (or the
   // OS permission is denied at first-login, which flips this back to false).
   notificationsEnabled: true,
+  // Default to the device language if it's one we support, else English. A
+  // persisted choice overrides this on load.
+  language: DEFAULT_LANGUAGE,
 };
 
 const STORAGE_KEY = 'unsub.preferences.v1';
@@ -55,6 +66,7 @@ type PreferencesContextValue = {
   setTheme: (next: ThemeName) => void;
   setDisplayCurrency: (next: string) => void;
   setNotificationsEnabled: (next: boolean) => void;
+  setLanguage: (next: LanguageCode) => void;
 };
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
@@ -67,14 +79,18 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     storage.get(STORAGE_KEY).then((raw) => {
       if (cancelled) return;
+      // Start from the device language, then let any persisted choice win.
+      let resolved: Preferences = { ...DEFAULTS, language: deviceLanguage() };
       if (raw) {
         try {
           const parsed = JSON.parse(raw) as Partial<Preferences>;
-          setPrefs((prev) => ({ ...prev, ...parsed }));
+          resolved = { ...resolved, ...parsed };
         } catch {
           // malformed value; ignore.
         }
       }
+      applyLanguage(resolved.language);
+      setPrefs(resolved);
       setReady(true);
     });
     return () => {
@@ -94,6 +110,10 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       setTheme: (next) => persist({ ...prefs, theme: next }),
       setDisplayCurrency: (next) => persist({ ...prefs, displayCurrency: next.toUpperCase() }),
       setNotificationsEnabled: (next) => persist({ ...prefs, notificationsEnabled: next }),
+      setLanguage: (next) => {
+        applyLanguage(next);
+        persist({ ...prefs, language: next });
+      },
     }),
     [prefs, ready, persist],
   );
@@ -110,4 +130,13 @@ export function usePrefs(): PreferencesContextValue {
 export function useTheme(): ColorSet {
   const { prefs } = usePrefs();
   return colorsByTheme[prefs.theme];
+}
+
+// Translation hook. Reading prefs.language creates the reactive dependency, so
+// every component using useT() re-renders when the language changes. Returns a
+// `t` bound to the active locale plus the current language code (handy for
+// locale-aware date/number formatting via localeTag).
+export function useT(): { t: typeof translate; language: LanguageCode } {
+  const { prefs } = usePrefs();
+  return { t: translate, language: prefs.language };
 }

@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/state/auth';
-import { usePrefs, useTheme } from '@/state/preferences';
+import { usePrefs, useT, useTheme } from '@/state/preferences';
+import { LANGUAGES } from '@/lib/i18n';
 import { SUPPORTED_CURRENCIES } from '@/lib/money';
 import { ensurePushToken, registerPushToken, sendTestNotification } from '@/lib/push';
 import { radius, spacing, type ColorSet } from '@/theme';
@@ -12,7 +13,8 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { signOut } = useAuth();
-  const { prefs, setTheme, setDisplayCurrency, setNotificationsEnabled } = usePrefs();
+  const { prefs, setTheme, setDisplayCurrency, setNotificationsEnabled, setLanguage } = usePrefs();
+  const { t } = useT();
   const [notifError, setNotifError] = useState<string | null>(null);
 
   // Toggle handler. Both directions flip the pref OPTIMISTICALLY so the Switch
@@ -39,18 +41,16 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
           setNotificationsEnabled(false);
           switch (result.error.reason) {
             case 'not-a-device':
-              setNotifError('Notifications only work on a physical device, not an emulator.');
+              setNotifError(t('settings.notifNotDevice'));
               break;
             case 'permission-denied':
-              setNotifError(
-                'Notifications permission was denied. Allow it in your phone Settings and try again.',
-              );
+              setNotifError(t('settings.notifDenied'));
               break;
             case 'no-project-id':
-              setNotifError("Couldn't read the app's Expo project id. Please reinstall the app.");
+              setNotifError(t('settings.notifNoProjectId'));
               break;
             case 'token-fetch-failed':
-              setNotifError(`Push registration failed: ${result.error.detail}`);
+              setNotifError(t('settings.notifRegFailed', { detail: result.error.detail }));
               break;
           }
           return;
@@ -59,7 +59,7 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
         sendTestNotification(true).catch(() => {});
       } catch (e) {
         setNotificationsEnabled(false);
-        setNotifError(e instanceof Error ? e.message : 'Something went wrong.');
+        setNotifError(e instanceof Error ? e.message : t('common.somethingWrong'));
       }
     })();
   };
@@ -70,11 +70,11 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         />
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Settings</Text>
+            <Text style={styles.headerTitle}>{t('settings.title')}</Text>
             <Pressable onPress={onClose} style={styles.headerButton}>
               <Text style={styles.headerButtonText}>×</Text>
             </Pressable>
@@ -86,12 +86,12 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
               { paddingBottom: spacing.xl + insets.bottom },
             ]}
           >
-            <Section title="Appearance" styles={styles}>
-              <Row label="Theme" styles={styles}>
+            <Section title={t('settings.appearance')} styles={styles}>
+              <Row label={t('settings.theme')} styles={styles}>
                 <SegmentedControl
                   options={[
-                    { label: 'Day', value: 'light' },
-                    { label: 'Dark', value: 'dark' },
+                    { label: t('settings.day'), value: 'light' },
+                    { label: t('settings.dark'), value: 'dark' },
                   ]}
                   value={prefs.theme}
                   onChange={(v) => setTheme(v as 'light' | 'dark')}
@@ -100,8 +100,29 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
               </Row>
             </Section>
 
-            <Section title="Currency" styles={styles}>
-              <Text style={styles.subtle}>Currency for the monthly cost donut.</Text>
+            <Section title={t('settings.language')} styles={styles}>
+              <View style={styles.currencyGrid}>
+                {LANGUAGES.map((lang) => {
+                  const active = prefs.language === lang.code;
+                  return (
+                    <Pressable
+                      key={lang.code}
+                      style={[styles.currencyChip, active && styles.currencyChipActive]}
+                      onPress={() => setLanguage(lang.code)}
+                    >
+                      <Text
+                        style={[styles.currencyChipText, active && styles.currencyChipTextActive]}
+                      >
+                        {lang.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Section>
+
+            <Section title={t('settings.currency')} styles={styles}>
+              <Text style={styles.subtle}>{t('settings.currencyHint')}</Text>
               <View style={styles.currencyGrid}>
                 {SUPPORTED_CURRENCIES.map((c) => (
                   <Pressable
@@ -125,8 +146,8 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
               </View>
             </Section>
 
-            <Section title="Notifications" styles={styles}>
-              <Row label="Pre-charge reminders" styles={styles}>
+            <Section title={t('settings.notifications')} styles={styles}>
+              <Row label={t('settings.preChargeReminders')} styles={styles}>
                 <Switch
                   value={prefs.notificationsEnabled}
                   onValueChange={onToggleNotifications}
@@ -134,16 +155,13 @@ export function SettingsModal({ visible, onClose }: { visible: boolean; onClose:
                   thumbColor={'#ffffff'}
                 />
               </Row>
-              <Text style={styles.subtle}>
-                You’ll get a push the day before each subscription renews. Toggle on or off to send
-                a confirmation push to this device right away.
-              </Text>
+              <Text style={styles.subtle}>{t('settings.notificationsHint')}</Text>
               {notifError ? <Text style={styles.notifError}>{notifError}</Text> : null}
             </Section>
 
-            <Section title="Account" styles={styles}>
+            <Section title={t('settings.account')} styles={styles}>
               <Pressable style={styles.signOutButton} onPress={signOut}>
-                <Text style={styles.signOutText}>Sign out</Text>
+                <Text style={styles.signOutText}>{t('settings.signOut')}</Text>
               </Pressable>
             </Section>
           </ScrollView>

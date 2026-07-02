@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { apiFetch } from '@/lib/api';
 import { convert, formatPrice } from '@/lib/money';
-import { usePrefs, useTheme } from '@/state/preferences';
+import { usePrefs, useT, useTheme } from '@/state/preferences';
 import { radius, spacing, type ColorSet } from '@/theme';
 
 // Shape returned by GET /me/stats. Amounts are grouped by the subscription's
@@ -40,85 +40,90 @@ function monthsSince(iso: string | null): number {
 
 type Badge = {
   key: string;
-  label: string;
+  labelKey: string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
   unlocked: (s: StatsResponse, savedDisplay: number) => boolean;
-  hint: string;
+  hintKey: string;
+  hintOptions?: Record<string, unknown>;
 };
 
 // Achievement set. `unlocked` is derived purely from the stats payload so the
-// list stays in sync with real data without any extra persistence.
+// list stays in sync with real data without any extra persistence. Label/hint
+// are translation keys resolved with t() at render time.
 const BADGES: Badge[] = [
   {
     key: 'getting-started',
-    label: 'Getting Started',
+    labelKey: 'stats.badges.gettingStarted',
     icon: 'leaf',
     color: '#10b981',
     unlocked: (s) => s.counters.tracked >= 1,
-    hint: 'Track your first subscription',
+    hintKey: 'stats.badges.gettingStartedHint',
   },
   {
     key: 'tracker',
-    label: 'Tracker',
+    labelKey: 'stats.badges.tracker',
     icon: 'list',
     color: '#3b82f6',
     unlocked: (s) => s.counters.tracked >= 5,
-    hint: 'Track 5 subscriptions',
+    hintKey: 'stats.badges.trackerHint',
   },
   {
     key: 'diversified',
-    label: 'Diversified',
+    labelKey: 'stats.badges.diversified',
     icon: 'grid',
     color: '#a855f7',
     unlocked: (s) => s.counters.categories >= 3,
-    hint: 'Span 3 categories',
+    hintKey: 'stats.badges.diversifiedHint',
   },
   {
     key: 'first-cut',
-    label: 'First Cut',
+    labelKey: 'stats.badges.firstCut',
     icon: 'cut',
     color: '#f59e0b',
     unlocked: (s) => s.counters.cancelled >= 1,
-    hint: 'Cancel a subscription',
+    hintKey: 'stats.badges.firstCutHint',
   },
   {
     key: 'ghost-hunter',
-    label: 'Ghost Hunter',
+    labelKey: 'stats.badges.ghostHunter',
     icon: 'skull',
     color: '#ef4444',
     unlocked: (s) => s.counters.cancelled >= 3,
-    hint: 'Cancel 3 subscriptions',
+    hintKey: 'stats.badges.ghostHunterHint',
   },
   {
     key: 'saver',
-    label: 'Saver',
+    labelKey: 'stats.badges.saver',
     icon: 'wallet',
     color: '#10b981',
     unlocked: (_s, saved) => saved >= 50,
-    hint: 'Save 50 by cancelling',
+    hintKey: 'stats.badges.saverHint',
+    hintOptions: { amount: 50 },
   },
   {
     key: 'big-saver',
-    label: 'Big Saver',
+    labelKey: 'stats.badges.bigSaver',
     icon: 'cash',
     color: '#facc15',
     unlocked: (_s, saved) => saved >= 200,
-    hint: 'Save 200 by cancelling',
+    hintKey: 'stats.badges.bigSaverHint',
+    hintOptions: { amount: 200 },
   },
   {
     key: 'veteran',
-    label: 'Veteran',
+    labelKey: 'stats.badges.veteran',
     icon: 'ribbon',
     color: '#60a5fa',
     unlocked: (s) => monthsSince(s.counters.firstTrackedAt) >= 6,
-    hint: 'Use Unsub for 6 months',
+    hintKey: 'stats.badges.veteranHint',
   },
 ];
 
 export function StatsModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const colors = useTheme();
   const { prefs } = usePrefs();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const display = prefs.displayCurrency;
@@ -137,7 +142,7 @@ export function StatsModal({ visible, onClose }: { visible: boolean; onClose: ()
         if (!cancelled) setStats(res);
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load stats');
+        if (!cancelled) setError(e instanceof Error ? e.message : t('stats.failedToLoad'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -157,11 +162,11 @@ export function StatsModal({ visible, onClose }: { visible: boolean; onClose: ()
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         />
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Statistics</Text>
+            <Text style={styles.headerTitle}>{t('stats.title')}</Text>
             <Pressable onPress={onClose} style={styles.headerButton} hitSlop={8}>
               <Ionicons name="close" size={22} color={colors.textPrimary} />
             </Pressable>
@@ -179,21 +184,21 @@ export function StatsModal({ visible, onClose }: { visible: boolean; onClose: ()
             {/* Headline numbers — saving is the hero stat. */}
             <View style={styles.statCards}>
               <StatCard
-                label="Saved over time"
+                label={t('stats.savedOverTime')}
                 value={loading && !stats ? '—' : formatPrice(saved, display)}
                 accent={colors.success}
                 styles={styles}
               />
               <View style={styles.statRow}>
                 <StatCard
-                  label="Spent over time"
+                  label={t('stats.spentOverTime')}
                   value={loading && !stats ? '—' : formatPrice(lifetime, display)}
                   accent={colors.textSecondary}
                   small
                   styles={styles}
                 />
                 <StatCard
-                  label="Total transactions"
+                  label={t('stats.totalTransactions')}
                   value={loading && !stats ? '—' : String(stats?.counters.transactions ?? 0)}
                   accent={colors.accentBlue}
                   small
@@ -205,15 +210,23 @@ export function StatsModal({ visible, onClose }: { visible: boolean; onClose: ()
             {/* Quick counters */}
             {stats ? (
               <View style={styles.countersRow}>
-                <Counter label="Active" value={stats.counters.active} styles={styles} />
-                <Counter label="Cancelled" value={stats.counters.cancelled} styles={styles} />
-                <Counter label="Categories" value={stats.counters.categories} styles={styles} />
+                <Counter label={t('stats.active')} value={stats.counters.active} styles={styles} />
+                <Counter
+                  label={t('stats.cancelled')}
+                  value={stats.counters.cancelled}
+                  styles={styles}
+                />
+                <Counter
+                  label={t('stats.categories')}
+                  value={stats.counters.categories}
+                  styles={styles}
+                />
               </View>
             ) : null}
 
             {/* Achievements */}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Achievements</Text>
+              <Text style={styles.sectionTitle}>{t('stats.achievements')}</Text>
               <Text style={styles.sectionCount}>
                 {unlockedCount}/{BADGES.length}
               </Text>
@@ -237,9 +250,9 @@ export function StatsModal({ visible, onClose }: { visible: boolean; onClose: ()
                       />
                     </View>
                     <Text style={[styles.badgeLabel, !unlocked && styles.badgeLabelLocked]}>
-                      {b.label}
+                      {t(b.labelKey)}
                     </Text>
-                    <Text style={styles.badgeHint}>{b.hint}</Text>
+                    <Text style={styles.badgeHint}>{t(b.hintKey, b.hintOptions)}</Text>
                   </View>
                 );
               })}

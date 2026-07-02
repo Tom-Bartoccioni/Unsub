@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandIcon } from './BrandIcon';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
-import { formatPrice, frequencyLabel } from '@/lib/money';
+import { useT, useTheme } from '@/state/preferences';
+import { formatDate, formatPrice, frequencyLabel } from '@/lib/money';
 
 export type SubscriptionCardData = {
   id: string;
@@ -23,6 +23,7 @@ export function SubscriptionCard({
   onPress: () => void;
 }) {
   const colors = useTheme();
+  const { t } = useT();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const isGhost = sub.status === 'cancelled';
   const isTrial = sub.status === 'trial';
@@ -39,13 +40,15 @@ export function SubscriptionCard({
       <View style={styles.body}>
         <Text style={styles.title} numberOfLines={1}>
           {sub.provider}
-          {isTrial ? <Text style={styles.trialTag}> · trial</Text> : null}
-          {isGhost ? <Text style={styles.ghostTag}> · ghosted</Text> : null}
+          {isTrial ? <Text style={styles.trialTag}>{t('card.trial')}</Text> : null}
+          {isGhost ? <Text style={styles.ghostTag}>{t('card.ghosted')}</Text> : null}
         </Text>
         <Text style={styles.subtitle} numberOfLines={1}>
           {sub.nextRenewalDate
-            ? `Renews ${formatRenewalDate(sub.nextRenewalDate)}`
-            : 'No renewal date'}
+            ? t('card.renews', {
+                date: formatDate(sub.nextRenewalDate, { month: 'short', day: 'numeric' }),
+              })
+            : t('card.noRenewalDate')}
         </Text>
       </View>
       <View style={styles.priceCol}>
@@ -54,15 +57,6 @@ export function SubscriptionCard({
       </View>
     </Pressable>
   );
-}
-
-function formatRenewalDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
 }
 
 function makeStyles(colors: ColorSet) {

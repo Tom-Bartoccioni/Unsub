@@ -1,3 +1,5 @@
+import { localeTag, t } from './i18n';
+
 // Hardcoded approximate FX rates. Real currency conversion is a follow-up.
 // Rate definition: 1 unit of `<key>` = `<value>` EUR (so to convert any
 // currency to EUR multiply by the rate; to convert EUR to any other
@@ -26,9 +28,11 @@ export function monthlyAmount(amount: number, frequency: string): number | null 
   return null;
 }
 
-export function formatPrice(amount: number, currency: string): string {
+// Format a price. Locale defaults to the app's active language so number
+// grouping / symbol placement follow the chosen language, not the device.
+export function formatPrice(amount: number, currency: string, locale = localeTag()): string {
   try {
-    const out = new Intl.NumberFormat(undefined, {
+    const out = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
       minimumFractionDigits: 2,
@@ -43,11 +47,27 @@ export function formatPrice(amount: number, currency: string): string {
   }
 }
 
+// Format a date for display. Locale defaults to the app's active language.
+// Dates from the API are UTC-anchored day values, so format in UTC to avoid
+// off-by-one shifts across timezones.
+export function formatDate(
+  iso: string | Date,
+  opts: Intl.DateTimeFormatOptions,
+  locale = localeTag(),
+): string {
+  const d = typeof iso === 'string' ? new Date(iso) : iso;
+  try {
+    return d.toLocaleDateString(locale, { timeZone: 'UTC', ...opts });
+  } catch {
+    return d.toISOString().slice(0, 10);
+  }
+}
+
 export function frequencyLabel(frequency: string): string {
-  if (frequency === 'monthly') return 'Month';
-  if (frequency === 'yearly') return 'Year';
-  if (frequency === 'weekly') return 'Week';
-  return 'One-off';
+  if (frequency === 'monthly') return t('frequency.perMonth');
+  if (frequency === 'yearly') return t('frequency.perYear');
+  if (frequency === 'weekly') return t('frequency.perWeek');
+  return t('frequency.perOneOff');
 }
 
 export const SUPPORTED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD', 'AUD', 'JPY'] as const;

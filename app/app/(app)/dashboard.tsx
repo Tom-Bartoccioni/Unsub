@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
-import { usePrefs, useTheme } from '@/state/preferences';
+import { usePrefs, useTheme, useT } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
 import { maybePromptForNotificationsOnFirstLogin } from '@/lib/push';
 import { categoryColor, categoryFor } from '@/lib/categories';
@@ -55,6 +55,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { prefs, setNotificationsEnabled } = usePrefs();
   const colors = useTheme();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -83,10 +84,10 @@ export default function Dashboard() {
         if (cancelled) return;
         const msg =
           e instanceof ApiError
-            ? `API ${e.status}: ${e.message}`
+            ? t('common.apiError', { status: e.status, message: e.message })
             : e instanceof Error
               ? e.message
-              : 'Failed to load';
+              : t('dashboard.failedToLoad');
         setError(msg);
       })
       .finally(() => {
@@ -207,14 +208,14 @@ export default function Dashboard() {
           <Pressable
             style={styles.iconButton}
             onPress={() => setStatsOpen(true)}
-            accessibilityLabel="Statistics"
+            accessibilityLabel={t('dashboard.statistics')}
           >
             <Ionicons name="stats-chart-outline" size={20} color={colors.textSecondary} />
           </Pressable>
           <Pressable
             style={styles.iconButton}
             onPress={() => setSettingsOpen(true)}
-            accessibilityLabel="Settings"
+            accessibilityLabel={t('dashboard.settings')}
           >
             <Ionicons name="settings-outline" size={20} color={colors.textSecondary} />
           </Pressable>
@@ -234,7 +235,7 @@ export default function Dashboard() {
               />
               <View style={styles.donutLabelBelow}>
                 <Text style={styles.donutLabel}>
-                  {selectedSegment ? selectedSegment.key : 'Monthly Cost'}
+                  {selectedSegment ? selectedSegment.key : t('dashboard.monthlyCost')}
                 </Text>
               </View>
             </Donut>
@@ -250,7 +251,7 @@ export default function Dashboard() {
                 styles={styles}
               />
               <View style={styles.donutLabelBelow}>
-                <Text style={styles.donutLabel}>Monthly Cost</Text>
+                <Text style={styles.donutLabel}>{t('dashboard.monthlyCost')}</Text>
               </View>
             </LoadingDonut>
           )}
@@ -280,7 +281,7 @@ export default function Dashboard() {
         {activeSubs.length > 0 ? (
           <View style={styles.summaryRow}>
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Next 7 days</Text>
+              <Text style={styles.summaryLabel}>{t('dashboard.next7Days')}</Text>
               <View style={styles.summaryValueRow}>
                 <Text style={styles.summaryValue}>
                   {upcoming.count === 0 ? '—' : formatPrice(upcoming.total, prefs.displayCurrency)}
@@ -289,23 +290,23 @@ export default function Dashboard() {
               </View>
               <Text style={styles.summaryHint}>
                 {upcoming.count === 0
-                  ? 'no renewals'
-                  : `${upcoming.count} renewal${upcoming.count === 1 ? '' : 's'}`}
+                  ? t('dashboard.noRenewals')
+                  : t('dashboard.renewalCount', { count: upcoming.count })}
               </Text>
             </View>
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Yearly</Text>
+              <Text style={styles.summaryLabel}>{t('dashboard.yearly')}</Text>
               <Text style={styles.summaryValue}>
                 {formatPrice(annualTotal, prefs.displayCurrency)}
               </Text>
-              <Text style={styles.summaryHint}>at current pace</Text>
+              <Text style={styles.summaryHint}>{t('dashboard.atCurrentPace')}</Text>
             </View>
           </View>
         ) : null}
 
         {activeSubs.length > 0 ? (
           <Text style={styles.subsCountLabel}>
-            You have {activeSubs.length} subscription{activeSubs.length === 1 ? '' : 's'}
+            {t('dashboard.subsCount', { count: activeSubs.length })}
           </Text>
         ) : null}
 
@@ -315,12 +316,12 @@ export default function Dashboard() {
           ) : visible.length === 0 && ghosted.length === 0 ? (
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>
-                {selectedCategory ? `No active ${selectedCategory} subs` : 'No subscriptions yet'}
+                {selectedCategory
+                  ? t('dashboard.emptyNoCategory', { category: selectedCategory })
+                  : t('dashboard.emptyNoSubs')}
               </Text>
               <Text style={styles.emptyBody}>
-                {selectedCategory
-                  ? 'Clear the filter to see everything.'
-                  : 'Tap the + button to track your first one.'}
+                {selectedCategory ? t('dashboard.emptyClearFilter') : t('dashboard.emptyAddFirst')}
               </Text>
             </View>
           ) : (
@@ -334,7 +335,9 @@ export default function Dashboard() {
               ))}
               {ghosted.length > 0 ? (
                 <>
-                  <Text style={styles.sectionLabel}>Ghosted ({ghosted.length})</Text>
+                  <Text style={styles.sectionLabel}>
+                    {t('dashboard.ghosted', { count: ghosted.length })}
+                  </Text>
                   {ghosted.map((s) => (
                     <SubscriptionCard
                       key={s.id}
@@ -356,7 +359,7 @@ export default function Dashboard() {
           pressed && styles.fabPressed,
         ]}
         onPress={() => setAdding(true)}
-        accessibilityLabel="Add subscription"
+        accessibilityLabel={t('dashboard.addSubscription')}
       >
         <Ionicons name="add" size={30} color={colors.bg} />
       </Pressable>

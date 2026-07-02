@@ -9,9 +9,10 @@ import { AllTransactionsSheet } from './AllTransactionsSheet';
 import { CategoryPickerSheet } from './CategoryPickerSheet';
 import { ApiError, apiFetch } from '@/lib/api';
 import { categoryFor } from '@/lib/categories';
-import { formatPrice, monthlyAmount } from '@/lib/money';
+import { formatDate, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { usePrefs, useTheme } from '@/state/preferences';
+import { useT } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 export function SubscriptionDetailModal({
@@ -28,6 +29,7 @@ export function SubscriptionDetailModal({
   onDeleted: (id: string) => void;
 }) {
   const colors = useTheme();
+  const { t } = useT();
   const { prefs } = usePrefs();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -108,7 +110,7 @@ export function SubscriptionDetailModal({
       onUpdated(res.subscription);
       onClose();
     } catch (e) {
-      setError(humanize(e, 'update'));
+      setError(humanize(e, 'update', t));
     } finally {
       setBusy(false);
     }
@@ -123,7 +125,7 @@ export function SubscriptionDetailModal({
       });
       onUpdated(res.subscription);
     } catch (e) {
-      setError(humanize(e, 'update'));
+      setError(humanize(e, 'update', t));
     }
   };
 
@@ -135,7 +137,7 @@ export function SubscriptionDetailModal({
       onDeleted(sub.id);
       onClose();
     } catch (e) {
-      setError(humanize(e, 'delete'));
+      setError(humanize(e, 'delete', t));
     } finally {
       setBusy(false);
     }
@@ -147,7 +149,7 @@ export function SubscriptionDetailModal({
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         />
         <View style={styles.sheet}>
           <ScrollView
@@ -164,7 +166,9 @@ export function SubscriptionDetailModal({
             <View style={[styles.hero, { backgroundColor: tint }]}>
               <BrandIcon provider={sub.provider} size={64} />
               <Text style={[styles.heroStatus, { color: accent }]}>
-                Status: {isGhost ? 'Ghosted' : 'Active'}
+                {t('detail.status', {
+                  value: isGhost ? t('detail.statusGhosted') : t('detail.statusActive'),
+                })}
               </Text>
               <Text style={styles.heroTitle} numberOfLines={1}>
                 {sub.provider}
@@ -173,7 +177,7 @@ export function SubscriptionDetailModal({
                 <Pressable
                   onPress={() => setCategoryPickerOpen(true)}
                   style={[styles.categoryChip, { borderColor: accent }]}
-                  accessibilityLabel="Change category"
+                  accessibilityLabel={t('detail.changeCategory')}
                 >
                   <Ionicons name="pricetag-outline" size={11} color={accent} />
                   <Text style={[styles.categoryChipText, { color: accent }]}>
@@ -185,12 +189,12 @@ export function SubscriptionDetailModal({
             </View>
 
             <View style={styles.nextPaymentCard}>
-              <Text style={styles.nextPaymentLabel}>Next Payment</Text>
+              <Text style={styles.nextPaymentLabel}>{t('detail.nextPayment')}</Text>
               <Text style={styles.nextPaymentAmount}>−{formatPrice(sub.amount, sub.currency)}</Text>
               <Text style={styles.nextPaymentDate}>
                 {sub.nextRenewalDate
-                  ? `Expected ${fmtLongDate(sub.nextRenewalDate)}`
-                  : 'No renewal date set'}
+                  ? t('detail.expected', { date: fmtLongDate(sub.nextRenewalDate) })
+                  : t('detail.noRenewalSet')}
               </Text>
 
               <View style={styles.timelineWrap}>
@@ -199,8 +203,10 @@ export function SubscriptionDetailModal({
 
               {totalSpent != null && (
                 <Text style={styles.spentInline}>
-                  You’ve spent {formatPrice(totalSpent, sub.currency)} on this vendor since{' '}
-                  {fmtLongDate(firstChargeAt)}.
+                  {t('detail.spentSince', {
+                    amount: formatPrice(totalSpent, sub.currency),
+                    date: fmtLongDate(firstChargeAt),
+                  })}
                 </Text>
               )}
             </View>
@@ -224,12 +230,12 @@ export function SubscriptionDetailModal({
                 color={colors.textPrimary}
               />
               <Text style={styles.ghostButtonText}>
-                {isGhost ? 'Reactivate' : 'Ghost This Sub'}
+                {isGhost ? t('detail.reactivate') : t('detail.ghostThis')}
               </Text>
             </Pressable>
 
             <Pressable style={styles.deleteLink} onPress={onDelete} disabled={busy}>
-              <Text style={styles.deleteLinkText}>Delete permanently</Text>
+              <Text style={styles.deleteLinkText}>{t('detail.deletePermanently')}</Text>
             </Pressable>
           </ScrollView>
         </View>
@@ -251,20 +257,14 @@ export function SubscriptionDetailModal({
   );
 }
 
-function humanize(e: unknown, verb: 'update' | 'delete'): string {
-  if (e instanceof ApiError) return `API ${e.status}: ${e.message}`;
+function humanize(e: unknown, verb: 'update' | 'delete', t: ReturnType<typeof useT>['t']): string {
+  if (e instanceof ApiError) return t('common.apiError', { status: e.status, message: e.message });
   if (e instanceof Error) return e.message;
-  return `Failed to ${verb}`;
+  return verb === 'update' ? t('detail.failedUpdate') : t('detail.failedDelete');
 }
 
 function fmtLongDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
+  return formatDate(iso, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 function monthsBetween(start: Date, end: Date): number {

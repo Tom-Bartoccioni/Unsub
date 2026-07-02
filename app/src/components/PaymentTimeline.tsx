@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { formatDate } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
+import { useT, useTheme } from '@/state/preferences';
 
 export type TimelinePoint = {
   date: Date;
@@ -77,12 +78,13 @@ function shift(base: Date, months: number, days: number): Date {
 
 export function PaymentTimeline({ points }: { points: TimelinePoint[] }) {
   const colors = useTheme();
+  const { t } = useT();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   if (points.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>No payment history yet.</Text>
+        <Text style={styles.emptyText}>{t('transactions.noHistory')}</Text>
       </View>
     );
   }
@@ -168,7 +170,11 @@ function Dot({ point, styles }: { point: TimelinePoint; styles: ReturnType<typeo
 }
 
 function monthLabel(d: Date): string {
-  return d.toLocaleDateString(undefined, { month: 'short' });
+  // These points are computed as local-time instants (via setMonth/setDate),
+  // not UTC day values from the API — so format in local time (timeZone:
+  // undefined overrides formatDate's UTC default) to avoid a month shift at
+  // boundaries. Locale still follows the app language.
+  return formatDate(d, { month: 'short', timeZone: undefined });
 }
 
 const DOT_SIZE = 10;

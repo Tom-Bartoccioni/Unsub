@@ -10,15 +10,15 @@ import { categoryFor } from '@/lib/categories';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice, SUPPORTED_CURRENCIES } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
-import { useTheme } from '@/state/preferences';
+import { useT, useTheme } from '@/state/preferences';
 import type { Subscription } from '@/types';
 
 type Frequency = 'monthly' | 'yearly' | 'weekly';
 
-const FREQUENCIES: { label: string; value: Frequency }[] = [
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Yearly', value: 'yearly' },
+const FREQUENCIES: { labelKey: string; value: Frequency }[] = [
+  { labelKey: 'frequency.weekly', value: 'weekly' },
+  { labelKey: 'frequency.monthly', value: 'monthly' },
+  { labelKey: 'frequency.yearly', value: 'yearly' },
 ];
 
 // Wizard steps. `success` is terminal; `service` is the entry point.
@@ -92,6 +92,7 @@ export function AddSubscriptionWizard({
   existing?: Subscription[];
 }) {
   const colors = useTheme();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -164,10 +165,10 @@ export function AddSubscriptionWizard({
     } catch (e) {
       setError(
         e instanceof ApiError
-          ? `API ${e.status}: ${e.message}`
+          ? t('common.apiError', { status: e.status, message: e.message })
           : e instanceof Error
             ? e.message
-            : 'Failed to add subscription',
+            : t('wizard.failedToAdd'),
       );
     } finally {
       setSubmitting(false);
@@ -180,7 +181,7 @@ export function AddSubscriptionWizard({
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={close}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
         />
         <View style={[styles.sheet, { paddingBottom: spacing.xl + insets.bottom }]}>
           {step !== 'success' && (
@@ -323,6 +324,7 @@ function ServiceStep({
   trackedKeys,
 }: StepProps & { trackedKeys: Set<string> }) {
   const colors = useTheme();
+  const { t } = useT();
   const [search, setSearch] = useState(draft.provider);
 
   const filtered = useMemo(() => {
@@ -352,21 +354,25 @@ function ServiceStep({
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>What do you want to track?</Text>
-      <Text style={styles.stepSubtitle}>Search a service, or type your own.</Text>
+      <Text style={styles.stepTitle}>{t('wizard.step1Title')}</Text>
+      <Text style={styles.stepSubtitle}>{t('wizard.step1Subtitle')}</Text>
 
       <View style={styles.search}>
         <Ionicons name="search" size={16} color={colors.textTertiary} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Netflix, Spotify, Gym…"
+          placeholder={t('wizard.searchPlaceholder')}
           placeholderTextColor={colors.textTertiary}
           value={search}
           onChangeText={setSearch}
           autoCapitalize="none"
         />
         {search.length > 0 && (
-          <Pressable onPress={() => setSearch('')} hitSlop={8} accessibilityLabel="Clear search">
+          <Pressable
+            onPress={() => setSearch('')}
+            hitSlop={8}
+            accessibilityLabel={t('wizard.clearSearch')}
+          >
             <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
           </Pressable>
         )}
@@ -390,7 +396,7 @@ function ServiceStep({
               </View>
               {tracked ? (
                 <View style={styles.trackedBadge}>
-                  <Text style={styles.trackedBadgeText}>Already tracked</Text>
+                  <Text style={styles.trackedBadgeText}>{t('wizard.alreadyTracked')}</Text>
                 </View>
               ) : (
                 <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -411,7 +417,9 @@ function ServiceStep({
               <View style={styles.customIcon}>
                 <Ionicons name="add" size={22} color={colors.textPrimary} />
               </View>
-              <Text style={styles.serviceName}>Add “{titleCase(search)}”</Text>
+              <Text style={styles.serviceName}>
+                {t('wizard.addCustom', { name: titleCase(search) })}
+              </Text>
             </Pressable>
           )}
       </ScrollView>
@@ -427,6 +435,7 @@ const AMOUNT_PRESETS = [4.99, 9.99, 15.99];
 
 function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
   const colors = useTheme();
+  const { t } = useT();
   const [editing, setEditing] = useState(false);
   // Local text buffer while typing so partial input ("9.", "") is allowed.
   const [text, setText] = useState(draft.amount.toFixed(2));
@@ -461,10 +470,8 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>How much is it?</Text>
-      <Text style={styles.stepSubtitle}>
-        Tap the amount to type · scroll the currency to change.
-      </Text>
+      <Text style={styles.stepTitle}>{t('wizard.step2Title')}</Text>
+      <Text style={styles.stepSubtitle}>{t('wizard.step2Subtitle')}</Text>
 
       <View style={styles.amountRow}>
         <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
@@ -507,7 +514,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
           </View>
           {!editing && (
             <Text style={styles.amountHint}>
-              Tap to edit · scroll {currencySymbol(draft.currency)} to change
+              {t('wizard.amountHint', { symbol: currencySymbol(draft.currency) })}
             </Text>
           )}
         </View>
@@ -517,7 +524,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         </Pressable>
       </View>
 
-      <Text style={styles.amountSectionLabel}>Common prices</Text>
+      <Text style={styles.amountSectionLabel}>{t('wizard.commonPrices')}</Text>
       <View style={styles.presetRow}>
         {AMOUNT_PRESETS.map((p) => {
           const active = !editing && Math.abs(draft.amount - p) < 0.005;
@@ -537,7 +544,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
       <View style={{ flex: 1 }} />
       <PrimaryButton
-        label="Continue"
+        label={t('common.continue')}
         onPress={() => {
           if (editing) commit();
           onNext();
@@ -554,6 +561,7 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
+  const { t } = useT();
   const now = new Date();
   const years = useMemo(() => Array.from({ length: 6 }, (_, i) => now.getFullYear() + i), [now]);
   const d = draft.date;
@@ -576,8 +584,8 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>When’s the next payment?</Text>
-      <Text style={styles.stepSubtitle}>We’ll remind you before it hits.</Text>
+      <Text style={styles.stepTitle}>{t('wizard.step3Title')}</Text>
+      <Text style={styles.stepSubtitle}>{t('wizard.step3Subtitle')}</Text>
 
       <View style={styles.wheelRow}>
         <WheelPicker
@@ -597,7 +605,7 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
         />
       </View>
 
-      <Text style={styles.amountSectionLabel}>Billed every</Text>
+      <Text style={styles.amountSectionLabel}>{t('wizard.billedEvery')}</Text>
       <View style={styles.freqRow}>
         {FREQUENCIES.map((f) => {
           const active = draft.frequency === f.value;
@@ -608,7 +616,7 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
               onPress={() => setDraft((dd) => ({ ...dd, frequency: f.value }))}
             >
               <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
-                {f.label}
+                {t(f.labelKey)}
               </Text>
             </Pressable>
           );
@@ -616,7 +624,7 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
       </View>
 
       <View style={{ flex: 1 }} />
-      <PrimaryButton label="Continue" onPress={onNext} styles={styles} />
+      <PrimaryButton label={t('common.continue')} onPress={onNext} styles={styles} />
     </View>
   );
 }
@@ -642,6 +650,7 @@ function StartedStep({
   onSubmitWith: (startedAt: Date | null) => void;
   onForceSubmitWith: (startedAt: Date | null) => void;
 }) {
+  const { t } = useT();
   // Suggest one cycle before the next-payment date so the user doesn't have
   // to scroll for the common "I'm midway through the first cycle" case.
   // Falls back to today if the cadence is unknown.
@@ -688,17 +697,13 @@ function StartedStep({
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>When did you start it?</Text>
-      <Text style={styles.stepSubtitle}>
-        Optional. We’ll fill in past payments since this date so you see what you’ve spent.
-      </Text>
+      <Text style={styles.stepTitle}>{t('wizard.step4Title')}</Text>
+      <Text style={styles.stepSubtitle}>{t('wizard.step4Subtitle')}</Text>
 
       <View style={styles.startedPreview}>
         <Text style={styles.startedPreviewDate}>{preview}</Text>
         <Text style={styles.startedPreviewMeta}>
-          {cycles === 0
-            ? 'No past payments will be added.'
-            : `${cycles} past payment${cycles === 1 ? '' : 's'} will be added.`}
+          {cycles === 0 ? t('wizard.noPastPayments') : t('wizard.pastPayments', { count: cycles })}
         </Text>
       </View>
 
@@ -728,13 +733,13 @@ function StartedStep({
         <View style={styles.warningBox}>
           <View style={styles.warningHeader}>
             <Ionicons name="warning-outline" size={18} color={styles.warningTitleColor.color} />
-            <Text style={styles.warningTitle}>You already track {draft.provider}</Text>
+            <Text style={styles.warningTitle}>
+              {t('wizard.dupTitle', { provider: draft.provider })}
+            </Text>
           </View>
-          <Text style={styles.warningText}>
-            Adding it again will create a second active row. Sure you want to continue?
-          </Text>
+          <Text style={styles.warningText}>{t('wizard.dupBody')}</Text>
           <PrimaryButton
-            label={submitting ? 'Adding…' : 'Add it anyway'}
+            label={submitting ? t('wizard.addingBusy') : t('wizard.addAnyway')}
             onPress={confirmAndForce}
             disabled={submitting}
             styles={styles}
@@ -743,13 +748,13 @@ function StartedStep({
       ) : (
         <View style={{ gap: spacing.sm }}>
           <PrimaryButton
-            label={submitting ? 'Adding…' : 'Add subscription'}
+            label={submitting ? t('wizard.addingBusy') : t('wizard.addSubscription')}
             onPress={confirmAndSubmit}
             disabled={submitting}
             styles={styles}
           />
           <Pressable onPress={skip} style={styles.skipLink}>
-            <Text style={styles.skipLinkText}>Skip — I’ll add this later</Text>
+            <Text style={styles.skipLinkText}>{t('wizard.skip')}</Text>
           </Pressable>
         </View>
       )}
@@ -769,19 +774,20 @@ function SuccessStep({
   styles: Styles;
 }) {
   const colors = useTheme();
+  const { t } = useT();
   return (
     <View style={styles.stepBody}>
       <View style={styles.successCenter}>
         <View style={styles.successIcon}>
           <Ionicons name="checkmark" size={44} color={colors.bg} />
         </View>
-        <Text style={styles.successTitle}>Subscription added</Text>
-        <Text style={styles.stepSubtitle}>Here’s how it’ll show on your dashboard.</Text>
+        <Text style={styles.successTitle}>{t('wizard.successTitle')}</Text>
+        <Text style={styles.stepSubtitle}>{t('wizard.successSubtitle')}</Text>
         <View style={styles.successCardWrap}>
           <SubscriptionCard sub={sub} onPress={() => {}} />
         </View>
       </View>
-      <PrimaryButton label="Done" onPress={onDone} styles={styles} />
+      <PrimaryButton label={t('common.done')} onPress={onDone} styles={styles} />
     </View>
   );
 }

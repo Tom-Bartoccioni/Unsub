@@ -9,6 +9,9 @@
 // transparent nav bar colour and a black window background) straight into
 // AppTheme via withAndroidStyles. This runs on every prebuild, so the fix
 // survives regenerating the android/ folder.
+// Config plugins run in the Node/CommonJS prebuild context, so require() is the
+// correct import style here (not ESM).
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { withAndroidStyles, AndroidConfig } = require('@expo/config-plugins');
 
 const { assignStylesValue, getAppThemeGroup } = AndroidConfig.Styles;

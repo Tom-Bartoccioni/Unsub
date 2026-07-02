@@ -14,7 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
+import { useT } from '@/state/preferences';
 import { radius, spacing } from '@/theme';
+
+type TFn = (key: string, options?: Record<string, unknown>) => string;
 
 const logo = require('../../assets/logo.png');
 
@@ -33,23 +36,28 @@ const ink = {
   danger: '#f87171',
 };
 
-const COPY: Record<Mode, { title: string; subtitle: string; cta: string; busyCta: string }> = {
-  'sign-in': {
-    title: 'Welcome Back',
-    subtitle: 'Sign in to keep your subscriptions in check.',
-    cta: 'Sign In',
-    busyCta: 'Signing in…',
-  },
-  'sign-up': {
-    title: 'Create Account',
-    subtitle: 'Fill your details to start tracking what you pay for.',
-    cta: 'Sign Up',
-    busyCta: 'Creating…',
-  },
-};
+function makeCopy(
+  t: TFn,
+): Record<Mode, { title: string; subtitle: string; cta: string; busyCta: string }> {
+  return {
+    'sign-in': {
+      title: t('auth.signInTitle'),
+      subtitle: t('auth.signInSubtitle'),
+      cta: t('auth.signInCta'),
+      busyCta: t('auth.signInBusy'),
+    },
+    'sign-up': {
+      title: t('auth.signUpTitle'),
+      subtitle: t('auth.signUpSubtitle'),
+      cta: t('auth.signUpCta'),
+      busyCta: t('auth.signUpBusy'),
+    },
+  };
+}
 
 export function AuthScreen({ mode }: { mode: Mode }) {
   const insets = useSafeAreaInsets();
+  const { t } = useT();
   const styles = useMemo(() => makeStyles(), []);
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
@@ -60,7 +68,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const [googleBusy, setGoogleBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const copy = COPY[mode];
+  const copy = makeCopy(t)[mode];
   const busy = submitting || googleBusy;
 
   // Shrink the logo while the keyboard is up so the whole form fits on screen
@@ -155,7 +163,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const onSubmit = async () => {
     setError(null);
     if (!email.trim() || !password) {
-      setError('Email and password are required.');
+      setError(t('auth.fieldsRequired'));
       return;
     }
     setSubmitting(true);
@@ -163,7 +171,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       if (mode === 'sign-in') await signIn(email.trim(), password);
       else await signUp(email.trim(), password);
     } catch (e) {
-      setError(humanizeAuthError(e, mode));
+      setError(humanizeAuthError(e, mode, t));
     } finally {
       setSubmitting(false);
     }
@@ -175,7 +183,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
     try {
       await signInWithGoogle();
     } catch (e) {
-      setError(humanizeAuthError(e, mode));
+      setError(humanizeAuthError(e, mode, t));
     } finally {
       setGoogleBusy(false);
     }
@@ -228,7 +236,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
           <View style={styles.fields}>
             <Field
               icon="mail-outline"
-              placeholder="Email Address"
+              placeholder={t('auth.emailPlaceholder')}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -239,7 +247,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             />
             <Field
               icon="lock-closed-outline"
-              placeholder="Password"
+              placeholder={t('auth.passwordPlaceholder')}
               value={maskedPassword}
               onChangeText={onPasswordChange}
               autoCapitalize="none"
@@ -282,7 +290,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Or Continue With</Text>
+            <Text style={styles.dividerText}>{t('auth.orContinueWith')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -293,19 +301,21 @@ export function AuthScreen({ mode }: { mode: Mode }) {
           >
             <Ionicons name="logo-google" size={20} color={ink.white} />
             <Text style={styles.socialButtonText}>
-              {googleBusy ? 'Connecting…' : 'Continue with Google'}
+              {googleBusy ? t('auth.googleConnecting') : t('auth.continueWithGoogle')}
             </Text>
           </Pressable>
 
           <View style={styles.switchRow}>
             <Text style={styles.switchText}>
-              {mode === 'sign-in' ? "Don't have an account?" : 'Already have an account?'}
+              {mode === 'sign-in' ? t('auth.noAccount') : t('auth.hasAccount')}
             </Text>
             <Pressable
               onPress={() => router.replace(mode === 'sign-in' ? '/sign-up' : '/sign-in')}
               disabled={busy}
             >
-              <Text style={styles.switchLink}>{mode === 'sign-in' ? 'Sign Up' : 'Sign In'}</Text>
+              <Text style={styles.switchLink}>
+                {mode === 'sign-in' ? t('auth.signUpCta') : t('auth.signInCta')}
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -338,29 +348,31 @@ function Field({ icon, trailing, styles, ...input }: FieldProps) {
   );
 }
 
-function humanizeAuthError(e: unknown, mode: Mode): string {
+function humanizeAuthError(e: unknown, mode: Mode, t: TFn): string {
   const code =
     typeof e === 'object' && e && 'code' in e ? String((e as { code: unknown }).code) : '';
   switch (code) {
     case 'auth/invalid-email':
-      return 'That email address looks invalid.';
+      return t('auth.errInvalidEmail');
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
     case 'auth/user-not-found':
-      return 'Email or password is incorrect.';
+      return t('auth.errBadCredentials');
     case 'auth/email-already-in-use':
-      return 'An account already exists for that email.';
+      return t('auth.errEmailInUse');
     case 'auth/weak-password':
-      return 'Password must be at least 6 characters.';
+      return t('auth.errWeakPassword');
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
-      return 'Google sign-in was cancelled.';
+      return t('auth.errGoogleCancelled');
     case 'auth/network-request-failed':
-      return "Couldn't reach the auth service. Check your connection and try again.";
+      return t('auth.errNetwork');
     case 'auth/too-many-requests':
-      return 'Too many attempts. Try again in a moment.';
+      return t('auth.errTooManyRequests');
     default:
-      return e instanceof Error ? e.message : `${mode} failed`;
+      return e instanceof Error
+        ? e.message
+        : t(mode === 'sign-in' ? 'auth.errSignInFailed' : 'auth.errSignUpFailed');
   }
 }
 
