@@ -18,6 +18,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Pro', amount: 200, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://chatgpt.com/#settings/Subscription',
+    cancelNotes: 'Cancel under Settings > Billing if billed by OpenAI; if you subscribed in the mobile app, cancel via your app store.',
   },
   {
     id: 'claude-pro',
@@ -31,6 +34,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Max', amount: 100, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://claude.ai/settings/billing',
+    cancelNotes: 'Cancel under Settings > Billing if billed by Anthropic; if you subscribed in the mobile app, cancel via your app store.',
   },
   {
     id: 'google-ai-pro',
@@ -43,6 +49,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'AI Pro', amount: 18.33, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://one.google.com/settings',
+    cancelNotes: 'Google AI Pro is managed through Google One; cancel there. If you subscribed via an app store, cancel there instead.',
   },
   {
     id: 'perplexity-pro',
@@ -55,6 +64,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Pro (annual)', amount: 16.67, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.perplexity.ai/settings/account',
+    cancelNotes: 'Cancel under Settings > Manage Subscription if billed by Perplexity; app-store subscriptions cancel via the store.',
   },
 
   // --- Office / all-in-one suites ---
@@ -69,6 +81,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Personnel (annuel)', amount: 99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://account.microsoft.com/services/microsoft365',
+    cancelNotes: 'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
   },
   {
     id: 'microsoft-365-family',
@@ -81,6 +96,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Famille (annuel)', amount: 129, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://account.microsoft.com/services/microsoft365',
+    cancelNotes: 'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
   },
   {
     id: 'google-workspace',
@@ -106,6 +124,8 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Plus (annuel)', amount: 8, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelNotes: 'In the app go to Settings > Billing > Change plan and downgrade to Free; only workspace owners can do this.',
   },
   {
     id: 'obsidian-sync',
@@ -231,6 +251,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Pro (annuel)', amount: 12, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.grammarly.com/subscription',
+    cancelNotes: 'Cancel under Account > Subscription if billed by Grammarly; app-store subscriptions cancel via the store.',
   },
 
   // --- Creative / design ---
@@ -256,6 +279,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Pro', amount: 12, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.canva.com/settings/billing-and-plans',
+    cancelNotes: 'Cancel under Billing & Plans if billed by Canva; app-store subscriptions cancel via the store.',
   },
   {
     id: 'adobe-creative-cloud',
@@ -267,6 +293,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Toutes les applications', amount: 78.65, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://account.adobe.com/plans',
+    cancelNotes: 'Select Manage plan > Cancel your plan; early cancellation of an annual plan may incur a fee.',
   },
   {
     id: 'adobe-photography',
@@ -278,6 +307,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Formule Photo (1 To)', amount: 23.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://account.adobe.com/plans',
+    cancelNotes: 'Select Manage plan > Cancel your plan for the Photography plan; early cancellation of an annual plan may incur a fee.',
   },
   {
     id: 'adobe-acrobat-pro',
@@ -394,6 +426,9 @@ export const PRODUCTIVITY: CatalogService[] = [
       { name: 'Pro+', amount: 39, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://github.com/settings/billing',
+    cancelNotes: 'Under Billing & licensing, use Manage subscription > Cancel subscription; org/enterprise-provided Copilot cannot be self-cancelled.',
   },
   {
     id: 'gitlab-premium',

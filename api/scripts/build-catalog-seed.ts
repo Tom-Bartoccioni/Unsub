@@ -28,9 +28,9 @@ import { fileURLToPath } from 'node:url';
 // tsx resolves the `.js` specifier to the sibling `.ts` source at runtime.
 const { CATALOG } = await import('../../app/src/data/catalog/index.js');
 
-// One row per DB column in `catalog_services` (see db/schema.ts). We omit the
-// cancel* fields on purpose: the justdeleteme sync cron fills those, not the
-// seed.
+// One row per DB column in `catalog_services` (see db/schema.ts), including the
+// CURATED cancellation fields (billing / cancelUrl / cancelNotes) — the app
+// catalog is their source of truth and the seed carries them into the DB.
 type CatalogSeedRecord = {
   id: string;
   name: string;
@@ -40,6 +40,9 @@ type CatalogSeedRecord = {
   brandColor: string | null;
   plans: unknown[];
   pricesUpdatedAt: string;
+  billing: string | null;
+  cancelUrl: string | null;
+  cancelNotes: string | null;
 };
 
 const records: CatalogSeedRecord[] = CATALOG.map((svc) => ({
@@ -49,10 +52,13 @@ const records: CatalogSeedRecord[] = CATALOG.map((svc) => ({
   aliases: svc.aliases ?? [],
   domain: svc.domain,
   category: svc.category,
-  // Nullable column — normalize `undefined` to `null` for valid JSON.
+  // Nullable columns — normalize `undefined` to `null` for valid JSON.
   brandColor: svc.brandColor ?? null,
   plans: svc.plans,
   pricesUpdatedAt: svc.pricesUpdatedAt,
+  billing: svc.billing ?? null,
+  cancelUrl: svc.cancelUrl ?? null,
+  cancelNotes: svc.cancelNotes ?? null,
 }));
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

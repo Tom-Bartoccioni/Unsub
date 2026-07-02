@@ -1,14 +1,6 @@
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { catalogServices, type CatalogServiceInsert, type CatalogServiceRow } from './schema.js';
-
-// A cancellation record matched from justdeleteme, keyed by domain.
-export type CancellationUpdate = {
-  domain: string;
-  cancelUrl: string | null;
-  cancelDifficulty: string | null;
-  cancelNotes: string | null;
-};
 
 export type CatalogStore = {
   // Every catalog row, for the public GET /catalog response.
@@ -16,13 +8,10 @@ export type CatalogStore = {
   // Max(updatedAt) across the table — used as the catalog version/ETag so the
   // app can skip re-downloading when nothing changed.
   latestUpdatedAt: () => Promise<Date | null>;
-  // Upsert a batch of catalog records (used by the seeder). Conflicts on id
-  // refresh the mutable fields but PRESERVE the cancel* columns (those are
-  // owned by the sync job, not the seed).
+  // Upsert a batch of catalog records (used by the seeder). On conflict it
+  // refreshes every field including the curated cancellation columns
+  // (billing / cancel_url / cancel_notes) — the seed is their source of truth.
   upsertMany: (rows: CatalogServiceInsert[]) => Promise<number>;
-  // Apply cancellation updates matched by domain (used by the justdeleteme
-  // sync job). Returns how many rows were touched.
-  applyCancellations: (updates: CancellationUpdate[]) => Promise<number>;
 };
 
 export function createDrizzleCatalogStore(
@@ -64,30 +53,13 @@ export function createDrizzleCatalogStore(
               brandColor: sql`excluded.brand_color`,
               plans: sql`excluded.plans`,
               pricesUpdatedAt: sql`excluded.prices_updated_at`,
+              // Curated cancellation fields come from the seed — refresh them.
+              billing: sql`excluded.billing`,
+              cancelUrl: sql`excluded.cancel_url`,
+              cancelNotes: sql`excluded.cancel_notes`,
               updatedAt: sql`now()`,
-              // Deliberately NOT touching cancel_url / cancel_difficulty /
-              // cancel_notes / cancel_synced_at — the sync job owns those.
             },
           })
-          .returning({ id: catalogServices.id });
-        touched += out.length;
-      }
-      return touched;
-    },
-
-    async applyCancellations(updates) {
-      let touched = 0;
-      for (const u of updates) {
-        const out = await db
-          .update(catalogServices)
-          .set({
-            cancelUrl: u.cancelUrl,
-            cancelDifficulty: u.cancelDifficulty,
-            cancelNotes: u.cancelNotes,
-            cancelSyncedAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(eq(catalogServices.domain, u.domain))
           .returning({ id: catalogServices.id });
         touched += out.length;
       }

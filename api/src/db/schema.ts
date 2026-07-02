@@ -174,20 +174,18 @@ export const catalogServices = pgTable(
     plans: jsonb('plans').$type<CatalogPlan[]>().notNull(),
     // Year-month the prices were last verified, e.g. '2026-07'.
     pricesUpdatedAt: text('prices_updated_at').notNull(),
-    // --- Cancellation info (synced from justdeleteme by a cron job) ---
+    // --- Cancellation info (CURATED in the seed; NOT synced from any dataset) ---
+    // How the sub is billed → decides where the app sends the user to cancel:
+    // 'web' | 'store' | 'both'. See the app's CatalogService.billing.
+    billing: text('billing'),
+    // Curated cancel / manage-membership URL (keeps the account alive, never an
+    // account-deletion link). Meaningful for billing 'web' | 'both'.
     cancelUrl: text('cancel_url'),
-    cancelDifficulty: text('cancel_difficulty'),
     cancelNotes: text('cancel_notes'),
-    // When the justdeleteme sync last touched this row's cancel* fields.
-    cancelSyncedAt: timestamp('cancel_synced_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [
-    index('catalog_services_category_idx').on(t.category),
-    // Domain drives the justdeleteme match; index it for the sync job.
-    index('catalog_services_domain_idx').on(t.domain),
-  ],
+  (t) => [index('catalog_services_category_idx').on(t.category)],
 );
 
 export type CatalogServiceRow = typeof catalogServices.$inferSelect;

@@ -104,16 +104,14 @@ export const en = {
     title: 'Cancel {{provider}}',
     subtitle: 'We marked it as ghosted here. Finish cancelling on their side so you’re not charged again.',
     openCancelPage: 'Open cancellation page',
+    openStore: 'Manage in the store',
+    orCancelInStore: 'Or cancel in the store',
     searchHow: 'Find how to cancel',
-    linkHint: 'Opens the service’s cancellation page in your browser.',
-    noLinkHint: 'We don’t have a direct link for this one — this searches the web.',
+    storeHintApple:
+      'This one is usually billed through the App Store — cancel it from your Apple subscriptions.',
+    storeHintPlay:
+      'This one is usually billed through Google Play — cancel it from your Play subscriptions.',
     doneLater: 'I’ll do it later',
-    difficulty: {
-      easy: 'Easy to cancel',
-      medium: 'A few steps',
-      hard: 'Hard to cancel',
-      impossible: 'Very hard to cancel',
-    },
   },
   reactivate: {
     title: 'Reactivate {{provider}}',

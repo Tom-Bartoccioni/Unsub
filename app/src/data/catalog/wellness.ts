@@ -20,6 +20,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Étudiant', amount: 8.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.headspace.com/subscription/manage',
+    cancelNotes: 'Log in on a browser (not the app) and tap Cancel membership; App Store/Google Play subscriptions are cancelled in the store.',
   },
   {
     id: 'calm',
@@ -32,6 +35,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Mensuel', amount: 16.99, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.calm.com/',
+    cancelNotes: 'For Calm.com purchases, use Settings > Manage Subscription > Cancel; mobile subscriptions are cancelled in the App Store or Google Play.',
   },
   // ------------------------------------------------------------- FITNESS APPS
   {
@@ -57,6 +63,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Mensuel', amount: 11.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.strava.com/settings/subscription',
+    cancelNotes: 'For website subscriptions, use Settings > My Account > Cancel subscription; store subscriptions must be cancelled in the store.',
   },
   {
     id: 'fitbit-premium',
@@ -173,6 +182,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Ultimate', amount: 34.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://my.basic-fit.com/cancel-membership',
+    cancelNotes: 'Cancel via your My Basic-Fit account; a 4-week notice period applies and the contract minimum term must be met. This is a resiliation, not account deletion.',
   },
   {
     id: 'fitness-park',
@@ -186,6 +198,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Ultimate', amount: 50, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://adherent.fitnesspark.fr/',
+    cancelNotes: 'Cancel in your Espace Adherent via Resilier mon abonnement (a supporting document may be requested); 4-week notice applies. This is a resiliation, not account deletion.',
   },
   {
     id: 'neoness',
@@ -238,6 +253,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Platinum', amount: 30.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://tinder.com/app/settings',
+    cancelNotes: 'For tinder.com purchases, use Settings > Manage Payment Account > Cancel; in-app purchases must be cancelled in the App Store or Google Play.',
   },
   {
     id: 'bumble',
@@ -250,6 +268,7 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Premium', amount: 39.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'store',
   },
   {
     id: 'hinge',
@@ -262,6 +281,7 @@ export const WELLNESS: CatalogService[] = [
       { name: 'HingeX', amount: 49.99, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'store',
   },
   {
     id: 'happn',
@@ -273,6 +293,7 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Premium', amount: 24.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'store',
   },
   {
     id: 'meetic',
@@ -285,6 +306,9 @@ export const WELLNESS: CatalogService[] = [
       { name: 'Prestige', amount: 29.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.meetic.fr/',
+    cancelNotes: "Log in on a computer, then Parametres du compte > Gerer le compte > Gerer l'abonnement and cancel auto-renewal; app-store subscriptions are cancelled in the store.",
   },
   {
     id: 'grindr',

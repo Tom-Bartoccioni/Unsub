@@ -105,16 +105,14 @@ export const fr = {
     subtitle:
       'C’est marqué comme résilié ici. Termine la résiliation chez eux pour ne plus être débité.',
     openCancelPage: 'Ouvrir la page de résiliation',
+    openStore: 'Gérer dans le store',
+    orCancelInStore: 'Ou résilier dans le store',
     searchHow: 'Trouver comment résilier',
-    linkHint: 'Ouvre la page de résiliation du service dans ton navigateur.',
-    noLinkHint: 'Nous n’avons pas de lien direct pour celui-ci — ceci lance une recherche web.',
+    storeHintApple:
+      'Celui-ci est généralement facturé via l’App Store — résilie-le depuis tes abonnements Apple.',
+    storeHintPlay:
+      'Celui-ci est généralement facturé via Google Play — résilie-le depuis tes abonnements Play.',
     doneLater: 'Je le ferai plus tard',
-    difficulty: {
-      easy: 'Facile à résilier',
-      medium: 'Quelques étapes',
-      hard: 'Difficile à résilier',
-      impossible: 'Très difficile à résilier',
-    },
   },
   reactivate: {
     title: 'Réactiver {{provider}}',

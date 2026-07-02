@@ -17,6 +17,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Ultimate', amount: 20.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.microsoft.com/services',
+    cancelNotes: 'Select Manage next to Game Pass, then Cancel subscription. If bought on console via a store, cancel there.',
   },
   {
     id: 'xbox-game-pass-premium',
@@ -28,6 +31,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Premium', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.microsoft.com/services',
+    cancelNotes: 'Select Manage next to Game Pass, then Cancel subscription.',
   },
   {
     id: 'xbox-game-pass-essential',
@@ -50,6 +56,9 @@ export const GAMING: CatalogService[] = [
       { name: 'PC', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.microsoft.com/services',
+    cancelNotes: 'Select Manage next to Game Pass, then Cancel subscription.',
   },
 
   // --- Sony: PlayStation Plus ---------------------------------------------------
@@ -64,6 +73,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Essential (yearly)', amount: 79.99, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/',
+    cancelNotes: 'Sign in and turn off auto-renew under Subscription Management.',
   },
   {
     id: 'playstation-plus-extra',
@@ -76,6 +88,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Extra (yearly)', amount: 134.99, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/',
+    cancelNotes: 'Sign in and turn off auto-renew under Subscription Management.',
   },
   {
     id: 'playstation-plus-premium',
@@ -88,6 +103,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Premium (yearly)', amount: 159.99, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/',
+    cancelNotes: 'Sign in and turn off auto-renew under Subscription Management.',
   },
 
   // --- Nintendo Switch Online (annual only in EU) ------------------------------
@@ -102,6 +120,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Family (8 accounts)', amount: 34.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://accounts.nintendo.com/subscription',
+    cancelNotes: 'Open Nintendo Switch Online and turn off automatic renewal.',
   },
   {
     id: 'nintendo-switch-online-expansion',
@@ -128,6 +149,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Yearly', amount: 39.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.ea.com/manage-membership/cancel',
+    cancelNotes: 'Cancel here if billed by EA directly; Steam/PlayStation/Xbox/Epic/Amazon subscriptions must be cancelled on that platform.',
   },
   {
     id: 'ea-play-pro',
@@ -162,6 +186,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Premium', amount: 17.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.ubisoft.com/subscriptions',
+    cancelNotes: 'Cancel here if billed by Ubisoft directly; console/store subscriptions must be cancelled on that platform.',
   },
 
   // --- Cloud gaming -------------------------------------------------------------
@@ -176,6 +203,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Ultimate', amount: 21.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://account.nvidia.com',
+    cancelNotes: 'Cancellation is a downgrade to the Free tier under account management; Apple/Google Play plans are cancelled in the store.',
   },
   {
     id: 'amazon-luna',
@@ -187,6 +217,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Premium', amount: 14.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.amazon.com/gp/css/subscriptions',
+    cancelNotes: 'Manage Luna+ under Amazon Memberships & Subscriptions.',
   },
 
   // --- Curated app/game catalogues ---------------------------------------------
@@ -200,6 +233,7 @@ export const GAMING: CatalogService[] = [
       { name: 'Standard', amount: 6.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'store',
   },
   {
     id: 'google-play-pass',
@@ -212,6 +246,8 @@ export const GAMING: CatalogService[] = [
       { name: 'Yearly', amount: 29.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://play.google.com/store/account/subscriptions',
   },
   {
     id: 'humble-choice',
@@ -240,6 +276,9 @@ export const GAMING: CatalogService[] = [
       { name: '1 month', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://account.battle.net/subscriptions',
+    cancelNotes: 'Under Games & Subscriptions, cancel WoW recurring billing; the account and characters are preserved.',
   },
   {
     id: 'final-fantasy-xiv',
@@ -267,6 +306,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Premium 2200', amount: 19.99, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.roblox.com/my/account#!/subscriptions',
+    cancelNotes: 'In Settings > Subscriptions, choose Cancel Renewal; iOS/Android purchases must be cancelled in the store.',
   },
   {
     id: 'minecraft-realms-plus',
@@ -291,6 +333,9 @@ export const GAMING: CatalogService[] = [
       { name: 'Nitro (yearly)', amount: 99.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://discord.com/settings/subscriptions',
+    cancelNotes: 'Cancel here for web/desktop-purchased Nitro; iOS/Android purchases must be cancelled in the store.',
   },
   {
     id: 'twitch-turbo',

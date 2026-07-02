@@ -25,6 +25,9 @@ export const MISC: CatalogService[] = [
       { name: 'Étudiant (Prime Student)', amount: 3.49, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.amazon.fr/gp/primecentral',
+    cancelNotes: 'In Prime Central choose End Membership; use amazon.com/gp/primecentral for the US.',
   },
   {
     id: 'fnac-plus',
@@ -36,6 +39,9 @@ export const MISC: CatalogService[] = [
       { name: 'Annuel', amount: 14.99, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.fnac.com/Compte/Commandes/Abonnements.aspx',
+    cancelNotes: 'Manage under Mon adhesion / Abonnement; French tacit-renewal rules require cancelling at least 5 days before the anniversary.',
   },
   {
     id: 'cdiscount-a-volonte',
@@ -47,6 +53,9 @@ export const MISC: CatalogService[] = [
       { name: 'Annuel', amount: 29.00, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://clients.cdiscount.com/mon-compte/',
+    cancelNotes: 'In your espace client, open the CDAV section and choose Se desabonner.',
   },
   {
     id: 'costco',
@@ -58,6 +67,9 @@ export const MISC: CatalogService[] = [
       { name: 'Membre Privilège', amount: 36.00, currency: 'EUR', frequency: 'yearly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.costco.com/LogonForm',
+    cancelNotes: 'Sign in, then Account > Membership to turn off auto-renewal at least 72 hours before the renewal month.',
   },
 
   // --- MOBILE / TELECOM (France, SIM-only, prices INDICATIVE) --------------
@@ -72,6 +84,9 @@ export const MISC: CatalogService[] = [
       { name: 'Forfait 2€', amount: 2.00, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://mobile.free.fr/account/',
+    cancelNotes: 'In the Espace Abonne, request resiliation under Mon offre; sans engagement, effective within 10 days.',
   },
   {
     id: 'sosh',
@@ -83,6 +98,9 @@ export const MISC: CatalogService[] = [
       { name: 'Forfait 150 Go', amount: 13.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://espace-client.sosh.fr/',
+    cancelNotes: 'Resiliation is online only: Contrats et options > Gerer votre offre > Resilier votre offre, with 10-day notice.',
   },
   {
     id: 'red-by-sfr',
@@ -94,6 +112,9 @@ export const MISC: CatalogService[] = [
       { name: 'Forfait 130 Go 5G', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.red-by-sfr.fr/mon-compte/',
+    cancelNotes: 'Request resiliation in the Compte Client; sans engagement, 10-day notice.',
   },
   {
     id: 'b-and-you',
@@ -105,6 +126,9 @@ export const MISC: CatalogService[] = [
       { name: 'Forfait 150 Go', amount: 13.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.bouyguestelecom.fr/mon-compte/',
+    cancelNotes: 'Request resiliation under Mon offre; a 5 EUR resiliation fee may apply even on no-commitment plans.',
   },
   {
     id: 'prixtel',
@@ -155,6 +179,9 @@ export const MISC: CatalogService[] = [
       { name: 'Annuel', amount: 59.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.ubereats.com/uber-one',
+    cancelNotes: 'Open Uber One > Manage Membership > End Membership; app-store purchases must be cancelled in the store. Cancel at least 48h before renewal.',
   },
   {
     id: 'deliveroo-plus',
@@ -167,6 +194,9 @@ export const MISC: CatalogService[] = [
       { name: 'Or', amount: 5.99, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://deliveroo.fr/account/deliveroo-plus',
+    cancelNotes: 'Cancel under Account > Deliveroo Plus; if subscribed via Amazon or an app store, cancel there instead.',
   },
 
   // --- MOBILITY / TRANSPORT ------------------------------------------------
@@ -250,6 +280,9 @@ export const MISC: CatalogService[] = [
       { name: 'Adhésion (typique)', amount: 5.00, currency: 'USD', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.patreon.com/settings/memberships',
+    cancelNotes: 'Cancel per creator under Settings > Memberships; iOS-app memberships may be billed via Apple and cancelled there.',
   },
   {
     id: 'linkedin-premium',
@@ -262,6 +295,9 @@ export const MISC: CatalogService[] = [
       { name: 'Business (mensuel)', amount: 52.06, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.linkedin.com/premium/manage/',
+    cancelNotes: 'Choose Manage subscription > Cancel; iOS/Google Play purchases must be cancelled in the store. Cancel at least 1 day before renewal.',
   },
   {
     id: 'duolingo',
@@ -274,6 +310,9 @@ export const MISC: CatalogService[] = [
       { name: 'Super Famille (annuel)', amount: 122.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.duolingo.com/settings/super',
+    cancelNotes: 'In Settings > Super Duolingo, choose Cancel Subscription; App Store/Google Play purchases must be cancelled in the store.',
   },
   {
     id: 'babbel',
@@ -286,6 +325,9 @@ export const MISC: CatalogService[] = [
       { name: '12 mois (par mois)', amount: 6.65, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://my.babbel.com/en/account/subscriptions',
+    cancelNotes: 'Disable auto-renewal under Account Information.',
   },
   {
     id: 'busuu',

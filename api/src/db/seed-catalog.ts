@@ -2,8 +2,8 @@
 // from the app's bundled catalog via scripts/build-catalog-seed.ts).
 //
 // Safe to run in any environment, including production: upsertMany refreshes
-// prices/metadata on conflict but PRESERVES the cancel* columns owned by the
-// justdeleteme sync job. Runs on deploy so the served catalog tracks the app.
+// prices/metadata AND the curated cancellation fields (billing/cancelUrl/
+// cancelNotes) on conflict. Runs on deploy so the served catalog tracks the app.
 //   pnpm --filter @unsub/api db:seed-catalog
 import 'dotenv/config';
 import { readFile } from 'node:fs/promises';

@@ -364,6 +364,9 @@ export const NEWS_READING: CatalogService[] = [
       { name: 'Lecture & Écoute', amount: 12.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'web',
+    cancelUrl: 'https://www.kobo.com/account/subscriptions',
+    cancelNotes: 'Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders).',
   },
   {
     id: 'audible',
@@ -376,5 +379,8 @@ export const NEWS_READING: CatalogService[] = [
       { name: 'Standard', amount: 5.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
+    billing: 'both',
+    cancelUrl: 'https://www.audible.com/account/cancelmembership',
+    cancelNotes: 'Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store.',
   },
 ];

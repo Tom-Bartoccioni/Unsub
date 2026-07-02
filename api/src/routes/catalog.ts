@@ -7,8 +7,8 @@ export type CatalogRouteDeps = {
 };
 
 // Shape returned to the app. Mirrors the app's CatalogService plus the
-// cancellation fields (populated by the justdeleteme sync). Nulls are omitted
-// on the wire where the app treats absence and null the same.
+// curated cancellation fields. Nulls are omitted on the wire where the app
+// treats absence and null the same.
 type CatalogServiceDto = {
   id: string;
   name: string;
@@ -18,8 +18,8 @@ type CatalogServiceDto = {
   brandColor?: string;
   plans: CatalogServiceRow['plans'];
   pricesUpdatedAt: string;
+  billing?: string;
   cancelUrl?: string;
-  cancelDifficulty?: string;
   cancelNotes?: string;
 };
 
@@ -33,8 +33,8 @@ function toDto(row: CatalogServiceRow): CatalogServiceDto {
     ...(row.brandColor ? { brandColor: row.brandColor } : {}),
     plans: row.plans,
     pricesUpdatedAt: row.pricesUpdatedAt,
+    ...(row.billing ? { billing: row.billing } : {}),
     ...(row.cancelUrl ? { cancelUrl: row.cancelUrl } : {}),
-    ...(row.cancelDifficulty ? { cancelDifficulty: row.cancelDifficulty } : {}),
     ...(row.cancelNotes ? { cancelNotes: row.cancelNotes } : {}),
   };
 }

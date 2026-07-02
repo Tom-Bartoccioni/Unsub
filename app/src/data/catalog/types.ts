@@ -29,8 +29,6 @@ export type CatalogPlan = {
   default?: boolean;
 };
 
-export type CancelDifficulty = 'easy' | 'medium' | 'hard' | 'impossible';
-
 export type CatalogService = {
   // Stable kebab-case identifier. Never reuse or renumber — the app may persist
   // it against a tracked subscription.
@@ -55,11 +53,24 @@ export type CatalogService = {
   // Year-month the prices were last verified, e.g. "2026-07". Drives the
   // "approximate / last checked" hint in the UI.
   pricesUpdatedAt: string;
-  // --- Cancellation (for the ghost-a-sub flow; synced from justdeleteme) ---
-  // Direct URL to the account-cancellation / deletion page when known.
+  // --- Cancellation (for the ghost-a-sub flow) ---
+  // How the subscription is typically billed, which decides where we send the
+  // user to cancel:
+  //   'web'   → cancel on the vendor's website (use cancelUrl)
+  //   'store' → billed through the App Store / Google Play; cancel there (we
+  //             deep-link to the platform's manage-subscriptions screen). Used
+  //             for services where a "cancel" web link would wrongly lead to
+  //             ACCOUNT DELETION (YouTube Premium, Twitch, dating apps…).
+  //   'both'  → offer the web cancelUrl AND a "if you subscribed via the store,
+  //             cancel there" note.
+  // Absent → treat as unknown; the modal falls back to the store screen on
+  // mobile or a web search.
+  billing?: 'web' | 'store' | 'both';
+  // CURATED direct URL to the subscription's cancel / manage-membership page —
+  // must keep the account alive (NOT an account-deletion page). Only meaningful
+  // for billing 'web' | 'both'. Hand-curated, not synced from any dataset.
   cancelUrl?: string;
-  cancelDifficulty?: CancelDifficulty;
-  // Short human note ("Must cancel from the website, not the app", etc).
+  // Short human note ("Cancel from the website, not the app", etc).
   cancelNotes?: string;
 };
 

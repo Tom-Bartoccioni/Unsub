@@ -17,7 +17,7 @@ import { WELLNESS } from './wellness';
 import { GAMING } from './gaming';
 import { MISC } from './misc';
 
-export type { CatalogService, CatalogPlan, CancelDifficulty } from './types';
+export type { CatalogService, CatalogPlan } from './types';
 export { defaultPlan } from './types';
 
 // The donut only renders these six categories (see theme.categoryColors).

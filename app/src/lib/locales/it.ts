@@ -106,16 +106,14 @@ export const it = {
     subtitle:
       'Qui l’abbiamo segnato come disdetto. Completa la disdetta sul loro sito per non essere più addebitato.',
     openCancelPage: 'Apri pagina di disdetta',
+    openStore: 'Gestisci nello store',
+    orCancelInStore: 'Oppure disdici nello store',
     searchHow: 'Trova come disdire',
-    linkHint: 'Apre la pagina di disdetta del servizio nel browser.',
-    noLinkHint: 'Non abbiamo un link diretto per questo — questo cerca sul web.',
+    storeHintApple:
+      'Questo di solito è fatturato tramite l’App Store — disdicilo dai tuoi abbonamenti Apple.',
+    storeHintPlay:
+      'Questo di solito è fatturato tramite Google Play — disdicilo dai tuoi abbonamenti Play.',
     doneLater: 'Lo farò più tardi',
-    difficulty: {
-      easy: 'Facile da disdire',
-      medium: 'Pochi passaggi',
-      hard: 'Difficile da disdire',
-      impossible: 'Molto difficile da disdire',
-    },
   },
   reactivate: {
     title: 'Riattiva {{provider}}',

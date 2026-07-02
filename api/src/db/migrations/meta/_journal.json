@@ -78,6 +78,13 @@
       "when": 1783014400326,
       "tag": "0010_flashy_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1783100000000,
+      "tag": "0011_curated_cancel_billing",
+      "breakpoints": true
     }
   ]
 }

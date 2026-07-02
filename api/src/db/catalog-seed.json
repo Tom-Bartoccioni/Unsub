@@ -29,7 +29,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.netflix.com/cancelplan",
+    "cancelNotes": null
   },
   {
     "id": "disney-plus",
@@ -63,7 +66,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.disneyplus.com/account/cancel-subscription",
+    "cancelNotes": "If you subscribed through an app store or partner, cancel there instead."
   },
   {
     "id": "amazon-prime-video",
@@ -97,7 +103,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.amazon.com/gp/video/settings",
+    "cancelNotes": "Manage under Prime Video Account & Settings; add-ons bought via an app store must be cancelled there."
   },
   {
     "id": "max",
@@ -131,7 +140,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://auth.max.com/product",
+    "cancelNotes": "Cancel via Max.com > profile > Subscription > Manage Subscription; if billed through a store or provider, cancel there."
   },
   {
     "id": "apple-tv-plus",
@@ -159,7 +171,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "paramount-plus",
@@ -187,7 +202,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.paramountplus.com/account/",
+    "cancelNotes": "Cancel on the account page if you subscribed on the web; otherwise cancel via your app store or provider."
   },
   {
     "id": "youtube-premium",
@@ -220,7 +238,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.youtube.com/paid_memberships",
+    "cancelNotes": "If you subscribed in the mobile app, cancel via your app store instead."
   },
   {
     "id": "crunchyroll",
@@ -252,7 +273,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.crunchyroll.com/account/membership",
+    "cancelNotes": "Cancel here if you subscribed on crunchyroll.com; store or console subscriptions must be cancelled there."
   },
   {
     "id": "adn",
@@ -285,7 +309,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://animationdigitalnetwork.com/account/subscription",
+    "cancelNotes": "On the web, open your Abonnement space and turn off auto-renewal; mobile-app subscriptions are cancelled via the store."
   },
   {
     "id": "canal-plus",
@@ -313,7 +340,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.canalplus.com/compte/",
+    "cancelNotes": "In your espace client, go to Abonnement > Mes demarches > Resilier; committed plans require notice before the renewal date."
   },
   {
     "id": "cine-plus-ocs",
@@ -335,7 +365,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.canalplus.com/compte/",
+    "cancelNotes": "Cine+ OCS is billed by Canal+; cancel in your Canal+ account under Mon compte, or via your partner operator if subscribed through one."
   },
   {
     "id": "molotov",
@@ -361,7 +394,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.molotov.tv/account",
+    "cancelNotes": "Disable the paid option under account settings if billed by Molotov; Apple/Google/Amazon billing must be cancelled on that platform."
   },
   {
     "id": "universal-plus",
@@ -382,7 +418,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://web.play.universalplus.com/",
+    "cancelNotes": "Cancel in the Mi cuenta section of the web app if billed directly; through a TV/ISP provider, cancel with them."
   },
   {
     "id": "mubi",
@@ -414,7 +453,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://mubi.com/settings/subscription",
+    "cancelNotes": "Cancel in subscription settings if you subscribed on the web; store subscriptions are cancelled via the store."
   },
   {
     "id": "shudder",
@@ -440,7 +482,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.shudder.com/account",
+    "cancelNotes": "Cancel under Membership Settings if billed by Shudder; via Roku/Amazon/app store, cancel there."
   },
   {
     "id": "dazn",
@@ -472,7 +517,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.dazn.com/account",
+    "cancelNotes": "Cancel under My Account > Manage Subscription if billed by DAZN; third-party billing must be cancelled with that provider."
   },
   {
     "id": "ligue-1-plus",
@@ -500,7 +548,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://plus.ligue1.com/",
+    "cancelNotes": "If you subscribed on the web, cancel under the Subscription tab of your Ligue 1+ account; store subscriptions cancel via the store."
   },
   {
     "id": "bein-sports",
@@ -522,7 +573,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.beinsports.com/france/compte/",
+    "cancelNotes": "For beIN Sports Connect, cancel under Mes offres with the Me desabonner button (available in the 30 days before renewal)."
   },
   {
     "id": "rmc-sport",
@@ -543,7 +597,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.rmcsport.tv/aide/compte-et-offres/comment-resilier-mon-abonnement.html",
+    "cancelNotes": "For RMC Sport 100% Digital, cancel in your Espace Client under Mes offres actuelles > Resilier; Apple/SFR/RED billing cancels with them."
   },
   {
     "id": "twitch",
@@ -581,7 +638,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": "Twitch subscriptions are managed per channel; on mobile they are billed through your app store."
   },
   {
     "id": "hulu",
@@ -607,7 +667,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://secure.hulu.com/account",
+    "cancelNotes": "Cancel under Your Subscription in a browser; if billed by a third party, cancel with them."
   },
   {
     "id": "peacock",
@@ -633,7 +696,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.peacocktv.com/account/plans",
+    "cancelNotes": "Cancel under Plans & Payments if billed by Peacock; store or provider subscriptions cancel there."
   },
   {
     "id": "discovery-plus",
@@ -661,7 +727,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.discoveryplus.com/account",
+    "cancelNotes": "Cancel on the Manage Your Account page if billed by discovery+; store/provider subscriptions cancel there."
   },
   {
     "id": "curiosity-stream",
@@ -694,7 +763,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://curiositystream.com/account",
+    "cancelNotes": "Cancel under Plan and Payment > Manage Plan if billed directly; store subscriptions cancel via the store."
   },
   {
     "id": "nebula",
@@ -720,7 +792,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://nebula.tv/settings/subscription/plan/cancel",
+    "cancelNotes": "Cancel in account settings if you subscribed on nebula.tv; app-store subscriptions cancel via the store."
   },
   {
     "id": "chatgpt-plus",
@@ -748,7 +823,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://chatgpt.com/#settings/Subscription",
+    "cancelNotes": "Cancel under Settings > Billing if billed by OpenAI; if you subscribed in the mobile app, cancel via your app store."
   },
   {
     "id": "claude-pro",
@@ -781,7 +859,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://claude.ai/settings/billing",
+    "cancelNotes": "Cancel under Settings > Billing if billed by Anthropic; if you subscribed in the mobile app, cancel via your app store."
   },
   {
     "id": "google-ai-pro",
@@ -810,7 +891,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://one.google.com/settings",
+    "cancelNotes": "Google AI Pro is managed through Google One; cancel there. If you subscribed via an app store, cancel there instead."
   },
   {
     "id": "perplexity-pro",
@@ -836,7 +920,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.perplexity.ai/settings/account",
+    "cancelNotes": "Cancel under Settings > Manage Subscription if billed by Perplexity; app-store subscriptions cancel via the store."
   },
   {
     "id": "microsoft-365-personal",
@@ -865,7 +952,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.microsoft.com/services/microsoft365",
+    "cancelNotes": "Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store."
   },
   {
     "id": "microsoft-365-family",
@@ -893,7 +983,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.microsoft.com/services/microsoft365",
+    "cancelNotes": "Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store."
   },
   {
     "id": "google-workspace",
@@ -915,7 +1008,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "notion-plus",
@@ -941,7 +1037,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": null,
+    "cancelNotes": "In the app go to Settings > Billing > Change plan and downgrade to Free; only workspace owners can do this."
   },
   {
     "id": "obsidian-sync",
@@ -967,7 +1066,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "evernote",
@@ -993,7 +1095,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "todoist-pro",
@@ -1019,7 +1124,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "trello",
@@ -1045,7 +1153,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "linear",
@@ -1071,7 +1182,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "airtable",
@@ -1097,7 +1211,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "clickup",
@@ -1123,7 +1240,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "zapier",
@@ -1149,7 +1269,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "make",
@@ -1170,7 +1293,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "grammarly-pro",
@@ -1196,7 +1322,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.grammarly.com/subscription",
+    "cancelNotes": "Cancel under Account > Subscription if billed by Grammarly; app-store subscriptions cancel via the store."
   },
   {
     "id": "figma-professional",
@@ -1222,7 +1351,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "canva-pro",
@@ -1242,7 +1374,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.canva.com/settings/billing-and-plans",
+    "cancelNotes": "Cancel under Billing & Plans if billed by Canva; app-store subscriptions cancel via the store."
   },
   {
     "id": "adobe-creative-cloud",
@@ -1264,7 +1399,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.adobe.com/plans",
+    "cancelNotes": "Select Manage plan > Cancel your plan; early cancellation of an annual plan may incur a fee."
   },
   {
     "id": "adobe-photography",
@@ -1286,7 +1424,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.adobe.com/plans",
+    "cancelNotes": "Select Manage plan > Cancel your plan for the Photography plan; early cancellation of an annual plan may incur a fee."
   },
   {
     "id": "adobe-acrobat-pro",
@@ -1308,7 +1449,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "descript",
@@ -1334,7 +1478,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "loom",
@@ -1360,7 +1507,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "zoom-pro",
@@ -1386,7 +1536,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "slack-pro",
@@ -1412,7 +1565,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "miro",
@@ -1438,7 +1594,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "superhuman",
@@ -1464,7 +1623,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "raycast-pro",
@@ -1490,7 +1652,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "github-copilot",
@@ -1524,7 +1689,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://github.com/settings/billing",
+    "cancelNotes": "Under Billing & licensing, use Manage subscription > Cancel subscription; org/enterprise-provided Copilot cannot be self-cancelled."
   },
   {
     "id": "gitlab-premium",
@@ -1544,7 +1712,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "vercel-pro",
@@ -1564,7 +1735,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "netlify-pro",
@@ -1584,7 +1758,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "icloud-plus",
@@ -1628,7 +1805,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "google-one",
@@ -1661,7 +1841,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://one.google.com/settings/storage",
+    "cancelNotes": "Open Settings and choose Cancel membership; if you subscribed via Google Play or the App Store, cancel there instead."
   },
   {
     "id": "dropbox",
@@ -1693,7 +1876,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.dropbox.com/account/plan",
+    "cancelNotes": "Click Manage account > Cancel plan to downgrade to Basic; mobile-store purchases cancel via the store."
   },
   {
     "id": "onedrive",
@@ -1727,7 +1913,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.microsoft.com/services",
+    "cancelNotes": "Select Manage next to your Microsoft 365 subscription, then Cancel subscription."
   },
   {
     "id": "pcloud",
@@ -1753,7 +1942,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.pcloud.com/",
+    "cancelNotes": "In account settings, open My Subscription and click Cancel Subscription; App Store/PayPal subscriptions must be cancelled via that provider."
   },
   {
     "id": "proton-drive",
@@ -1773,7 +1965,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.proton.me/",
+    "cancelNotes": "In Settings > Subscription, choose Cancel subscription; downgrades to Free at the end of the billing period. Cancel before the renewal date."
   },
   {
     "id": "box",
@@ -1793,7 +1988,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.box.com/settings",
+    "cancelNotes": "Cancel under Account Settings > Billing/Plan; some individual plans require emailing cancel@box.com to downgrade at end of term."
   },
   {
     "id": "mega",
@@ -1832,7 +2030,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://mega.nz/fm/account/plan",
+    "cancelNotes": "In Settings > Plan, click Cancel Subscription; App Store/Google Play/PayPal subscriptions must be cancelled via that provider."
   },
   {
     "id": "backblaze",
@@ -1858,7 +2059,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://secure.backblaze.com/user_signin.htm",
+    "cancelNotes": "There is no single cancel button: for Personal Backup, sign in then delete the backup/license to stop billing; for B2, disable the product under My Settings."
   },
   {
     "id": "sync-com",
@@ -1885,7 +2089,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://cp.sync.com/account",
+    "cancelNotes": "Open your current plan tile and choose Cancel Subscription; Sync has no free tier, so this closes the account at the end of the paid term."
   },
   {
     "id": "kdrive",
@@ -1912,7 +2119,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://manager.infomaniak.com/v3/ng/accounts/select/renewal-management",
+    "cancelNotes": "In the Infomaniak Manager, use Manage renewals to disable automatic renewal; iOS/Android app purchases are managed in the store."
   },
   {
     "id": "nordvpn",
@@ -1945,7 +2155,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.nordaccount.com/billing/subscriptions/",
+    "cancelNotes": "In your Nord Account, open Billing > Subscriptions and cancel auto-renewal. Access stays active until the period ends."
   },
   {
     "id": "expressvpn",
@@ -1978,7 +2191,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.expressvpn.com/sign-in",
+    "cancelNotes": "Sign in, go to My Subscription > Edit subscription settings and select Turn Off Automatic Renewal."
   },
   {
     "id": "surfshark",
@@ -2011,7 +2227,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.surfshark.com/",
+    "cancelNotes": "Open Subscription > Payments and click Cancel auto-renewal."
   },
   {
     "id": "protonvpn",
@@ -2044,7 +2263,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.proton.me/",
+    "cancelNotes": "In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date."
   },
   {
     "id": "cyberghost",
@@ -2071,7 +2293,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.cyberghostvpn.com/",
+    "cancelNotes": "Open your profile > Subscriptions and choose Cancel Subscription to turn off automatic billing."
   },
   {
     "id": "mullvad",
@@ -2091,7 +2316,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": null,
+    "cancelNotes": "Mullvad is prepaid with no auto-renewal: simply stop adding time and access ends when your paid time expires."
   },
   {
     "id": "pia-vpn",
@@ -2118,7 +2346,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.privateinternetaccess.com/account/login",
+    "cancelNotes": "In the Client Control Panel, open Subscription Overview and choose Turn off Auto Renewal."
   },
   {
     "id": "windscribe",
@@ -2144,7 +2375,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://windscribe.com/myaccount",
+    "cancelNotes": "Scroll to Billing, click Manage Subscription, then Cancel Subscription."
   },
   {
     "id": "1password",
@@ -2171,7 +2405,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.1password.com/",
+    "cancelNotes": "In Billing > Billing Settings, click Unsubscribe."
   },
   {
     "id": "bitwarden",
@@ -2197,7 +2434,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://vault.bitwarden.com/",
+    "cancelNotes": "In Settings > Subscription, click Cancel Subscription; paid features end at the next charge date."
   },
   {
     "id": "dashlane",
@@ -2223,7 +2463,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://app.dashlane.com/",
+    "cancelNotes": "In My Account > Subscription, click Cancel subscription / Stop auto-renewal."
   },
   {
     "id": "lastpass",
@@ -2250,7 +2493,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://lastpass.com/?ac=1",
+    "cancelNotes": "In Account Settings > My Account, click Cancel Auto-Renewal and confirm."
   },
   {
     "id": "nordpass",
@@ -2277,7 +2523,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.nordaccount.com/billing/subscriptions/",
+    "cancelNotes": "In your Nord Account, open Billing > Subscriptions and cancel NordPass auto-renewal."
   },
   {
     "id": "keeper",
@@ -2303,7 +2552,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://keepersecurity.com/vault/",
+    "cancelNotes": "In Account Settings > Subscriptions, choose Cancel Subscription; Keeper may require contacting support to disable auto-renew."
   },
   {
     "id": "proton-pass",
@@ -2323,7 +2575,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "proton-mail",
@@ -2344,7 +2599,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.proton.me/",
+    "cancelNotes": "In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date."
   },
   {
     "id": "proton-unlimited",
@@ -2365,7 +2623,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.proton.me/",
+    "cancelNotes": "In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date."
   },
   {
     "id": "tuta",
@@ -2392,7 +2653,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "mailbox-org",
@@ -2425,7 +2689,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "fastmail",
@@ -2458,7 +2725,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "norton-360",
@@ -2484,7 +2754,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.norton.com/",
+    "cancelNotes": "In My Subscriptions, select Manage Renewal to turn off auto-renewal. Protection continues to the end of the paid term."
   },
   {
     "id": "mcafee",
@@ -2517,7 +2790,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.mcafee.com/my-account/",
+    "cancelNotes": "In Account > Auto-Renewal Settings, find the subscription and click Turn Off."
   },
   {
     "id": "bitdefender",
@@ -2549,7 +2825,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://central.bitdefender.com/",
+    "cancelNotes": "In My Subscriptions > My Products, click Stop automatic subscription renewal."
   },
   {
     "id": "kaspersky",
@@ -2581,7 +2860,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.kaspersky.com/",
+    "cancelNotes": "In the Subscriptions tab, choose Manage subscription > Cancel subscription to turn off auto-renewal."
   },
   {
     "id": "malwarebytes",
@@ -2607,7 +2889,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://my.malwarebytes.com/",
+    "cancelNotes": "In the Subscriptions tab, choose Manage > Turn off auto-renewal."
   },
   {
     "id": "avast",
@@ -2633,7 +2918,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "avg",
@@ -2659,7 +2947,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "eset",
@@ -2686,7 +2977,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-monde",
@@ -2707,7 +3001,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-figaro",
@@ -2728,7 +3025,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "liberation",
@@ -2756,7 +3056,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "lequipe",
@@ -2778,7 +3081,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "mediapart",
@@ -2804,7 +3110,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "les-echos",
@@ -2832,7 +3141,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-parisien",
@@ -2853,7 +3165,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "la-croix",
@@ -2874,7 +3189,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "telerama",
@@ -2895,7 +3213,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "courrier-international",
@@ -2916,7 +3237,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "lobs",
@@ -2951,7 +3275,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-point",
@@ -2972,7 +3299,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "alternatives-economiques",
@@ -2994,7 +3324,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-canard-enchaine",
@@ -3016,7 +3349,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "le-monde-diplomatique",
@@ -3038,7 +3374,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "nyt",
@@ -3066,7 +3405,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "the-economist",
@@ -3093,7 +3435,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "financial-times",
@@ -3114,7 +3459,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "the-guardian",
@@ -3135,7 +3483,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "washington-post",
@@ -3157,7 +3508,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "wsj",
@@ -3178,7 +3532,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "wired",
@@ -3204,7 +3561,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "the-atlantic",
@@ -3225,7 +3585,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "bloomberg",
@@ -3251,7 +3614,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "substack",
@@ -3271,7 +3637,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "medium",
@@ -3297,7 +3666,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "blinkist",
@@ -3317,7 +3689,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "readly",
@@ -3337,7 +3712,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "cafeyn",
@@ -3364,7 +3742,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "kindle-unlimited",
@@ -3386,7 +3767,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "kobo-plus",
@@ -3413,7 +3797,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.kobo.com/account/subscriptions",
+    "cancelNotes": "Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders)."
   },
   {
     "id": "audible",
@@ -3439,7 +3826,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.audible.com/account/cancelmembership",
+    "cancelNotes": "Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store."
   },
   {
     "id": "amazon-prime",
@@ -3472,7 +3862,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.amazon.fr/gp/primecentral",
+    "cancelNotes": "In Prime Central choose End Membership; use amazon.com/gp/primecentral for the US."
   },
   {
     "id": "fnac-plus",
@@ -3494,7 +3887,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.fnac.com/Compte/Commandes/Abonnements.aspx",
+    "cancelNotes": "Manage under Mon adhesion / Abonnement; French tacit-renewal rules require cancelling at least 5 days before the anniversary."
   },
   {
     "id": "cdiscount-a-volonte",
@@ -3516,7 +3912,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://clients.cdiscount.com/mon-compte/",
+    "cancelNotes": "In your espace client, open the CDAV section and choose Se desabonner."
   },
   {
     "id": "costco",
@@ -3537,7 +3936,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.costco.com/LogonForm",
+    "cancelNotes": "Sign in, then Account > Membership to turn off auto-renewal at least 72 hours before the renewal month."
   },
   {
     "id": "free-mobile",
@@ -3565,7 +3967,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://mobile.free.fr/account/",
+    "cancelNotes": "In the Espace Abonne, request resiliation under Mon offre; sans engagement, effective within 10 days."
   },
   {
     "id": "sosh",
@@ -3587,7 +3992,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://espace-client.sosh.fr/",
+    "cancelNotes": "Resiliation is online only: Contrats et options > Gerer votre offre > Resilier votre offre, with 10-day notice."
   },
   {
     "id": "red-by-sfr",
@@ -3609,7 +4017,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.red-by-sfr.fr/mon-compte/",
+    "cancelNotes": "Request resiliation in the Compte Client; sans engagement, 10-day notice."
   },
   {
     "id": "b-and-you",
@@ -3632,7 +4043,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.bouyguestelecom.fr/mon-compte/",
+    "cancelNotes": "Request resiliation under Mon offre; a 5 EUR resiliation fee may apply even on no-commitment plans."
   },
   {
     "id": "prixtel",
@@ -3653,7 +4067,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "hellofresh",
@@ -3674,7 +4091,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "quitoque",
@@ -3695,7 +4115,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "uber-one",
@@ -3723,7 +4146,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.ubereats.com/uber-one",
+    "cancelNotes": "Open Uber One > Manage Membership > End Membership; app-store purchases must be cancelled in the store. Cancel at least 48h before renewal."
   },
   {
     "id": "deliveroo-plus",
@@ -3750,7 +4176,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://deliveroo.fr/account/deliveroo-plus",
+    "cancelNotes": "Cancel under Account > Deliveroo Plus; if subscribed via Amazon or an app store, cancel there instead."
   },
   {
     "id": "navigo-mois",
@@ -3772,7 +4201,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "sncf-max-jeune",
@@ -3795,7 +4227,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "sncf-avantage-jeune",
@@ -3817,7 +4252,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "sncf-liberte",
@@ -3839,7 +4277,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "velib",
@@ -3867,7 +4308,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "dott",
@@ -3889,7 +4333,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "patreon",
@@ -3909,7 +4356,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.patreon.com/settings/memberships",
+    "cancelNotes": "Cancel per creator under Settings > Memberships; iOS-app memberships may be billed via Apple and cancelled there."
   },
   {
     "id": "linkedin-premium",
@@ -3937,7 +4387,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.linkedin.com/premium/manage/",
+    "cancelNotes": "Choose Manage subscription > Cancel; iOS/Google Play purchases must be cancelled in the store. Cancel at least 1 day before renewal."
   },
   {
     "id": "duolingo",
@@ -3965,7 +4418,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.duolingo.com/settings/super",
+    "cancelNotes": "In Settings > Super Duolingo, choose Cancel Subscription; App Store/Google Play purchases must be cancelled in the store."
   },
   {
     "id": "babbel",
@@ -3991,7 +4447,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://my.babbel.com/en/account/subscriptions",
+    "cancelNotes": "Disable auto-renewal under Account Information."
   },
   {
     "id": "busuu",
@@ -4011,7 +4470,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "rosetta-stone",
@@ -4032,7 +4494,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "headspace",
@@ -4064,7 +4529,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.headspace.com/subscription/manage",
+    "cancelNotes": "Log in on a browser (not the app) and tap Cancel membership; App Store/Google Play subscriptions are cancelled in the store."
   },
   {
     "id": "calm",
@@ -4090,7 +4558,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.calm.com/",
+    "cancelNotes": "For Calm.com purchases, use Settings > Manage Subscription > Cancel; mobile subscriptions are cancelled in the App Store or Google Play."
   },
   {
     "id": "apple-fitness-plus",
@@ -4118,7 +4589,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "strava",
@@ -4144,7 +4618,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.strava.com/settings/subscription",
+    "cancelNotes": "For website subscriptions, use Settings > My Account > Cancel subscription; store subscriptions must be cancelled in the store."
   },
   {
     "id": "fitbit-premium",
@@ -4172,7 +4649,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "whoop",
@@ -4204,7 +4684,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "garmin-connect-plus",
@@ -4232,7 +4715,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "myfitnesspal",
@@ -4259,7 +4745,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "peloton-app",
@@ -4292,7 +4781,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "freeletics",
@@ -4318,7 +4810,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "centr",
@@ -4344,7 +4839,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "down-dog",
@@ -4371,7 +4869,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "basic-fit",
@@ -4405,7 +4906,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://my.basic-fit.com/cancel-membership",
+    "cancelNotes": "Cancel via your My Basic-Fit account; a 4-week notice period applies and the contract minimum term must be met. This is a resiliation, not account deletion."
   },
   {
     "id": "fitness-park",
@@ -4438,7 +4942,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://adherent.fitnesspark.fr/",
+    "cancelNotes": "Cancel in your Espace Adherent via Resilier mon abonnement (a supporting document may be requested); 4-week notice applies. This is a resiliation, not account deletion."
   },
   {
     "id": "neoness",
@@ -4464,7 +4971,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "keep-cool",
@@ -4497,7 +5007,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "on-air-fitness",
@@ -4531,7 +5044,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "tinder",
@@ -4563,7 +5079,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://tinder.com/app/settings",
+    "cancelNotes": "For tinder.com purchases, use Settings > Manage Payment Account > Cancel; in-app purchases must be cancelled in the App Store or Google Play."
   },
   {
     "id": "bumble",
@@ -4589,7 +5108,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "hinge",
@@ -4615,7 +5137,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "happn",
@@ -4635,7 +5160,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "meetic",
@@ -4661,7 +5189,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.meetic.fr/",
+    "cancelNotes": "Log in on a computer, then Parametres du compte > Gerer le compte > Gerer l'abonnement and cancel auto-renewal; app-store subscriptions are cancelled in the store."
   },
   {
     "id": "grindr",
@@ -4687,7 +5218,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "fruitz",
@@ -4713,7 +5247,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "xbox-game-pass-ultimate",
@@ -4736,7 +5273,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.microsoft.com/services",
+    "cancelNotes": "Select Manage next to Game Pass, then Cancel subscription. If bought on console via a store, cancel there."
   },
   {
     "id": "xbox-game-pass-premium",
@@ -4757,7 +5297,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.microsoft.com/services",
+    "cancelNotes": "Select Manage next to Game Pass, then Cancel subscription."
   },
   {
     "id": "xbox-game-pass-essential",
@@ -4779,7 +5322,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "pc-game-pass",
@@ -4800,7 +5346,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.microsoft.com/services",
+    "cancelNotes": "Select Manage next to Game Pass, then Cancel subscription."
   },
   {
     "id": "playstation-plus-essential",
@@ -4829,7 +5378,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/",
+    "cancelNotes": "Sign in and turn off auto-renew under Subscription Management."
   },
   {
     "id": "playstation-plus-extra",
@@ -4856,7 +5408,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/",
+    "cancelNotes": "Sign in and turn off auto-renew under Subscription Management."
   },
   {
     "id": "playstation-plus-premium",
@@ -4883,7 +5438,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.playstation.com/en-us/support/store/cancel-ps-store-subscription/",
+    "cancelNotes": "Sign in and turn off auto-renew under Subscription Management."
   },
   {
     "id": "nintendo-switch-online",
@@ -4911,7 +5469,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://accounts.nintendo.com/subscription",
+    "cancelNotes": "Open Nintendo Switch Online and turn off automatic renewal."
   },
   {
     "id": "nintendo-switch-online-expansion",
@@ -4939,7 +5500,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "ea-play",
@@ -4967,7 +5531,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.ea.com/manage-membership/cancel",
+    "cancelNotes": "Cancel here if billed by EA directly; Steam/PlayStation/Xbox/Epic/Amazon subscriptions must be cancelled on that platform."
   },
   {
     "id": "ea-play-pro",
@@ -4994,7 +5561,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "ubisoft-plus-classics",
@@ -5016,7 +5586,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "ubisoft-plus-premium",
@@ -5038,7 +5611,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.ubisoft.com/subscriptions",
+    "cancelNotes": "Cancel here if billed by Ubisoft directly; console/store subscriptions must be cancelled on that platform."
   },
   {
     "id": "geforce-now",
@@ -5066,7 +5642,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.nvidia.com",
+    "cancelNotes": "Cancellation is a downgrade to the Free tier under account management; Apple/Google Play plans are cancelled in the store."
   },
   {
     "id": "amazon-luna",
@@ -5089,7 +5668,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://www.amazon.com/gp/css/subscriptions",
+    "cancelNotes": "Manage Luna+ under Amazon Memberships & Subscriptions."
   },
   {
     "id": "apple-arcade",
@@ -5110,7 +5692,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "google-play-pass",
@@ -5137,7 +5722,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://play.google.com/store/account/subscriptions",
+    "cancelNotes": null
   },
   {
     "id": "humble-choice",
@@ -5165,7 +5753,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "world-of-warcraft",
@@ -5188,7 +5779,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "web",
+    "cancelUrl": "https://account.battle.net/subscriptions",
+    "cancelNotes": "Under Games & Subscriptions, cancel WoW recurring billing; the account and characters are preserved."
   },
   {
     "id": "final-fantasy-xiv",
@@ -5217,7 +5811,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "roblox-premium",
@@ -5251,7 +5848,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.roblox.com/my/account#!/subscriptions",
+    "cancelNotes": "In Settings > Subscriptions, choose Cancel Renewal; iOS/Android purchases must be cancelled in the store."
   },
   {
     "id": "minecraft-realms-plus",
@@ -5273,7 +5873,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "discord-nitro",
@@ -5307,7 +5910,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://discord.com/settings/subscriptions",
+    "cancelNotes": "Cancel here for web/desktop-purchased Nitro; iOS/Android purchases must be cancelled in the store."
   },
   {
     "id": "twitch-turbo",
@@ -5328,7 +5934,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "fortnite-crew",
@@ -5350,7 +5959,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": null,
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "spotify",
@@ -5388,7 +6000,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.spotify.com/account/subscription/",
+    "cancelNotes": "Cancel under Your Plan > Change Plan; if billed through a third party or store, cancel there."
   },
   {
     "id": "apple-music",
@@ -5421,7 +6036,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "store",
+    "cancelUrl": null,
+    "cancelNotes": null
   },
   {
     "id": "youtube-music",
@@ -5455,7 +6073,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.youtube.com/paid_memberships",
+    "cancelNotes": "If you subscribed in the mobile app, cancel via your app store instead."
   },
   {
     "id": "amazon-music-unlimited",
@@ -5488,7 +6109,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.amazon.com/music/settings",
+    "cancelNotes": "Cancel in Amazon Music Settings if billed by Amazon; app-store subscriptions cancel via the store."
   },
   {
     "id": "deezer",
@@ -5526,7 +6150,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.deezer.com/account/subscription",
+    "cancelNotes": "Cancel under Manage my subscription if billed by Deezer; Apple/partner billing must be cancelled with them."
   },
   {
     "id": "qobuz",
@@ -5564,7 +6191,10 @@
         "frequency": "yearly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.qobuz.com/account/subscription",
+    "cancelNotes": "Cancel in your account dashboard if billed by Qobuz; store subscriptions cancel via the store."
   },
   {
     "id": "tidal",
@@ -5596,7 +6226,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://account.tidal.com/subscription",
+    "cancelNotes": "Cancel under Subscription if billed by TIDAL; app-store subscriptions cancel via the store."
   },
   {
     "id": "soundcloud",
@@ -5624,7 +6257,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://soundcloud.com/settings/subscriptions",
+    "cancelNotes": "Cancel on the Subscriptions page in a browser if billed by SoundCloud; store subscriptions cancel via the store."
   },
   {
     "id": "pandora",
@@ -5656,7 +6292,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.pandora.com/account/subscription",
+    "cancelNotes": "Cancel under Settings > Subscriptions if billed directly; store subscriptions cancel via the store."
   },
   {
     "id": "storytel",
@@ -5676,7 +6315,10 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.storytel.com/account/subscription",
+    "cancelNotes": "Cancel under Subscription if you subscribed on the web; store subscriptions cancel via the store."
   },
   {
     "id": "nextory",
@@ -5708,7 +6350,10 @@
         "frequency": "monthly"
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://www.nextory.com/my-account/subscription",
+    "cancelNotes": "Cancel under Subscription & Payment on My Pages if billed by Nextory; store subscriptions cancel via the store."
   },
   {
     "id": "podimo",
@@ -5728,6 +6373,9 @@
         "default": true
       }
     ],
-    "pricesUpdatedAt": "2026-07"
+    "pricesUpdatedAt": "2026-07",
+    "billing": "both",
+    "cancelUrl": "https://podimo.com/account/subscription",
+    "cancelNotes": "Cancel under My Account > Subscription if billed by Podimo; store subscriptions cancel via the store."
   }
 ]

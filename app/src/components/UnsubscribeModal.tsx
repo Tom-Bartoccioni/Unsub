@@ -1,18 +1,33 @@
 import { useMemo } from 'react';
-import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { useCatalog } from '@/lib/catalog';
-import type { CancelDifficulty } from '@/data/catalog';
 import { useT, useTheme } from '@/state/preferences';
 import { radius, spacing, type ColorSet } from '@/theme';
 
+// Store "manage subscriptions" deep links — the canonical, always-correct place
+// to cancel a store-billed subscription (and the ONLY correct place for many:
+// YouTube Premium, Twitch mobile, dating apps…). These never delete the account.
+const APPLE_SUBS_URL = 'https://apps.apple.com/account/subscriptions';
+const PLAY_SUBS_URL = 'https://play.google.com/store/account/subscriptions';
+
+type Action =
+  | { kind: 'web'; url: string }
+  | { kind: 'store' }
+  | { kind: 'both'; url: string }
+  | { kind: 'search' };
+
 // Shown right after a user ghosts (cancels) a subscription: helps them finish
-// the job on the vendor's side. If the catalog knows the service's
-// cancellation page (synced from justdeleteme), we deep-link straight to it and
-// show a difficulty badge; otherwise we fall back to a web search for
-// "how to cancel <provider>".
+// the job on the vendor's side WITHOUT deleting their account.
+//   - web-billed services → deep-link to the real cancel/manage page
+//   - store-billed services → deep-link to the App Store / Play subscriptions
+//     screen (correct for YouTube/Twitch/dating apps; avoids account deletion)
+//   - both → offer the web page + a "cancel in the store if you subscribed
+//     there" note
+//   - unknown → the platform store subscriptions screen (mobile) or a web
+//     search as a last resort
 export function UnsubscribeModal({
   visible,
   provider,
@@ -28,21 +43,36 @@ export function UnsubscribeModal({
   const catalog = useCatalog();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  // Match the ghosted provider against the (possibly API-refreshed) catalog to
-  // pull its cancellation info.
   const match = useMemo(
     () => (provider ? catalog.search(provider, 1)[0] : undefined),
     [provider, catalog],
   );
-  const cancelUrl = match?.cancelUrl;
-  const difficulty = match?.cancelDifficulty as CancelDifficulty | undefined;
+
+  // Resolve what to do from the catalog's billing hint + known cancelUrl.
+  const action: Action = useMemo(() => {
+    const billing = match?.billing;
+    const url = match?.cancelUrl;
+    if (billing === 'web' && url) return { kind: 'web', url };
+    if (billing === 'both' && url) return { kind: 'both', url };
+    if (billing === 'store') return { kind: 'store' };
+    if (url) return { kind: 'web', url }; // curated url without an explicit billing
+    // No curated info: store screen is the safe default on mobile.
+    return Platform.OS === 'ios' || Platform.OS === 'android'
+      ? { kind: 'store' }
+      : { kind: 'search' };
+  }, [match]);
+
   const notes = match?.cancelNotes;
 
-  const openCancelPage = () => {
-    const url = cancelUrl ?? searchUrl(provider);
+  const openUrl = (url: string) => {
     void Linking.openURL(url).catch(() => {});
     onClose();
   };
+
+  const storeUrl = Platform.OS === 'ios' ? APPLE_SUBS_URL : PLAY_SUBS_URL;
+  const openStore = () => openUrl(storeUrl);
+  const openSearch = () =>
+    openUrl(`https://www.google.com/search?q=${encodeURIComponent(`how to cancel ${provider} subscription`)}`);
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
@@ -63,39 +93,66 @@ export function UnsubscribeModal({
             <Text style={styles.subtitle}>{t('unsubscribe.subtitle')}</Text>
           </View>
 
-          {difficulty ? (
-            <View style={[styles.badge, { backgroundColor: difficultyBg(colors, difficulty) }]}>
-              <Ionicons
-                name={difficultyIcon(difficulty)}
-                size={14}
-                color={difficultyFg(colors, difficulty)}
-              />
-              <Text style={[styles.badgeText, { color: difficultyFg(colors, difficulty) }]}>
-                {t(`unsubscribe.difficulty.${difficulty}`)}
+          {/* Store-billed hint so the user understands why we send them to the
+              store rather than a website. */}
+          {(action.kind === 'store' || action.kind === 'both') && (
+            <View style={styles.infoBox}>
+              <Ionicons name="information-circle-outline" size={16} color={colors.accentBlue} />
+              <Text style={styles.infoText}>
+                {Platform.OS === 'ios'
+                  ? t('unsubscribe.storeHintApple')
+                  : t('unsubscribe.storeHintPlay')}
               </Text>
             </View>
-          ) : null}
+          )}
 
           {notes ? <Text style={styles.notes}>{notes}</Text> : null}
 
-          <Pressable
-            style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
-            onPress={openCancelPage}
-          >
-            <Ionicons name="open-outline" size={18} color={colors.bg} />
-            <Text style={styles.primaryButtonText}>
-              {cancelUrl ? t('unsubscribe.openCancelPage') : t('unsubscribe.searchHow')}
-            </Text>
-          </Pressable>
-
-          {cancelUrl ? (
-            <Text style={styles.hint}>{t('unsubscribe.linkHint')}</Text>
-          ) : (
-            <Text style={styles.hint}>{t('unsubscribe.noLinkHint')}</Text>
+          {/* Primary action depends on billing type. */}
+          {action.kind === 'web' && (
+            <PrimaryButton
+              icon="open-outline"
+              label={t('unsubscribe.openCancelPage')}
+              onPress={() => openUrl(action.url)}
+              styles={styles}
+              colors={colors}
+            />
+          )}
+          {action.kind === 'store' && (
+            <PrimaryButton
+              icon={Platform.OS === 'ios' ? 'logo-apple' : 'logo-google-playstore'}
+              label={t('unsubscribe.openStore')}
+              onPress={openStore}
+              styles={styles}
+              colors={colors}
+            />
+          )}
+          {action.kind === 'both' && (
+            <>
+              <PrimaryButton
+                icon="open-outline"
+                label={t('unsubscribe.openCancelPage')}
+                onPress={() => openUrl(action.url)}
+                styles={styles}
+                colors={colors}
+              />
+              <Pressable style={styles.secondaryButton} onPress={openStore}>
+                <Text style={styles.secondaryButtonText}>{t('unsubscribe.orCancelInStore')}</Text>
+              </Pressable>
+            </>
+          )}
+          {action.kind === 'search' && (
+            <PrimaryButton
+              icon="search-outline"
+              label={t('unsubscribe.searchHow')}
+              onPress={openSearch}
+              styles={styles}
+              colors={colors}
+            />
           )}
 
-          <Pressable style={styles.secondaryButton} onPress={onClose}>
-            <Text style={styles.secondaryButtonText}>{t('unsubscribe.doneLater')}</Text>
+          <Pressable style={styles.dismissButton} onPress={onClose}>
+            <Text style={styles.dismissText}>{t('unsubscribe.doneLater')}</Text>
           </Pressable>
         </View>
       </View>
@@ -103,36 +160,28 @@ export function UnsubscribeModal({
   );
 }
 
-function searchUrl(provider: string): string {
-  const q = encodeURIComponent(`how to cancel ${provider} subscription`);
-  return `https://www.google.com/search?q=${q}`;
-}
-
-function difficultyIcon(d: CancelDifficulty): keyof typeof Ionicons.glyphMap {
-  switch (d) {
-    case 'easy':
-      return 'checkmark-circle-outline';
-    case 'medium':
-      return 'alert-circle-outline';
-    case 'hard':
-      return 'warning-outline';
-    case 'impossible':
-      return 'close-circle-outline';
-  }
-}
-
-function difficultyFg(colors: ColorSet, d: CancelDifficulty): string {
-  if (d === 'easy') return colors.success;
-  if (d === 'medium') return colors.warning;
-  return colors.danger;
-}
-
-// Soft tinted pill background. Only dangerSoft exists in the theme, so derive
-// the easy/medium tints from the foreground color at low opacity (hex alpha) —
-// reads correctly on both light and dark themes.
-function difficultyBg(colors: ColorSet, d: CancelDifficulty): string {
-  if (d === 'hard' || d === 'impossible') return colors.dangerSoft;
-  return `${difficultyFg(colors, d)}22`;
+function PrimaryButton({
+  icon,
+  label,
+  onPress,
+  styles,
+  colors,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  styles: ReturnType<typeof makeStyles>;
+  colors: ColorSet;
+}) {
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+      onPress={onPress}
+    >
+      <Ionicons name={icon} size={18} color={colors.bg} />
+      <Text style={styles.primaryButtonText}>{label}</Text>
+    </Pressable>
+  );
 }
 
 function makeStyles(colors: ColorSet) {
@@ -162,32 +211,23 @@ function makeStyles(colors: ColorSet) {
       textAlign: 'center',
       marginTop: spacing.xs,
     },
-    subtitle: {
-      color: colors.textTertiary,
-      fontSize: 13,
-      textAlign: 'center',
-      lineHeight: 18,
-    },
-    badge: {
-      alignSelf: 'center',
+    subtitle: { color: colors.textTertiary, fontSize: 13, textAlign: 'center', lineHeight: 18 },
+    infoBox: {
       flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      paddingHorizontal: spacing.md,
-      paddingVertical: 6,
-      borderRadius: radius.pill,
-    },
-    badgeText: { fontSize: 12, fontWeight: '700' },
-    notes: {
-      color: colors.textSecondary,
-      fontSize: 13,
-      lineHeight: 19,
-      textAlign: 'center',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
       backgroundColor: colors.card,
       borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: spacing.md,
+    },
+    infoText: { flex: 1, color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+    notes: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      lineHeight: 19,
+      textAlign: 'center',
     },
     primaryButton: {
       flexDirection: 'row',
@@ -201,8 +241,9 @@ function makeStyles(colors: ColorSet) {
     },
     primaryButtonText: { color: colors.bg, fontSize: 16, fontWeight: '700' },
     pressed: { opacity: 0.85 },
-    hint: { color: colors.textTertiary, fontSize: 11, textAlign: 'center' },
     secondaryButton: { paddingVertical: spacing.sm, alignItems: 'center' },
-    secondaryButtonText: { color: colors.textTertiary, fontSize: 14, fontWeight: '600' },
+    secondaryButtonText: { color: colors.accentBlue, fontSize: 14, fontWeight: '600' },
+    dismissButton: { paddingVertical: spacing.sm, alignItems: 'center' },
+    dismissText: { color: colors.textTertiary, fontSize: 14, fontWeight: '600' },
   });
 }

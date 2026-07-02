@@ -106,16 +106,14 @@ export const es = {
     subtitle:
       'Aquí lo marcamos como cancelado. Termina la cancelación en su web para que no te cobren de nuevo.',
     openCancelPage: 'Abrir página de cancelación',
+    openStore: 'Gestionar en la tienda',
+    orCancelInStore: 'O cancelar en la tienda',
     searchHow: 'Buscar cómo cancelar',
-    linkHint: 'Abre la página de cancelación del servicio en tu navegador.',
-    noLinkHint: 'No tenemos un enlace directo para este — esto busca en la web.',
+    storeHintApple:
+      'Este suele facturarse a través de la App Store — cancélalo desde tus suscripciones de Apple.',
+    storeHintPlay:
+      'Este suele facturarse a través de Google Play — cancélalo desde tus suscripciones de Play.',
     doneLater: 'Lo haré más tarde',
-    difficulty: {
-      easy: 'Fácil de cancelar',
-      medium: 'Unos pasos',
-      hard: 'Difícil de cancelar',
-      impossible: 'Muy difícil de cancelar',
-    },
   },
   reactivate: {
     title: 'Reactivar {{provider}}',
