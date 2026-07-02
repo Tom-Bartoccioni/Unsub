@@ -101,6 +101,22 @@ export const it = {
     failedUpdate: 'Aggiornamento non riuscito',
     failedDelete: 'Eliminazione non riuscita',
   },
+  unsubscribe: {
+    title: 'Disdici {{provider}}',
+    subtitle:
+      'Qui l’abbiamo segnato come disdetto. Completa la disdetta sul loro sito per non essere più addebitato.',
+    openCancelPage: 'Apri pagina di disdetta',
+    searchHow: 'Trova come disdire',
+    linkHint: 'Apre la pagina di disdetta del servizio nel browser.',
+    noLinkHint: 'Non abbiamo un link diretto per questo — questo cerca sul web.',
+    doneLater: 'Lo farò più tardi',
+    difficulty: {
+      easy: 'Facile da disdire',
+      medium: 'Pochi passaggi',
+      hard: 'Difficile da disdire',
+      impossible: 'Molto difficile da disdire',
+    },
+  },
   settings: {
     title: 'Impostazioni',
     appearance: 'Aspetto',

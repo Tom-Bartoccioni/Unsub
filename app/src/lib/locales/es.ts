@@ -101,6 +101,22 @@ export const es = {
     failedUpdate: 'Error al actualizar',
     failedDelete: 'Error al eliminar',
   },
+  unsubscribe: {
+    title: 'Cancelar {{provider}}',
+    subtitle:
+      'Aquí lo marcamos como cancelado. Termina la cancelación en su web para que no te cobren de nuevo.',
+    openCancelPage: 'Abrir página de cancelación',
+    searchHow: 'Buscar cómo cancelar',
+    linkHint: 'Abre la página de cancelación del servicio en tu navegador.',
+    noLinkHint: 'No tenemos un enlace directo para este — esto busca en la web.',
+    doneLater: 'Lo haré más tarde',
+    difficulty: {
+      easy: 'Fácil de cancelar',
+      medium: 'Unos pasos',
+      hard: 'Difícil de cancelar',
+      impossible: 'Muy difícil de cancelar',
+    },
+  },
   settings: {
     title: 'Ajustes',
     appearance: 'Apariencia',

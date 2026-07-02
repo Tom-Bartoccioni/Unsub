@@ -100,6 +100,21 @@ export const en = {
     failedUpdate: 'Failed to update',
     failedDelete: 'Failed to delete',
   },
+  unsubscribe: {
+    title: 'Cancel {{provider}}',
+    subtitle: 'We marked it as ghosted here. Finish cancelling on their side so you’re not charged again.',
+    openCancelPage: 'Open cancellation page',
+    searchHow: 'Find how to cancel',
+    linkHint: 'Opens the service’s cancellation page in your browser.',
+    noLinkHint: 'We don’t have a direct link for this one — this searches the web.',
+    doneLater: 'I’ll do it later',
+    difficulty: {
+      easy: 'Easy to cancel',
+      medium: 'A few steps',
+      hard: 'Hard to cancel',
+      impossible: 'Very hard to cancel',
+    },
+  },
   settings: {
     title: 'Settings',
     appearance: 'Appearance',

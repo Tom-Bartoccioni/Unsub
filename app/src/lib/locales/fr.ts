@@ -100,6 +100,22 @@ export const fr = {
     failedUpdate: 'Échec de la mise à jour',
     failedDelete: 'Échec de la suppression',
   },
+  unsubscribe: {
+    title: 'Résilier {{provider}}',
+    subtitle:
+      'C’est marqué comme résilié ici. Termine la résiliation chez eux pour ne plus être débité.',
+    openCancelPage: 'Ouvrir la page de résiliation',
+    searchHow: 'Trouver comment résilier',
+    linkHint: 'Ouvre la page de résiliation du service dans ton navigateur.',
+    noLinkHint: 'Nous n’avons pas de lien direct pour celui-ci — ceci lance une recherche web.',
+    doneLater: 'Je le ferai plus tard',
+    difficulty: {
+      easy: 'Facile à résilier',
+      medium: 'Quelques étapes',
+      hard: 'Difficile à résilier',
+      impossible: 'Très difficile à résilier',
+    },
+  },
   settings: {
     title: 'Réglages',
     appearance: 'Apparence',
