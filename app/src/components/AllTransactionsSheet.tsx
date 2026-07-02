@@ -42,7 +42,11 @@ export function AllTransactionsSheet({
           accessibilityLabel={t('common.close')}
         />
         <View style={styles.sheet}>
-          <View style={styles.header}>
+          {/* insets.top is applied inline (a runtime value) on top of the
+              static header padding so the back button clears the status bar /
+              notch. Padding the header — not the sheet container — keeps the
+              sheet's rounded top corners visible. */}
+          <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
             <Pressable onPress={onClose} hitSlop={8} style={styles.headerButton}>
               <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
             </Pressable>

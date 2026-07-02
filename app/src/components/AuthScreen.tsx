@@ -5,9 +5,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,6 +59,7 @@ function makeCopy(
 
 export function AuthScreen({ mode }: { mode: Mode }) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { t } = useT();
   const styles = useMemo(() => makeStyles(), []);
   const { signIn, signUp, signInWithGoogle } = useAuth();
@@ -103,12 +106,25 @@ export function AuthScreen({ mode }: { mode: Mode }) {
     };
   }, [kb]);
 
-  // Resting logo geometry (matches the dashboard donut sizing); collapses to a
-  // compact mark when the keyboard is open. The smaller negative bottom margin
-  // in the open state opens up breathing room between the logo and the title.
-  const logoSize = kb.interpolate({ inputRange: [0, 1], outputRange: [600, 360] });
-  const logoMarginTop = kb.interpolate({ inputRange: [0, 1], outputRange: [-143, -110] });
-  const logoMarginBottom = kb.interpolate({ inputRange: [0, 1], outputRange: [-172, -90] });
+  // Resting logo geometry, sized from the screen width so it never overflows a
+  // narrow phone nor stays tiny on a wide one (was a fixed 600px tuned to one
+  // device). The PNG has generous transparent padding, so negative margins crop
+  // it to the glyph — those margins are expressed as a fraction of the current
+  // logo size (the original 600px used -143 top / -172 bottom ≈ -0.24 / -0.29)
+  // so the crop ratio holds at every size. Collapses to a compact mark when the
+  // keyboard is open, with a lighter bottom crop for breathing room above the
+  // title. Capped so huge tablets don't get an absurd hero.
+  const restSize = Math.min(width * 1.4, 600);
+  const openSize = Math.min(width * 0.85, 360);
+  const logoSize = kb.interpolate({ inputRange: [0, 1], outputRange: [restSize, openSize] });
+  const logoMarginTop = kb.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-restSize * 0.24, -openSize * 0.3],
+  });
+  const logoMarginBottom = kb.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-restSize * 0.29, -openSize * 0.25],
+  });
 
   // Manual password masking. Some IMEs (Huawei's) break the native
   // secureTextEntry "brief last-char reveal" so that only the first character
@@ -198,20 +214,25 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       // without any avoidance behavior.
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View
-        style={[
+      <ScrollView
+        style={styles.root}
+        contentContainerStyle={[
           styles.body,
           // Centered while idle; top-anchored once the keyboard is up so the
           // form rides high on screen instead of being pushed against the
-          // keyboard. Top inset keeps the logo clear of the status bar; bottom
-          // inset clears the system gesture/nav bar so the "Sign Up" link isn't
-          // covered (and content draws edge-to-edge, no grey strip).
+          // keyboard. On short screens / large font scale the content exceeds
+          // the viewport and the ScrollView lets the user reach the bottom
+          // "Sign Up" link instead of it being clipped. Top inset keeps the
+          // logo clear of the status bar; bottom inset clears the system
+          // gesture/nav bar (content draws edge-to-edge, no grey strip).
           {
             justifyContent: keyboardOpen ? 'flex-start' : 'center',
             paddingTop: insets.top + (keyboardOpen ? spacing.xl : 0),
             paddingBottom: spacing.lg + insets.bottom,
           },
         ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
           <Animated.Image
@@ -319,7 +340,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             </Pressable>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -379,10 +400,13 @@ function humanizeAuthError(e: unknown, mode: Mode, t: TFn): string {
 function makeStyles() {
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: ink.bg },
-    // Fixed (non-scrolling) layout. The card is centered; the logo shrinks
-    // when the keyboard is up so everything stays on screen.
+    // ScrollView content container. flexGrow:1 lets the card center vertically
+    // when the content is shorter than the viewport (justifyContent kicks in),
+    // while still allowing the container to grow taller than the screen so it
+    // scrolls on short phones / large font scale. The logo also shrinks when
+    // the keyboard is up so everything usually stays on screen without scroll.
     body: {
-      flex: 1,
+      flexGrow: 1,
       paddingHorizontal: spacing.xl,
     },
     card: { width: '100%', maxWidth: 400, alignSelf: 'center', gap: spacing.lg },
@@ -403,7 +427,10 @@ function makeStyles() {
       borderColor: ink.fieldBorder,
       borderRadius: radius.pill,
       paddingHorizontal: spacing.lg,
-      height: 54,
+      // minHeight (not height) so the row grows instead of clipping glyphs when
+      // the user's font scale is large.
+      minHeight: 54,
+      paddingVertical: spacing.xs,
     },
     fieldInput: {
       flex: 1,
@@ -418,7 +445,8 @@ function makeStyles() {
     error: { color: ink.danger, fontSize: 13 },
     primaryButton: {
       backgroundColor: ink.white,
-      height: 54,
+      minHeight: 54,
+      paddingVertical: spacing.sm,
       borderRadius: radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
@@ -437,7 +465,8 @@ function makeStyles() {
       backgroundColor: ink.field,
       borderWidth: 1,
       borderColor: ink.fieldBorder,
-      height: 54,
+      minHeight: 54,
+      paddingVertical: spacing.sm,
       borderRadius: radius.pill,
     },
     socialButtonText: { color: ink.textPrimary, fontSize: 15, fontWeight: '600' },

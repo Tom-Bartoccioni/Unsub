@@ -279,7 +279,13 @@ function StatCard({
 }) {
   return (
     <View style={[styles.statCard, small && styles.statCardSmall]}>
-      <Text style={[styles.statValue, small && styles.statValueSmall, { color: accent }]}>
+      {/* Money amounts can be long ("1 234,56 CHF"); shrink to fit rather than
+          overflow the card on narrow phones or under large font scale. */}
+      <Text
+        style={[styles.statValue, small && styles.statValueSmall, { color: accent }]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
         {value}
       </Text>
       <Text style={styles.statLabel}>{label}</Text>

@@ -190,7 +190,15 @@ export function SubscriptionDetailModal({
 
             <View style={styles.nextPaymentCard}>
               <Text style={styles.nextPaymentLabel}>{t('detail.nextPayment')}</Text>
-              <Text style={styles.nextPaymentAmount}>−{formatPrice(sub.amount, sub.currency)}</Text>
+              {/* Large hero amount — shrink to fit so a long value ("1 234,56
+                  CHF") never overflows the card on narrow phones. */}
+              <Text
+                style={styles.nextPaymentAmount}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                −{formatPrice(sub.amount, sub.currency)}
+              </Text>
               <Text style={styles.nextPaymentDate}>
                 {sub.nextRenewalDate
                   ? t('detail.expected', { date: fmtLongDate(sub.nextRenewalDate) })

@@ -52,7 +52,9 @@ export function SubscriptionCard({
         </Text>
       </View>
       <View style={styles.priceCol}>
-        <Text style={styles.price}>{formatPrice(sub.amount, sub.currency)}</Text>
+        <Text style={styles.price} numberOfLines={1}>
+          {formatPrice(sub.amount, sub.currency)}
+        </Text>
         <Text style={styles.cycle}>/ {frequencyLabel(sub.frequency)}</Text>
       </View>
     </Pressable>
@@ -79,7 +81,10 @@ function makeStyles(colors: ColorSet) {
     subtitle: { fontSize: 12, color: colors.textTertiary },
     trialTag: { color: colors.warning, fontWeight: '600' },
     ghostTag: { color: colors.danger, fontWeight: '600' },
-    priceCol: { alignItems: 'flex-end' },
+    // Keep the price column at its natural width so a long amount never gets
+    // clipped by the flexible body; the body (flex:1, title numberOfLines={1})
+    // yields horizontal space instead.
+    priceCol: { alignItems: 'flex-end', flexShrink: 0 },
     price: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
     cycle: { fontSize: 11, color: colors.textTertiary },
   });

@@ -242,7 +242,11 @@ function makeStyles(colors: ColorSet) {
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
       paddingTop: spacing.sm,
-      height: '85%',
+      // maxHeight (not a fixed height) lets the sheet hug its content and only
+      // grow to 85% of the screen when the ScrollView content is tall enough to
+      // need it. The inner ScrollView isn't flex:1, so it sizes to content and
+      // still scrolls once the sheet is capped at maxHeight.
+      maxHeight: '85%',
     },
     header: {
       flexDirection: 'row',
@@ -277,7 +281,7 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'space-between',
       gap: spacing.md,
     },
-    rowLabel: { color: colors.textPrimary, fontSize: 14, fontWeight: '500' },
+    rowLabel: { color: colors.textPrimary, fontSize: 14, fontWeight: '500', flexShrink: 1 },
     subtle: { color: colors.textTertiary, fontSize: 12 },
     notifError: { color: colors.danger, fontSize: 12, marginTop: 4 },
     segmented: {

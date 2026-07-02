@@ -1,5 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
@@ -177,7 +187,13 @@ export function AddSubscriptionWizard({
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={close}>
-      <View style={styles.modalRoot}>
+      <KeyboardAvoidingView
+        style={styles.modalRoot}
+        // Lift the sheet above the keyboard on iOS; Android resizes the window
+        // itself (softwareKeyboardLayoutMode 'resize'), and the step bodies now
+        // scroll, so no avoidance behavior is needed there.
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <Pressable
           style={StyleSheet.absoluteFillObject}
           onPress={close}
@@ -256,7 +272,7 @@ export function AddSubscriptionWizard({
             />
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -470,10 +486,15 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>{t('wizard.step2Title')}</Text>
-      <Text style={styles.stepSubtitle}>{t('wizard.step2Subtitle')}</Text>
+      <ScrollView
+        contentContainerStyle={styles.stepScroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.stepTitle}>{t('wizard.step2Title')}</Text>
+        <Text style={styles.stepSubtitle}>{t('wizard.step2Subtitle')}</Text>
 
-      <View style={styles.amountRow}>
+        <View style={styles.amountRow}>
         <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
           <Ionicons name="remove" size={24} color={colors.textPrimary} />
         </Pressable>
@@ -524,25 +545,25 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         </Pressable>
       </View>
 
-      <Text style={styles.amountSectionLabel}>{t('wizard.commonPrices')}</Text>
-      <View style={styles.presetRow}>
-        {AMOUNT_PRESETS.map((p) => {
-          const active = !editing && Math.abs(draft.amount - p) < 0.005;
-          return (
-            <Pressable
-              key={p}
-              style={[styles.preset, active && styles.presetActive]}
-              onPress={() => pickPreset(p)}
-            >
-              <Text style={[styles.presetText, active && styles.presetTextActive]}>
-                {formatPrice(p, draft.currency)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+        <Text style={styles.amountSectionLabel}>{t('wizard.commonPrices')}</Text>
+        <View style={styles.presetRow}>
+          {AMOUNT_PRESETS.map((p) => {
+            const active = !editing && Math.abs(draft.amount - p) < 0.005;
+            return (
+              <Pressable
+                key={p}
+                style={[styles.preset, active && styles.presetActive]}
+                onPress={() => pickPreset(p)}
+              >
+                <Text style={[styles.presetText, active && styles.presetTextActive]}>
+                  {formatPrice(p, draft.currency)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
 
-      <View style={{ flex: 1 }} />
       <PrimaryButton
         label={t('common.continue')}
         onPress={() => {
@@ -584,46 +605,51 @@ function DateStep({ draft, setDraft, onNext, styles }: StepProps) {
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>{t('wizard.step3Title')}</Text>
-      <Text style={styles.stepSubtitle}>{t('wizard.step3Subtitle')}</Text>
+      <ScrollView
+        contentContainerStyle={styles.stepScroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.stepTitle}>{t('wizard.step3Title')}</Text>
+        <Text style={styles.stepSubtitle}>{t('wizard.step3Subtitle')}</Text>
 
-      <View style={styles.wheelRow}>
-        <WheelPicker
-          values={MONTHS.map((label, i) => ({ label, value: i }))}
-          selected={d.getMonth()}
-          onChange={(v) => setPart('m', v)}
-        />
-        <WheelPicker
-          values={days.map((n) => ({ label: String(n), value: n }))}
-          selected={d.getDate()}
-          onChange={(v) => setPart('d', v)}
-        />
-        <WheelPicker
-          values={years.map((n) => ({ label: String(n), value: n }))}
-          selected={d.getFullYear()}
-          onChange={(v) => setPart('y', v)}
-        />
-      </View>
+        <View style={styles.wheelRow}>
+          <WheelPicker
+            values={MONTHS.map((label, i) => ({ label, value: i }))}
+            selected={d.getMonth()}
+            onChange={(v) => setPart('m', v)}
+          />
+          <WheelPicker
+            values={days.map((n) => ({ label: String(n), value: n }))}
+            selected={d.getDate()}
+            onChange={(v) => setPart('d', v)}
+          />
+          <WheelPicker
+            values={years.map((n) => ({ label: String(n), value: n }))}
+            selected={d.getFullYear()}
+            onChange={(v) => setPart('y', v)}
+          />
+        </View>
 
-      <Text style={styles.amountSectionLabel}>{t('wizard.billedEvery')}</Text>
-      <View style={styles.freqRow}>
-        {FREQUENCIES.map((f) => {
-          const active = draft.frequency === f.value;
-          return (
-            <Pressable
-              key={f.value}
-              style={[styles.freqPill, active && styles.freqPillActive]}
-              onPress={() => setDraft((dd) => ({ ...dd, frequency: f.value }))}
-            >
-              <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
-                {t(f.labelKey)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+        <Text style={styles.amountSectionLabel}>{t('wizard.billedEvery')}</Text>
+        <View style={styles.freqRow}>
+          {FREQUENCIES.map((f) => {
+            const active = draft.frequency === f.value;
+            return (
+              <Pressable
+                key={f.value}
+                style={[styles.freqPill, active && styles.freqPillActive]}
+                onPress={() => setDraft((dd) => ({ ...dd, frequency: f.value }))}
+              >
+                <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
+                  {t(f.labelKey)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
 
-      <View style={{ flex: 1 }} />
       <PrimaryButton label={t('common.continue')} onPress={onNext} styles={styles} />
     </View>
   );
@@ -697,37 +723,41 @@ function StartedStep({
 
   return (
     <View style={styles.stepBody}>
-      <Text style={styles.stepTitle}>{t('wizard.step4Title')}</Text>
-      <Text style={styles.stepSubtitle}>{t('wizard.step4Subtitle')}</Text>
+      <ScrollView
+        contentContainerStyle={styles.stepScroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.stepTitle}>{t('wizard.step4Title')}</Text>
+        <Text style={styles.stepSubtitle}>{t('wizard.step4Subtitle')}</Text>
 
-      <View style={styles.startedPreview}>
-        <Text style={styles.startedPreviewDate}>{preview}</Text>
-        <Text style={styles.startedPreviewMeta}>
-          {cycles === 0 ? t('wizard.noPastPayments') : t('wizard.pastPayments', { count: cycles })}
-        </Text>
-      </View>
+        <View style={styles.startedPreview}>
+          <Text style={styles.startedPreviewDate}>{preview}</Text>
+          <Text style={styles.startedPreviewMeta}>
+            {cycles === 0 ? t('wizard.noPastPayments') : t('wizard.pastPayments', { count: cycles })}
+          </Text>
+        </View>
 
-      <View style={styles.wheelRow}>
-        <WheelPicker
-          values={MONTHS.map((label, i) => ({ label, value: i }))}
-          selected={value.getMonth()}
-          onChange={(v) => setPart('m', v)}
-        />
-        <WheelPicker
-          values={days.map((n) => ({ label: String(n), value: n }))}
-          selected={value.getDate()}
-          onChange={(v) => setPart('d', v)}
-        />
-        <WheelPicker
-          values={years.map((n) => ({ label: String(n), value: n }))}
-          selected={value.getFullYear()}
-          onChange={(v) => setPart('y', v)}
-        />
-      </View>
+        <View style={styles.wheelRow}>
+          <WheelPicker
+            values={MONTHS.map((label, i) => ({ label, value: i }))}
+            selected={value.getMonth()}
+            onChange={(v) => setPart('m', v)}
+          />
+          <WheelPicker
+            values={days.map((n) => ({ label: String(n), value: n }))}
+            selected={value.getDate()}
+            onChange={(v) => setPart('d', v)}
+          />
+          <WheelPicker
+            values={years.map((n) => ({ label: String(n), value: n }))}
+            selected={value.getFullYear()}
+            onChange={(v) => setPart('y', v)}
+          />
+        </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <View style={{ flex: 1 }} />
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </ScrollView>
 
       {duplicate && !duplicateConfirmed ? (
         <View style={styles.warningBox}>
@@ -828,7 +858,13 @@ function makeStyles(colors: ColorSet) {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.md,
       paddingBottom: spacing.xl,
-      height: '88%',
+      // Was a hard height:'88%'. maxHeight lets the sheet hug shorter steps
+      // and shrink under the keyboard (flexShrink) while still capping tall
+      // steps; the step bodies scroll internally past this cap. minHeight
+      // keeps the wheel-picker steps from collapsing awkwardly on tall screens.
+      maxHeight: '92%',
+      minHeight: '60%',
+      flexShrink: 1,
     },
     header: {
       flexDirection: 'row',
@@ -846,6 +882,13 @@ function makeStyles(colors: ColorSet) {
     },
     progressDotActive: { backgroundColor: colors.textPrimary },
     stepBody: { flex: 1, gap: spacing.xs, paddingTop: spacing.sm },
+    // Inner scroll container for steps whose content (triple wheel pickers +
+    // preview + pills) can exceed a short screen or grow under a large font
+    // scale. The step's primary CTA sits OUTSIDE this ScrollView so it stays
+    // pinned at the bottom and reachable; only the middle content scrolls.
+    // flexGrow:1 lets the content fill the space when it's short (so the CTA
+    // still sits at the bottom) yet grow taller and scroll when it isn't.
+    stepScroll: { flexGrow: 1, gap: spacing.xs, paddingBottom: spacing.md },
     stepTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 },
     stepSubtitle: { color: colors.textTertiary, fontSize: 14, marginBottom: spacing.sm },
 

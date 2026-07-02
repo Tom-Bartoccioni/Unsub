@@ -122,7 +122,16 @@ export function WheelPicker<T = number>({
       >
         {values.map((v, i) => (
           <View key={`${String(v.value)}-${i}`} style={styles.item}>
-            <Text style={[styles.itemText, i === selectedIndex && styles.itemTextActive]}>
+            {/* allowFontScaling disabled on purpose: the snap math and every
+                offset (scrollToIndex, contentOffset, snapToInterval) is keyed
+                to the fixed ITEM_HEIGHT rows. Letting the label grow with the
+                OS font scale would overflow its row and desync the centered
+                selection from the highlight. 16–18px stays legible. */}
+            <Text
+              allowFontScaling={false}
+              numberOfLines={1}
+              style={[styles.itemText, i === selectedIndex && styles.itemTextActive]}
+            >
               {v.label}
             </Text>
           </View>

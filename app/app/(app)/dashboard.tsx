@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
@@ -57,7 +65,15 @@ export default function Dashboard() {
   const colors = useTheme();
   const { t } = useT();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+
+  // Size the donut to the screen so it never overflows on a narrow phone.
+  // It sits directly in the scroll content (paddingHorizontal: spacing.lg)
+  // with no card around it, so the available width is the screen minus that
+  // padding on both sides. Clamp to 260 so it doesn't balloon on wide
+  // screens and stays close to the previous fixed 240.
+  const donutSize = Math.min(width - spacing.lg * 2, 260);
 
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -225,6 +241,7 @@ export default function Dashboard() {
           {splashDone ? (
             <Donut
               segments={segments}
+              size={donutSize}
               selectedKey={selectedCategory}
               onSelect={setSelectedCategory}
             >
@@ -234,7 +251,7 @@ export default function Dashboard() {
                 styles={styles}
               />
               <View style={styles.donutLabelBelow}>
-                <Text style={styles.donutLabel}>
+                <Text style={styles.donutLabel} numberOfLines={1} adjustsFontSizeToFit>
                   {selectedSegment ? selectedSegment.key : t('dashboard.monthlyCost')}
                 </Text>
               </View>
@@ -251,7 +268,9 @@ export default function Dashboard() {
                 styles={styles}
               />
               <View style={styles.donutLabelBelow}>
-                <Text style={styles.donutLabel}>{t('dashboard.monthlyCost')}</Text>
+                <Text style={styles.donutLabel} numberOfLines={1} adjustsFontSizeToFit>
+                  {t('dashboard.monthlyCost')}
+                </Text>
               </View>
             </LoadingDonut>
           )}
@@ -283,7 +302,7 @@ export default function Dashboard() {
             <View style={styles.summaryCard}>
               <Text style={styles.summaryLabel}>{t('dashboard.next7Days')}</Text>
               <View style={styles.summaryValueRow}>
-                <Text style={styles.summaryValue}>
+                <Text style={styles.summaryValue} numberOfLines={1} adjustsFontSizeToFit>
                   {upcoming.count === 0 ? '—' : formatPrice(upcoming.total, prefs.displayCurrency)}
                 </Text>
                 {upcoming.count > 0 ? <AvatarStack subs={upcoming.items} /> : null}
@@ -296,7 +315,7 @@ export default function Dashboard() {
             </View>
             <View style={styles.summaryCard}>
               <Text style={styles.summaryLabel}>{t('dashboard.yearly')}</Text>
-              <Text style={styles.summaryValue}>
+              <Text style={styles.summaryValue} numberOfLines={1} adjustsFontSizeToFit>
                 {formatPrice(annualTotal, prefs.displayCurrency)}
               </Text>
               <Text style={styles.summaryHint}>{t('dashboard.atCurrentPace')}</Text>
@@ -424,8 +443,15 @@ function DecimalCenteredPrice({
   }
   return (
     <View style={styles.priceRow}>
-      <Text style={styles.donutValue}>{digits}</Text>
-      <Text style={styles.donutSymbol}>{symbol}</Text>
+      {/* A long total (e.g. "1 234,56") at fontSize 32 can overflow the
+          donut's inner box, so let it shrink to fit on one line rather
+          than clip or wrap. */}
+      <Text style={styles.donutValue} numberOfLines={1} adjustsFontSizeToFit>
+        {digits}
+      </Text>
+      <Text style={styles.donutSymbol} numberOfLines={1} adjustsFontSizeToFit>
+        {symbol}
+      </Text>
     </View>
   );
 }
@@ -598,7 +624,10 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'space-between',
       gap: spacing.sm,
     },
-    summaryValue: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
+    // flexShrink so a long total yields to the sibling avatar stack in
+    // summaryValueRow instead of pushing it off the 140px-wide card on a
+    // narrow (320dp) phone; adjustsFontSizeToFit then shrinks the text.
+    summaryValue: { color: colors.textPrimary, fontSize: 18, fontWeight: '700', flexShrink: 1 },
     summaryHint: { color: colors.textTertiary, fontSize: 11 },
     subsCountLabel: {
       color: colors.textTertiary,
