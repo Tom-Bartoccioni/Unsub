@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "kill-port 3000 && tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/db/migrate.js && node dist/index.js",
+    "build": "tsc && node scripts/copy-assets.mjs",
+    "start": "node dist/db/migrate.js && node dist/db/seed-catalog.js && node dist/index.js",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -15,8 +15,11 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed-catalog": "tsx src/db/seed-catalog.ts",
+    "build:catalog-seed": "tsx scripts/build-catalog-seed.ts",
     "rollover": "tsx src/jobs/rollover.ts",
     "notify-renewals": "tsx src/jobs/notify-renewals.ts",
+    "sync-cancellations": "tsx src/jobs/sync-cancellations.ts",
     "backfill:recent-events": "tsx src/jobs/backfill-recent-events.ts"
   },
   "dependencies": {

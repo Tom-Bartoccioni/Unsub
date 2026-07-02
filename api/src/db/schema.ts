@@ -1,4 +1,14 @@
-import { index, integer, pgTable, real, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -134,3 +144,51 @@ export const paymentEvents = pgTable(
 
 export type PaymentEventRow = typeof paymentEvents.$inferSelect;
 export type PaymentEventInsert = typeof paymentEvents.$inferInsert;
+
+// The vendor catalog served to the app (GET /catalog). Seeded from the app's
+// bundled catalog (app/src/data/catalog via scripts/build-catalog-seed), then
+// kept fresh in place: prices editable without an app release, and the
+// cancellation columns refreshed by the justdeleteme sync job. The app pulls
+// this at startup and caches it, falling back to its bundled copy offline.
+export type CatalogPlan = {
+  name: string;
+  amount: number;
+  currency: string;
+  frequency: 'monthly' | 'yearly' | 'weekly';
+  default?: boolean;
+};
+
+export const catalogServices = pgTable(
+  'catalog_services',
+  {
+    // Matches the app catalog's stable kebab-case id (natural PK).
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    // Lowercase search/match tokens.
+    aliases: jsonb('aliases').$type<string[]>().notNull().default([]),
+    domain: text('domain').notNull(),
+    category: text('category').notNull(),
+    brandColor: text('brand_color'),
+    // Array of pricing plans (native currency each). JSONB so the shape stays
+    // in lockstep with the app's CatalogPlan without extra tables.
+    plans: jsonb('plans').$type<CatalogPlan[]>().notNull(),
+    // Year-month the prices were last verified, e.g. '2026-07'.
+    pricesUpdatedAt: text('prices_updated_at').notNull(),
+    // --- Cancellation info (synced from justdeleteme by a cron job) ---
+    cancelUrl: text('cancel_url'),
+    cancelDifficulty: text('cancel_difficulty'),
+    cancelNotes: text('cancel_notes'),
+    // When the justdeleteme sync last touched this row's cancel* fields.
+    cancelSyncedAt: timestamp('cancel_synced_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('catalog_services_category_idx').on(t.category),
+    // Domain drives the justdeleteme match; index it for the sync job.
+    index('catalog_services_domain_idx').on(t.domain),
+  ],
+);
+
+export type CatalogServiceRow = typeof catalogServices.$inferSelect;
+export type CatalogServiceInsert = typeof catalogServices.$inferInsert;

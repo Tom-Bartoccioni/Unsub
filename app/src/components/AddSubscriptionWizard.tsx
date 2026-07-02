@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
 import { SubscriptionCard } from './SubscriptionCard';
 import { WheelPicker } from './WheelPicker';
-import { CATALOG, defaultPlan, searchCatalog, type CatalogService } from '@/data/catalog';
+import { defaultPlan, type CatalogService } from '@/data/catalog';
+import { useCatalog } from '@/lib/catalog';
 import { categoryFor } from '@/lib/categories';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatPrice, SUPPORTED_CURRENCIES } from '@/lib/money';
@@ -341,11 +342,12 @@ function ServiceStep({
 }: StepProps & { trackedKeys: Set<string> }) {
   const colors = useTheme();
   const { t } = useT();
+  const catalog = useCatalog();
   const [search, setSearch] = useState(draft.provider);
 
   const filtered = useMemo(
-    () => (search.trim() ? searchCatalog(search) : CATALOG.slice(0, 40)),
-    [search],
+    () => (search.trim() ? catalog.search(search) : catalog.services.slice(0, 40)),
+    [search, catalog],
   );
 
   const pick = (svc: CatalogService) => {

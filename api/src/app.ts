@@ -8,6 +8,7 @@ import { makeGoogleOAuthRoutes, type OAuthGoogleDeps } from './routes/oauth-goog
 import { makeScanRoutes, type ScanRouteDeps } from './routes/scan.js';
 import { makeSubscriptionsRoutes, type SubscriptionsRouteDeps } from './routes/subscriptions.js';
 import { makeAdminRoutes, type AdminRouteDeps } from './routes/admin.js';
+import { makeCatalogRoutes, type CatalogRouteDeps } from './routes/catalog.js';
 import type { TokenVerifier } from './firebase.js';
 import type { UserStore } from './db/users.js';
 
@@ -20,6 +21,7 @@ export type BuildOptions = {
   subscriptions?: SubscriptionsRouteDeps;
   admin?: AdminRouteDeps;
   me?: MeRouteDeps;
+  catalog?: CatalogRouteDeps;
 };
 
 const stubVerifier: TokenVerifier = async () => {
@@ -71,6 +73,9 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   }
   if (opts.admin) {
     await fastify.register(makeAdminRoutes(opts.admin));
+  }
+  if (opts.catalog) {
+    await fastify.register(makeCatalogRoutes(opts.catalog));
   }
 
   return fastify;

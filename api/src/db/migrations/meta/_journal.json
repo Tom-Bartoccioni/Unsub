@@ -64,6 +64,13 @@
       "when": 1782596145196,
       "tag": "0008_add_subscription_cancelled_at",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783009837755,
+      "tag": "0009_powerful_rogue",
+      "breakpoints": true
     }
   ]
 }

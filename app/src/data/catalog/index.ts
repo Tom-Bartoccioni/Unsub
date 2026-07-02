@@ -66,20 +66,12 @@ function buildCatalog(): CatalogService[] {
   }
   if (__DEV__ && dropped.length) {
     // Surface accidental id collisions during development; harmless in prod.
-    // eslint-disable-next-line no-console
     console.warn(`[catalog] dropped ${dropped.length} duplicate ids:`, dropped.join(', '));
   }
   return Array.from(byId.values());
 }
 
 export const CATALOG: CatalogService[] = buildCatalog();
-
-// Fast id lookup.
-const BY_ID = new Map(CATALOG.map((s) => [s.id, s]));
-
-export function catalogById(id: string): CatalogService | undefined {
-  return BY_ID.get(id);
-}
 
 // Normalize a string for search/match: lowercase, strip accents and
 // non-alphanumerics so "Disney+", "disney plus" and "DISNEY" all collide.
@@ -92,30 +84,49 @@ function norm(s: string): string {
     .trim();
 }
 
-// Precomputed haystack per service: normalized name + aliases + id.
-type Indexed = { svc: CatalogService; hay: string; nName: string };
-const INDEX: Indexed[] = CATALOG.map((svc) => ({
-  svc,
-  nName: norm(svc.name),
-  hay: [svc.name, svc.id, ...(svc.aliases ?? [])].map(norm).join(' '),
-}));
+export type CatalogSearch = {
+  search: (query: string, limit?: number) => CatalogService[];
+  byId: (id: string) => CatalogService | undefined;
+};
 
-// Wizard search. Ranks exact/prefix name matches above substring/alias hits so
-// typing "net" surfaces Netflix at the top. Returns up to `limit` services.
+// Build ranked search + id lookup over an ARBITRARY service list. Used both by
+// the static bundled CATALOG below and by the runtime catalog (lib/catalog),
+// which rebuilds this over the API-refreshed list. Ranking: exact name >
+// prefix > word-boundary/alias > substring, so "net" surfaces Netflix first.
+export function buildSearch(services: CatalogService[]): CatalogSearch {
+  const byId = new Map(services.map((s) => [s.id, s]));
+  const index = services.map((svc) => ({
+    svc,
+    nName: norm(svc.name),
+    hay: [svc.name, svc.id, ...(svc.aliases ?? [])].map(norm).join(' '),
+  }));
+  const search = (query: string, limit = 30): CatalogService[] => {
+    const q = norm(query);
+    if (!q) return services.slice(0, limit);
+    const scored: { svc: CatalogService; score: number }[] = [];
+    for (const { svc, hay, nName } of index) {
+      let score = 0;
+      if (nName === q) score = 100;
+      else if (nName.startsWith(q)) score = 80;
+      else if (hay.includes(` ${q}`) || hay.startsWith(q)) score = 60; // word-boundary
+      else if (hay.includes(q)) score = 40;
+      if (score > 0) scored.push({ svc, score });
+    }
+    scored.sort((a, b) => b.score - a.score || a.svc.name.localeCompare(b.svc.name));
+    return scored.slice(0, limit).map((s) => s.svc);
+  };
+  return { search, byId: (id: string) => byId.get(id) };
+}
+
+// Default search bound to the bundled CATALOG (offline fallback).
+const DEFAULT_SEARCH = buildSearch(CATALOG);
+
 export function searchCatalog(query: string, limit = 30): CatalogService[] {
-  const q = norm(query);
-  if (!q) return CATALOG.slice(0, limit);
-  const scored: { svc: CatalogService; score: number }[] = [];
-  for (const { svc, hay, nName } of INDEX) {
-    let score = 0;
-    if (nName === q) score = 100;
-    else if (nName.startsWith(q)) score = 80;
-    else if (hay.includes(` ${q}`) || hay.startsWith(q)) score = 60; // word-boundary
-    else if (hay.includes(q)) score = 40;
-    if (score > 0) scored.push({ svc, score });
-  }
-  scored.sort((a, b) => b.score - a.score || a.svc.name.localeCompare(b.svc.name));
-  return scored.slice(0, limit).map((s) => s.svc);
+  return DEFAULT_SEARCH.search(query, limit);
+}
+
+export function catalogById(id: string): CatalogService | undefined {
+  return DEFAULT_SEARCH.byId(id);
 }
 
 // Best single match for a raw provider name (used to enrich a custom entry or,
