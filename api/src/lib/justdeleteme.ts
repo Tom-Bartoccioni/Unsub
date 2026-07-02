@@ -24,9 +24,11 @@ export type JdmEntry = {
 
 export type JdmData = { sites?: JdmEntry[] } | JdmEntry[];
 
-// Raw GitHub URL for the canonical sites.json. Overridable for tests.
+// Raw GitHub URL for the canonical sites.json (it lives at the repo root, not
+// under _data/). Overridable for tests. Shape per entry:
+//   { name, url, difficulty, domains: [...] }
 export const JDM_SITES_URL =
-  'https://raw.githubusercontent.com/justdeleteme/justdelete.me/master/_data/sites.json';
+  'https://raw.githubusercontent.com/justdeleteme/justdelete.me/master/sites.json';
 
 // Normalize a domain to its registrable-ish form for matching: lowercase,
 // strip protocol/path/www so "www.netflix.com/…" and "netflix.com" collide.
