@@ -98,6 +98,17 @@ export type SubscriptionStore = {
     amountMinor: number,
     currency: string,
   ) => Promise<number>;
+  // Additive variant: inserts one 'estimated' event per cycle from `from` to
+  // now WITHOUT deleting anything. Used on reactivation so the resumed period's
+  // charges are added while the previous period's history stays intact. Skips
+  // any cycle date that already has an event (avoids duplicates on overlap).
+  addEstimatedEventsFrom: (
+    subscriptionId: string,
+    from: Date,
+    frequency: 'monthly' | 'yearly' | 'weekly' | 'unknown',
+    amountMinor: number,
+    currency: string,
+  ) => Promise<number>;
   // Daily rollover: find every active subscription whose next renewal date
   // has already passed, advance it one cycle at a time until it's in the
   // future, and (if startedAt is set) insert one 'estimated' payment_event
@@ -312,6 +323,23 @@ export function createDrizzleSubscriptionStore(
         })),
       );
       return dates.length;
+    },
+    async addEstimatedEventsFrom(subscriptionId, from, frequency, amountMinor, currency) {
+      const dates = cycleDatesBetween(from, new Date(), frequency);
+      if (dates.length === 0) return 0;
+      // Fetch existing event timestamps so we don't double-insert a cycle that
+      // already exists (e.g. an overlap with the previous period).
+      const existing = await db
+        .select({ chargedAt: paymentEvents.chargedAt })
+        .from(paymentEvents)
+        .where(eq(paymentEvents.subscriptionId, subscriptionId));
+      const seen = new Set(existing.map((e) => e.chargedAt.getTime()));
+      const rows = dates
+        .filter((d) => !seen.has(d.getTime()))
+        .map((d) => ({ subscriptionId, chargedAt: d, amountMinor, currency, source: 'estimated' }));
+      if (rows.length === 0) return 0;
+      await db.insert(paymentEvents).values(rows);
+      return rows.length;
     },
     async rolloverDueRenewals() {
       const now = new Date();

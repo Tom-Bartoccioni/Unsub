@@ -99,6 +99,10 @@ export function ReactivateModal({
   const [startedAt, setStartedAt] = useState(() => new Date());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Wizard-style steps so the sheet isn't overloaded: 0 = price + cadence,
+  // 1 = next payment, 2 = start date.
+  const [step, setStep] = useState(0);
+  const STEP_COUNT = 3;
 
   // Wrap the frequency setter so switching cadence re-derives the auto date.
   const setFrequency = (value: Frequency) => {
@@ -121,6 +125,7 @@ export function ReactivateModal({
     setDateAuto(true);
     setStartedAt(new Date());
     setError(null);
+    setStep(0);
   }, [visible, sub]);
 
   const currencyValues = useMemo(
@@ -240,6 +245,29 @@ export function ReactivateModal({
           accessibilityLabel={t('common.close')}
         />
         <View style={[styles.sheet, { paddingBottom: spacing.xl + insets.bottom }]}>
+          <View style={styles.topBar}>
+            <Pressable
+              onPress={step === 0 ? onClose : () => setStep((s) => s - 1)}
+              style={styles.topButton}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={step === 0 ? 'close' : 'chevron-back'}
+                size={22}
+                color={colors.textPrimary}
+              />
+            </Pressable>
+            <View style={styles.progress}>
+              {Array.from({ length: STEP_COUNT }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[styles.progressDot, i <= step && styles.progressDotActive]}
+                />
+              ))}
+            </View>
+            <View style={styles.topButton} />
+          </View>
+
           <ScrollView
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps="handled"
@@ -250,118 +278,143 @@ export function ReactivateModal({
               <Text style={styles.title} numberOfLines={1}>
                 {t('reactivate.title', { provider: sub.provider })}
               </Text>
-              <Text style={styles.subtitle}>{t('reactivate.subtitle')}</Text>
             </View>
 
-            <Text style={styles.sectionLabel}>{t('reactivate.priceLabel')}</Text>
-            <View style={styles.amountRow}>
-              <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.max(0, Math.round((a - 1) * 100) / 100))} hitSlop={8}>
-                <Ionicons name="remove" size={22} color={colors.textPrimary} />
-              </Pressable>
-              <View style={styles.amountDisplay}>
-                {editing ? (
-                  <TextInput
-                    style={styles.amountInput}
-                    value={text}
-                    onChangeText={setText}
-                    onBlur={commitAmount}
-                    onSubmitEditing={commitAmount}
-                    keyboardType="decimal-pad"
-                    autoFocus
-                    selectTextOnFocus
-                  />
-                ) : (
-                  <Pressable
-                    onPress={() => {
-                      setText(amount.toFixed(2));
-                      setEditing(true);
-                    }}
-                  >
-                    <Text style={styles.amountValue} numberOfLines={1} adjustsFontSizeToFit>
-                      {amount.toFixed(2)}
-                    </Text>
+            {/* Step 1 — price + cadence */}
+            {step === 0 && (
+              <>
+                <Text style={styles.sectionLabel}>{t('reactivate.priceLabel')}</Text>
+                <View style={styles.amountRow}>
+                  <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.max(0, Math.round((a - 1) * 100) / 100))} hitSlop={8}>
+                    <Ionicons name="remove" size={22} color={colors.textPrimary} />
                   </Pressable>
-                )}
-                <View style={styles.currencyWheelWrap}>
-                  <WheelPicker<string>
-                    values={currencyValues}
-                    selected={currency}
-                    onChange={setCurrency}
-                    compact
+                  <View style={styles.amountDisplay}>
+                    {editing ? (
+                      <TextInput
+                        style={styles.amountInput}
+                        value={text}
+                        onChangeText={setText}
+                        onBlur={commitAmount}
+                        onSubmitEditing={commitAmount}
+                        keyboardType="decimal-pad"
+                        autoFocus
+                        selectTextOnFocus
+                      />
+                    ) : (
+                      <Pressable
+                        onPress={() => {
+                          setText(amount.toFixed(2));
+                          setEditing(true);
+                        }}
+                      >
+                        <Text style={styles.amountValue} numberOfLines={1} adjustsFontSizeToFit>
+                          {amount.toFixed(2)}
+                        </Text>
+                      </Pressable>
+                    )}
+                    <View style={styles.currencyWheelWrap}>
+                      <WheelPicker<string>
+                        values={currencyValues}
+                        selected={currency}
+                        onChange={setCurrency}
+                        compact
+                      />
+                    </View>
+                  </View>
+                  <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.round((a + 1) * 100) / 100)} hitSlop={8}>
+                    <Ionicons name="add" size={22} color={colors.textPrimary} />
+                  </Pressable>
+                </View>
+
+                <Text style={styles.sectionLabel}>{t('reactivate.cycleLabel')}</Text>
+                <View style={styles.freqRow}>
+                  {FREQUENCIES.map((f) => {
+                    const active = frequency === f.value;
+                    return (
+                      <Pressable
+                        key={f.value}
+                        style={[styles.freqPill, active && styles.freqPillActive]}
+                        onPress={() => setFrequency(f.value)}
+                      >
+                        <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
+                          {t(f.labelKey)}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            )}
+
+            {/* Step 2 — next payment */}
+            {step === 1 && (
+              <>
+                <Text style={styles.sectionLabel}>{t('reactivate.nextRenewalLabel')}</Text>
+                <View style={styles.wheelRow}>
+                  <WheelPicker
+                    values={MONTHS.map((label, i) => ({ label, value: i }))}
+                    selected={date.getMonth()}
+                    onChange={(v) => setPart('m', v)}
+                  />
+                  <WheelPicker
+                    values={days.map((n) => ({ label: String(n), value: n }))}
+                    selected={date.getDate()}
+                    onChange={(v) => setPart('d', v)}
+                  />
+                  <WheelPicker
+                    values={years.map((n) => ({ label: String(n), value: n }))}
+                    selected={date.getFullYear()}
+                    onChange={(v) => setPart('y', v)}
                   />
                 </View>
-              </View>
-              <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.round((a + 1) * 100) / 100)} hitSlop={8}>
-                <Ionicons name="add" size={22} color={colors.textPrimary} />
-              </Pressable>
-            </View>
+              </>
+            )}
 
-            <Text style={styles.sectionLabel}>{t('reactivate.cycleLabel')}</Text>
-            <View style={styles.freqRow}>
-              {FREQUENCIES.map((f) => {
-                const active = frequency === f.value;
-                return (
-                  <Pressable
-                    key={f.value}
-                    style={[styles.freqPill, active && styles.freqPillActive]}
-                    onPress={() => setFrequency(f.value)}
-                  >
-                    <Text style={[styles.freqPillText, active && styles.freqPillTextActive]}>
-                      {t(f.labelKey)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text style={styles.sectionLabel}>{t('reactivate.nextRenewalLabel')}</Text>
-            <View style={styles.wheelRow}>
-              <WheelPicker
-                values={MONTHS.map((label, i) => ({ label, value: i }))}
-                selected={date.getMonth()}
-                onChange={(v) => setPart('m', v)}
-              />
-              <WheelPicker
-                values={days.map((n) => ({ label: String(n), value: n }))}
-                selected={date.getDate()}
-                onChange={(v) => setPart('d', v)}
-              />
-              <WheelPicker
-                values={years.map((n) => ({ label: String(n), value: n }))}
-                selected={date.getFullYear()}
-                onChange={(v) => setPart('y', v)}
-              />
-            </View>
-
-            <Text style={styles.sectionLabel}>{t('reactivate.startedLabel')}</Text>
-            <View style={styles.wheelRow}>
-              <WheelPicker
-                values={MONTHS.map((label, i) => ({ label, value: i }))}
-                selected={startedAt.getMonth()}
-                onChange={(v) => setStartPart('m', v)}
-              />
-              <WheelPicker
-                values={startDays.map((n) => ({ label: String(n), value: n }))}
-                selected={startedAt.getDate()}
-                onChange={(v) => setStartPart('d', v)}
-              />
-              <WheelPicker
-                values={startYears.map((n) => ({ label: String(n), value: n }))}
-                selected={startedAt.getFullYear()}
-                onChange={(v) => setStartPart('y', v)}
-              />
-            </View>
+            {/* Step 3 — start date */}
+            {step === 2 && (
+              <>
+                <Text style={styles.sectionLabel}>{t('reactivate.startedLabel')}</Text>
+                <View style={styles.wheelRow}>
+                  <WheelPicker
+                    values={MONTHS.map((label, i) => ({ label, value: i }))}
+                    selected={startedAt.getMonth()}
+                    onChange={(v) => setStartPart('m', v)}
+                  />
+                  <WheelPicker
+                    values={startDays.map((n) => ({ label: String(n), value: n }))}
+                    selected={startedAt.getDate()}
+                    onChange={(v) => setStartPart('d', v)}
+                  />
+                  <WheelPicker
+                    values={startYears.map((n) => ({ label: String(n), value: n }))}
+                    selected={startedAt.getFullYear()}
+                    onChange={(v) => setStartPart('y', v)}
+                  />
+                </View>
+              </>
+            )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
           </ScrollView>
 
           <Pressable
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed, busy && styles.disabled]}
-            onPress={submit}
+            onPress={() => {
+              if (step < STEP_COUNT - 1) {
+                if (editing) commitAmount();
+                setStep((s) => s + 1);
+              } else {
+                void submit();
+              }
+            }}
             disabled={busy}
           >
             <Text style={styles.primaryButtonText}>
-              {busy ? t('reactivate.busy') : t('reactivate.confirm')}
+              {step < STEP_COUNT - 1
+                ? t('common.continue')
+                : busy
+                  ? t('reactivate.busy')
+                  : t('reactivate.confirm')}
             </Text>
           </Pressable>
         </View>
@@ -378,11 +431,27 @@ function makeStyles(colors: ColorSet) {
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
       paddingHorizontal: spacing.lg,
-      paddingTop: spacing.md,
-      maxHeight: '92%',
-      flexShrink: 1,
+      paddingTop: spacing.sm,
+      // Fixed, generous height so a single-wheel step doesn't collapse the sheet
+      // (matches the wizard's approach).
+      height: '75%',
     },
-    scroll: { gap: spacing.xs, paddingBottom: spacing.md },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+    },
+    topButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+    progress: { flexDirection: 'row', gap: 6 },
+    progressDot: {
+      width: 22,
+      height: 4,
+      borderRadius: radius.pill,
+      backgroundColor: colors.border,
+    },
+    progressDotActive: { backgroundColor: colors.textPrimary },
+    scroll: { flexGrow: 1, gap: spacing.xs, paddingBottom: spacing.md },
     header: { alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
     title: {
       color: colors.textPrimary,

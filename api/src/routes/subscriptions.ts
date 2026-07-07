@@ -136,12 +136,11 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
           startedAt,
         });
         if (reactivated) {
-          // Re-adding via the wizard is "treat as a fresh subscription from the
-          // start date you gave": if startedAt is provided, (re)generate the
-          // estimated events for that window so the timeline reflects it. When
-          // startedAt is null (a plain resume), leave events as-is.
+          // ADD the resumed period's estimated charges from its start date
+          // without deleting the previous period's history (that older stretch
+          // stays visible in the timeline with a "paused" gap between them).
           if (startedAt) {
-            await deps.store.regenerateEstimatedEvents(
+            await deps.store.addEstimatedEventsFrom(
               reactivated.id,
               startedAt,
               reactivated.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
@@ -246,12 +245,12 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
         startedAt,
       });
       if (!row) return reply.code(404).send({ error: 'not_found' });
-      // If the user set a start date (they can pick a past date on the resume
-      // sheet), (re)generate the estimated events from it so the timeline shows
-      // that history. If startedAt is null — a plain "resume today" — leave the
-      // events alone so we neither invent a past nor erase the old period.
+      // ADD the resumed period's estimated charges from its start date without
+      // deleting the previous period's history — the old stretch stays in the
+      // timeline with a "paused" gap. If startedAt is null (resume today with no
+      // backfill), nothing is added.
       if (startedAt) {
-        await deps.store.regenerateEstimatedEvents(
+        await deps.store.addEstimatedEventsFrom(
           row.id,
           startedAt,
           row.frequency as 'monthly' | 'yearly' | 'weekly' | 'unknown',
