@@ -90,7 +90,13 @@ export function SubscriptionDetailModal({
     for (let i = 0; i < sorted.length - 1; i++) {
       const end = sorted[i]!.endedAt;
       const nextStart = sorted[i + 1]!.startedAt;
-      if (end && nextStart.getTime() > end.getTime()) out.push({ from: end, to: nextStart });
+      // Compare at DAY granularity: endedAt keeps the ghost's exact time while
+      // startedAt is rounded to UTC midnight, so an instant-level comparison
+      // wrongly sees same-day or next-morning resumes as an overlap. A real
+      // pause = the resume day is strictly after the day the period ended.
+      if (end && startOfDay(nextStart) > startOfDay(end)) {
+        out.push({ from: end, to: nextStart });
+      }
     }
     return out;
   }, [periods]);
@@ -339,6 +345,12 @@ function fmtLongDate(iso: string): string {
 function monthsBetween(start: Date, end: Date): number {
   const ms = end.getTime() - start.getTime();
   return Math.max(1, Math.round(ms / (30.44 * 86_400_000)));
+}
+
+// Midnight UTC of a date — used to compare period boundaries at day granularity
+// (endedAt carries a precise time, startedAt is stored at UTC midnight).
+function startOfDay(d: Date): number {
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
 // Removed pickContrast — the hero now uses a pale tinted background with
