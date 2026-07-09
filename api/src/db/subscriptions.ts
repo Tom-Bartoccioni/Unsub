@@ -444,8 +444,7 @@ export function createDrizzleSubscriptionStore(
         .returning();
       if (!row) return null;
       // Defensive: close any period that's still open (shouldn't happen for a
-      // cancelled sub, but guarantees the single-open-period invariant), then
-      // open a fresh one from the resume date.
+      // cancelled sub, but guarantees the single-open-period invariant).
       await db
         .update(subscriptionPeriods)
         .set({ endedAt: now })
@@ -455,14 +454,40 @@ export function createDrizzleSubscriptionStore(
             isNull(subscriptionPeriods.endedAt),
           ),
         );
-      await db.insert(subscriptionPeriods).values({
-        subscriptionId: row.id,
-        startedAt: input.startedAt ?? now,
-        endedAt: null,
-        amountMinor: input.amountMinor,
-        currency: input.currency,
-        frequency: input.frequency,
-      });
+      // If the sub was ghosted and reactivated on the SAME day, don't fragment
+      // into a new period — just reopen the one that closed today (and refresh
+      // its price/cycle). This avoids zero-length "paused" gaps from quick
+      // ghost→reactivate toggles. Otherwise open a fresh period from the resume
+      // date, leaving the earlier (genuinely paused) period closed.
+      const resume = input.startedAt ?? now;
+      const [latestClosed] = await db
+        .select()
+        .from(subscriptionPeriods)
+        .where(eq(subscriptionPeriods.subscriptionId, row.id))
+        .orderBy(desc(subscriptionPeriods.endedAt))
+        .limit(1);
+      const sameDay =
+        latestClosed?.endedAt != null && startOfUtcDayMs(latestClosed.endedAt) === startOfUtcDayMs(resume);
+      if (sameDay && latestClosed) {
+        await db
+          .update(subscriptionPeriods)
+          .set({
+            endedAt: null,
+            amountMinor: input.amountMinor,
+            currency: input.currency,
+            frequency: input.frequency,
+          })
+          .where(eq(subscriptionPeriods.id, latestClosed.id));
+      } else {
+        await db.insert(subscriptionPeriods).values({
+          subscriptionId: row.id,
+          startedAt: resume,
+          endedAt: null,
+          amountMinor: input.amountMinor,
+          currency: input.currency,
+          frequency: input.frequency,
+        });
+      }
       return row;
     },
   };
@@ -474,4 +499,10 @@ function stepCycle(d: Date, frequency: 'monthly' | 'yearly' | 'weekly'): Date {
   else if (frequency === 'yearly') out.setFullYear(out.getFullYear() + 1);
   else if (frequency === 'weekly') out.setDate(out.getDate() + 7);
   return out;
+}
+
+// UTC-midnight epoch of a date, for comparing period boundaries at day
+// granularity (endedAt has a precise time, startedAt is stored at UTC midnight).
+function startOfUtcDayMs(d: Date): number {
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
