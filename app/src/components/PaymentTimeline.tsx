@@ -48,32 +48,30 @@ export function buildTimelinePoints(opts: {
   const sortedReal = [...pastEvents].sort((a, b) => a.getTime() - b.getTime());
 
   if (sortedReal.length > 0) {
-    // History mode: show the last N real charges as filled dots leading up to
-    // the next renewal, with any ghost→reactivate pause marked in between. No
-    // future dots — once we have data, project the user's actual cadence.
-    const shown = sortedReal.slice(-realPastCount);
-    // Only mark gaps that fall within the shown window.
-    const shownGaps = gaps
-      .filter((g) => g.to.getTime() > (shown[0]?.getTime() ?? 0))
-      .sort((a, b) => a.from.getTime() - b.from.getTime());
-    let gi = 0;
-    for (let i = 0; i < shown.length; i++) {
-      const d = shown[i]!;
-      // Insert any pause whose start falls before this charge.
-      while (gi < shownGaps.length && shownGaps[gi]!.from.getTime() <= d.getTime()) {
-        const g = shownGaps[gi]!;
-        // midpoint date just for label positioning
-        points.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' });
-        gi++;
-      }
-      points.push({ date: d, kind: 'real' });
+    // History mode: interleave real charges with any ghost→reactivate pause
+    // markers chronologically. No future dots — once we have data, project the
+    // actual cadence.
+    const merged: TimelinePoint[] = sortedReal.map((d) => ({ date: d, kind: 'real' as const }));
+    for (const g of gaps) {
+      // Marker sits between the last pre-pause charge and the first post-pause
+      // one (positioned at the pause midpoint).
+      merged.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' as const });
     }
-    // Any remaining pause after the last shown charge but before renewal.
-    while (gi < shownGaps.length) {
-      const g = shownGaps[gi]!;
-      points.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' });
-      gi++;
+    merged.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    // Window the tail to keep the timeline compact, but EXTEND it back to
+    // include the most recent pause (and the charge just before it) so a gap in
+    // the middle of the history stays visible instead of being cropped off.
+    let start = Math.max(0, merged.length - realPastCount);
+    const lastGapIdx = merged.map((p) => p.kind).lastIndexOf('gap');
+    if (lastGapIdx >= 0 && lastGapIdx < start) {
+      // Back up to one charge before that gap.
+      start = Math.max(0, lastGapIdx - 1);
     }
+    let windowed = merged.slice(start);
+    // Never lead with an orphan gap.
+    while (windowed.length > 0 && windowed[0]!.kind === 'gap') windowed = windowed.slice(1);
+    for (const p of windowed) points.push(p);
     points.push({ date: nextRenewal, kind: 'next' });
   } else {
     // Empty-state mode: mocked past dots (hollow rings) + next + future
