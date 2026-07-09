@@ -313,6 +313,17 @@ function oneCycleAfter(base: Date, frequency: Frequency): Date {
   return d;
 }
 
+// One cycle before `base`. Suggested start date = next payment − 1 cycle, so a
+// yearly sub whose next charge is 4 Aug 2026 is assumed to have started 4 Aug
+// 2025 (rather than defaulting to today, which contradicts the renewal date).
+function oneCycleBefore(base: Date, frequency: Frequency): Date {
+  const d = new Date(base);
+  if (frequency === 'monthly') d.setMonth(d.getMonth() - 1);
+  else if (frequency === 'yearly') d.setFullYear(d.getFullYear() - 1);
+  else if (frequency === 'weekly') d.setDate(d.getDate() - 7);
+  return d;
+}
+
 // How many full cycles fit between `start` and now, given the frequency.
 // Matches the API's cycleDatesBetween count exactly so the preview can't
 // disagree with what gets inserted.
@@ -705,11 +716,13 @@ function StartedStep({
   onForceSubmitWith: (startedAt: Date | null) => void;
 }) {
   const { t } = useT();
-  // Default the start date to TODAY — we assume a brand-new signup, so the
-  // subscription started now and its first renewal is one cycle out (set on the
-  // previous step). The user can scroll back if they'd been subscribed before
-  // they started tracking.
-  const suggested = useMemo(() => new Date(), []);
+  // Suggest the start date as one cycle before the next payment: a yearly sub
+  // renewing 4 Aug 2026 most likely started 4 Aug 2025. This is consistent with
+  // the renewal date the user just set, and they can still scroll to adjust.
+  const suggested = useMemo(
+    () => oneCycleBefore(draft.date, draft.frequency),
+    [draft.date, draft.frequency],
+  );
   const value = draft.startedAt ?? suggested;
 
   const now = new Date();

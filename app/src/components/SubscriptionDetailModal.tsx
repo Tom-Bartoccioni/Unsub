@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
@@ -54,29 +62,42 @@ export function SubscriptionDetailModal({
   const tint = useMemo(() => brandTint(brandColor, isDark), [brandColor, isDark]);
   const accent = useMemo(() => brandAccent(brandColor, isDark), [brandColor, isDark]);
 
-  // Reset + fetch whenever a new subscription is opened.
+  // Reset + fetch whenever a new subscription is opened. `paymentsLoaded` gates
+  // the history section so we show a small loader instead of the mocked/empty
+  // state flashing and then jumping when the real data lands mid-animation.
+  const [paymentsLoaded, setPaymentsLoaded] = useState(false);
   useEffect(() => {
     if (!visible || !sub) {
       setPayments([]);
       setPeriods([]);
+      setPaymentsLoaded(false);
       return;
     }
     let cancelled = false;
-    apiFetch<{
-      payments: PaymentEvent[];
-      periods?: { startedAt: string; endedAt: string | null }[];
-    }>(`/subscriptions/${sub.id}/payments`)
-      .then((res) => {
-        if (!cancelled) {
-          setPayments(res.payments);
-          setPeriods(res.periods ?? []);
-        }
-      })
-      .catch(() => {
-        // Non-fatal — leave payments empty; the section just hides itself.
-      });
+    setPaymentsLoaded(false);
+    // Defer the fetch a tick so it doesn't compete with the modal's slide-in
+    // animation (smoother open on high-refresh-rate devices).
+    const timer = setTimeout(() => {
+      apiFetch<{
+        payments: PaymentEvent[];
+        periods?: { startedAt: string; endedAt: string | null }[];
+      }>(`/subscriptions/${sub.id}/payments`)
+        .then((res) => {
+          if (!cancelled) {
+            setPayments(res.payments);
+            setPeriods(res.periods ?? []);
+          }
+        })
+        .catch(() => {
+          // Non-fatal — leave payments empty; the section just hides itself.
+        })
+        .finally(() => {
+          if (!cancelled) setPaymentsLoaded(true);
+        });
+    }, 250);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [visible, sub]);
 
@@ -251,7 +272,13 @@ export function SubscriptionDetailModal({
               </Text>
 
               <View style={styles.timelineWrap}>
-                <PaymentTimeline points={points} />
+                {paymentsLoaded ? (
+                  <PaymentTimeline points={points} />
+                ) : (
+                  <View style={styles.timelineLoading}>
+                    <ActivityIndicator color={colors.textTertiary} />
+                  </View>
+                )}
               </View>
 
               {totalSpent != null && (
@@ -486,6 +513,9 @@ function makeStyles(colors: ColorSet) {
       fontWeight: '400',
     },
     timelineWrap: { width: '100%', marginTop: spacing.sm },
+    // Same rough height as the rendered timeline so the card doesn't jump when
+    // the loader is swapped for the real content.
+    timelineLoading: { height: 48, alignItems: 'center', justifyContent: 'center' },
 
     spentInline: {
       color: colors.textTertiary,

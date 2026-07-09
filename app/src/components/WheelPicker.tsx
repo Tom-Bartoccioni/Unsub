@@ -74,26 +74,38 @@ export function WheelPicker<T = number>({
     };
   }, []);
 
-  const snap = (offsetY: number) => {
+  // Commit the row nearest to `offsetY` as the selection. Does NOT re-scroll —
+  // the native snapToInterval already lands the ScrollView on a row, so we only
+  // read where it settled and report the value up. (Re-scrolling here fought the
+  // native snap and could freeze the wheel between two rows.)
+  const commit = (offsetY: number) => {
     const idx = Math.min(values.length - 1, Math.max(0, Math.round(offsetY / ITEM_HEIGHT)));
     restingIndex.current = idx;
-    scrollToIndex(idx, true);
     const next = values[idx];
     if (next && next.value !== selected) onChange(next.value);
   };
 
-  // Fires continuously while scrolling on web. Debounce: once scroll events
-  // stop for SETTLE_MS, snap to the nearest row.
+  // Track the latest offset for the settle fallback and a safety re-snap.
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     lastOffset.current = e.nativeEvent.contentOffset.y;
     if (settleTimer.current) clearTimeout(settleTimer.current);
-    settleTimer.current = setTimeout(() => snap(lastOffset.current), SETTLE_MS);
+    // Fallback: if the momentum/drag-end events don't fire (or the wheel came to
+    // rest slightly off a row), settle to the nearest row after a short pause.
+    settleTimer.current = setTimeout(() => {
+      const off = lastOffset.current;
+      const idx = Math.min(values.length - 1, Math.max(0, Math.round(off / ITEM_HEIGHT)));
+      // Only correct if we're actually off-row (avoids re-scroll thrash).
+      if (Math.abs(off - idx * ITEM_HEIGHT) > 1) scrollToIndex(idx, true);
+      commit(off);
+    }, SETTLE_MS);
   };
 
-  // Native momentum/drag end — snap immediately rather than waiting.
-  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+  // Momentum end is the authoritative "wheel came to rest" signal — commit the
+  // landed row. Drag-end without momentum is handled by the onScroll settle
+  // timer, so we don't commit a transient mid-fling offset here.
+  const onMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (settleTimer.current) clearTimeout(settleTimer.current);
-    snap(e.nativeEvent.contentOffset.y);
+    commit(e.nativeEvent.contentOffset.y);
   };
 
   return (
@@ -104,14 +116,12 @@ export function WheelPicker<T = number>({
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
         snapToAlignment="start"
-        disableIntervalMomentum
         decelerationRate="fast"
         nestedScrollEnabled
         scrollEventThrottle={16}
         contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
         onScroll={onScroll}
-        onMomentumScrollEnd={onScrollEnd}
-        onScrollEndDrag={onScrollEnd}
+        onMomentumScrollEnd={onMomentumEnd}
         onContentSizeChange={() => {
           // Web sizes the scroll container after mount; the imperative
           // scrollTo at mount is a no-op until then, so re-apply it here.
