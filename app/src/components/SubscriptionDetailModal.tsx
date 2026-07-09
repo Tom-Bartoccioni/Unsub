@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandIcon } from './BrandIcon';
@@ -18,6 +10,7 @@ import { CategoryPickerSheet } from './CategoryPickerSheet';
 import { UnsubscribeModal } from './UnsubscribeModal';
 import { ReactivateModal } from './ReactivateModal';
 import { ApiError, apiFetch } from '@/lib/api';
+import { getCachedHistory } from '@/lib/paymentsCache';
 import { categoryFor } from '@/lib/categories';
 import { formatDate, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
@@ -74,30 +67,37 @@ export function SubscriptionDetailModal({
       return;
     }
     let cancelled = false;
+    // Instant path: read the preloaded batch cache. If present, render
+    // immediately with no round trip.
+    const cached = getCachedHistory(sub.id);
+    if (cached) {
+      setPayments(cached.payments);
+      setPeriods(cached.periods);
+      setPaymentsLoaded(true);
+      return () => {
+        cancelled = true;
+      };
+    }
+    // Fallback: cache not warm yet (cold start / offline) — fetch this sub.
     setPaymentsLoaded(false);
-    // Defer the fetch a tick so it doesn't compete with the modal's slide-in
-    // animation (smoother open on high-refresh-rate devices).
-    const timer = setTimeout(() => {
-      apiFetch<{
-        payments: PaymentEvent[];
-        periods?: { startedAt: string; endedAt: string | null }[];
-      }>(`/subscriptions/${sub.id}/payments`)
-        .then((res) => {
-          if (!cancelled) {
-            setPayments(res.payments);
-            setPeriods(res.periods ?? []);
-          }
-        })
-        .catch(() => {
-          // Non-fatal — leave payments empty; the section just hides itself.
-        })
-        .finally(() => {
-          if (!cancelled) setPaymentsLoaded(true);
-        });
-    }, 250);
+    apiFetch<{
+      payments: PaymentEvent[];
+      periods?: { startedAt: string; endedAt: string | null }[];
+    }>(`/subscriptions/${sub.id}/payments`)
+      .then((res) => {
+        if (!cancelled) {
+          setPayments(res.payments);
+          setPeriods(res.periods ?? []);
+        }
+      })
+      .catch(() => {
+        // Non-fatal — leave payments empty; the section just hides itself.
+      })
+      .finally(() => {
+        if (!cancelled) setPaymentsLoaded(true);
+      });
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
   }, [visible, sub]);
 
@@ -272,12 +272,14 @@ export function SubscriptionDetailModal({
               </Text>
 
               <View style={styles.timelineWrap}>
+                {/* Nothing until the data lands (just reserved space), then the
+                    real timeline — avoids the mocked state flashing then jumping
+                    to the real charges. No spinner: it loads fast enough that a
+                    spinner would itself flash. */}
                 {paymentsLoaded ? (
                   <PaymentTimeline points={points} />
                 ) : (
-                  <View style={styles.timelineLoading}>
-                    <ActivityIndicator color={colors.textTertiary} />
-                  </View>
+                  <View style={styles.timelineLoading} />
                 )}
               </View>
 

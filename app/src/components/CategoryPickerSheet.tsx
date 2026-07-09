@@ -29,7 +29,11 @@ export function CategoryPickerSheet({
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
-    <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+    // fade (not slide): this sheet stacks on top of the detail modal, so a
+    // sliding sheet + its own dark overlay animate together and reveal a moving
+    // seam at the rounded top corners against the already-dimmed screen. A fade
+    // brings the sheet + overlay in/out cleanly with no sliding seam.
+    <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.root}>
         <Pressable
           style={StyleSheet.absoluteFillObject}

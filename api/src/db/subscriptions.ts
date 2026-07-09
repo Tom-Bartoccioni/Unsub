@@ -121,6 +121,10 @@ export type SubscriptionStore = {
   // All life-cycle periods for a user's subscriptions, used by the savings
   // stat (sum over CLOSED periods). Joined + ownership-scoped.
   listPeriodsByUserId: (userId: string) => Promise<SubscriptionPeriodRow[]>;
+  // Every payment event across all of the user's subscriptions, in one query.
+  // Powers the batch GET /me/payments the app preloads at startup so opening a
+  // subscription's detail is instant (no per-open round trip).
+  listPaymentEventsByUserId: (userId: string) => Promise<PaymentEventRow[]>;
   // Periods for a single subscription, oldest-first, ownership-scoped. Drives
   // the detail timeline's "cancelled from X to Y" pause markers. Returns null
   // if the sub doesn't exist / isn't the user's.
@@ -424,6 +428,15 @@ export function createDrizzleSubscriptionStore(
         .innerJoin(subscriptions, eq(subscriptionPeriods.subscriptionId, subscriptions.id))
         .where(eq(subscriptions.userId, userId));
       return rows.map((r) => r.period);
+    },
+    async listPaymentEventsByUserId(userId) {
+      const rows = await db
+        .select({ event: paymentEvents })
+        .from(paymentEvents)
+        .innerJoin(subscriptions, eq(paymentEvents.subscriptionId, subscriptions.id))
+        .where(eq(subscriptions.userId, userId))
+        .orderBy(desc(paymentEvents.chargedAt));
+      return rows.map((r) => r.event);
     },
     async reactivate(id, userId, input) {
       const now = new Date();

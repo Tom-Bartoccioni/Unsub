@@ -113,6 +113,42 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       return computeStats(rows, new Date(), transactions, periods);
     });
 
+    // Batch payments + periods for ALL of the user's subscriptions, grouped by
+    // subscription id. The app preloads this at startup and caches it so opening
+    // a subscription's detail is instant (no per-open round trip). Shape mirrors
+    // the per-sub GET /subscriptions/:id/payments response.
+    fastify.get('/me/payments', async (req) => {
+      const auth = await fastify.requireAuth(req);
+      const [events, periods] = await Promise.all([
+        deps.store.listPaymentEventsByUserId(auth.row.id),
+        deps.store.listPeriodsByUserId(auth.row.id),
+      ]);
+      const bySub: Record<
+        string,
+        {
+          payments: { id: string; chargedAt: string; amount: number; currency: string; source: string }[];
+          periods: { startedAt: string; endedAt: string | null }[];
+        }
+      > = {};
+      const bucket = (id: string) => (bySub[id] ??= { payments: [], periods: [] });
+      for (const e of events) {
+        bucket(e.subscriptionId).payments.push({
+          id: e.id,
+          chargedAt: e.chargedAt.toISOString(),
+          amount: e.amountMinor / 100,
+          currency: e.currency,
+          source: e.source,
+        });
+      }
+      for (const p of periods) {
+        bucket(p.subscriptionId).periods.push({
+          startedAt: p.startedAt.toISOString(),
+          endedAt: p.endedAt ? p.endedAt.toISOString() : null,
+        });
+      }
+      return { bySub };
+    });
+
     fastify.post('/subscriptions', async (req, reply) => {
       const auth = await fastify.requireAuth(req);
       const parsed = CreateBody.safeParse(req.body);

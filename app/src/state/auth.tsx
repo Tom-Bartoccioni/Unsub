@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase';
 import { nativeGoogleSignIn } from '@/lib/googleSignin';
+import { clearPaymentsCache } from '@/lib/paymentsCache';
 import { sendTimezone } from '@/lib/push';
 
 type AuthContextValue = {
@@ -75,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await signInWithCredential(getFirebaseAuth(), credential);
       },
       signOut: async () => {
+        clearPaymentsCache();
         await firebaseSignOut(getFirebaseAuth());
       },
     }),

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme, useT } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
+import { refreshPaymentsCache } from '@/lib/paymentsCache';
 import { maybePromptForNotificationsOnFirstLogin } from '@/lib/push';
 import { categoryColor, categoryFor } from '@/lib/categories';
 import { convert, formatPrice, monthlyAmount } from '@/lib/money';
@@ -92,6 +93,9 @@ export default function Dashboard() {
     if (!user) return;
     let cancelled = false;
     setLoading(true);
+    // Preload the payment history for every sub in the background so opening a
+    // detail is instant. Non-blocking — the list renders as soon as it lands.
+    void refreshPaymentsCache();
     apiFetch<SubscriptionsResponse>('/subscriptions')
       .then((res) => {
         if (!cancelled) setSubs(res.subscriptions);
@@ -198,11 +202,20 @@ export default function Dashboard() {
   const annualTotal = total * 12;
 
   const detailSub = subs.find((s) => s.id === detailId) ?? null;
-  const onUpdated = (s: Subscription) =>
+  // Mutations change payment history/periods (ghost, reactivate, add, delete),
+  // so refresh the preloaded cache after each so the next detail open is fresh.
+  const onUpdated = (s: Subscription) => {
     setSubs((prev) => prev.map((p) => (p.id === s.id ? s : p)));
-  const onDeleted = (id: string) => setSubs((prev) => prev.filter((p) => p.id !== id));
-  const onCreated = (s: Subscription) =>
+    void refreshPaymentsCache();
+  };
+  const onDeleted = (id: string) => {
+    setSubs((prev) => prev.filter((p) => p.id !== id));
+    void refreshPaymentsCache();
+  };
+  const onCreated = (s: Subscription) => {
     setSubs((prev) => [s, ...prev.filter((p) => p.id !== s.id)]);
+    void refreshPaymentsCache();
+  };
 
   return (
     <View style={styles.root}>
