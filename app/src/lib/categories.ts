@@ -66,6 +66,14 @@ export function categoryFor(provider: string): ProviderInfo {
   return FALLBACK;
 }
 
+// The CURATED brand color for a provider, or null when we don't have one (i.e.
+// the FALLBACK grey). Lets callers fall back to a logo-extracted color instead
+// of the grey placeholder.
+export function curatedBrandColor(provider: string): string | null {
+  const info = categoryFor(provider);
+  return info === FALLBACK ? null : (info.brandColor ?? null);
+}
+
 // Best-effort brand domain for the logo CDN. Returns `null` if the
 // provider name is too short / empty to guess from.
 export function domainFor(provider: string): string | null {

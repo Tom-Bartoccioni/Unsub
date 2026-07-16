@@ -14,6 +14,7 @@ import { useAuth } from '@/state/auth';
 import { usePrefs, useTheme, useT } from '@/state/preferences';
 import { ApiError, apiFetch } from '@/lib/api';
 import { refreshPaymentsCache } from '@/lib/paymentsCache';
+import { preloadLogoColors } from '@/lib/logoColor';
 import { maybePromptForNotificationsOnFirstLogin } from '@/lib/push';
 import { categoryColor, categoryFor } from '@/lib/categories';
 import { convert, formatPrice, monthlyAmount } from '@/lib/money';
@@ -99,6 +100,8 @@ export default function Dashboard() {
     apiFetch<SubscriptionsResponse>('/subscriptions')
       .then((res) => {
         if (!cancelled) setSubs(res.subscriptions);
+        // Preload logo brand colors so the detail hero is tinted instantly.
+        void preloadLogoColors(res.subscriptions.map((s) => s.provider));
       })
       .catch((e: unknown) => {
         if (cancelled) return;

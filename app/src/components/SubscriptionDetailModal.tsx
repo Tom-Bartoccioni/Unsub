@@ -11,7 +11,8 @@ import { UnsubscribeModal } from './UnsubscribeModal';
 import { ReactivateModal } from './ReactivateModal';
 import { ApiError, apiFetch } from '@/lib/api';
 import { getCachedHistory } from '@/lib/paymentsCache';
-import { categoryFor } from '@/lib/categories';
+import { categoryColor, categoryFor, curatedBrandColor } from '@/lib/categories';
+import { useLogoColor } from '@/lib/logoColor';
 import { formatDate, formatPrice, monthlyAmount } from '@/lib/money';
 import { radius, spacing, type ColorSet } from '@/theme';
 import { usePrefs, useTheme } from '@/state/preferences';
@@ -50,7 +51,17 @@ export function SubscriptionDetailModal({
   const [reactivateOpen, setReactivateOpen] = useState(false);
 
   const brand = sub ? categoryFor(sub.provider) : null;
-  const brandColor = brand?.brandColor ?? colors.card;
+  // Brand color priority: CURATED brandColor (categories.ts, null for unknowns
+  // — the grey fallback must NOT win here) → color extracted from the real logo
+  // (covers everything else, e.g. Basic-Fit orange) → category color → neutral
+  // card. Keeps the hero on-brand for all 216 catalog services.
+  const curated = sub ? curatedBrandColor(sub.provider) : null;
+  const logoColor = useLogoColor(sub?.provider);
+  const brandColor =
+    curated ??
+    logoColor ??
+    (sub?.category ? categoryColor(sub.category) : null) ??
+    colors.card;
   const isDark = prefs.theme === 'dark';
   const tint = useMemo(() => brandTint(brandColor, isDark), [brandColor, isDark]);
   const accent = useMemo(() => brandAccent(brandColor, isDark), [brandColor, isDark]);
