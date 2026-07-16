@@ -41,11 +41,13 @@ export async function refreshPaymentsCache(): Promise<boolean> {
 }
 
 // Read a subscription's history from the cache. Returns undefined if the batch
-// hasn't loaded yet OR the sub has no events/periods (the caller can then do a
-// per-sub fetch as a fallback / to be sure).
+// hasn't loaded yet OR this subscription isn't in the batch (e.g. just created,
+// before the cache refreshed). In both cases the caller should fall back to a
+// per-sub fetch. Returns an object only when the sub is genuinely present in the
+// cache (even if it has zero events).
 export function getCachedHistory(subscriptionId: string): SubHistory | undefined {
   if (!loaded) return undefined;
-  return cache[subscriptionId] ?? { payments: [], periods: [] };
+  return cache[subscriptionId]; // undefined when the sub isn't in the batch yet
 }
 
 export function isPaymentsCacheLoaded(): boolean {

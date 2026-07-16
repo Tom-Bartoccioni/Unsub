@@ -67,15 +67,22 @@ export function SubscriptionDetailModal({
       return;
     }
     let cancelled = false;
-    // Instant path: read the preloaded batch cache. If present, render
-    // immediately with no round trip.
+    // Instant path: the preloaded batch cache already has this sub's history.
+    // Apply it on the NEXT frame rather than synchronously — a synchronous
+    // setState as the Modal mounts interrupts its native slide-in animation, so
+    // the sheet popped in instead of sliding. One frame later, the animation is
+    // under way and filling the content no longer cancels it.
     const cached = getCachedHistory(sub.id);
     if (cached) {
-      setPayments(cached.payments);
-      setPeriods(cached.periods);
-      setPaymentsLoaded(true);
+      const raf = requestAnimationFrame(() => {
+        if (cancelled) return;
+        setPayments(cached.payments);
+        setPeriods(cached.periods);
+        setPaymentsLoaded(true);
+      });
       return () => {
         cancelled = true;
+        cancelAnimationFrame(raf);
       };
     }
     // Fallback: cache not warm yet (cold start / offline) — fetch this sub.

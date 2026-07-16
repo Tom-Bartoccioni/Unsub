@@ -193,6 +193,7 @@ export const en = {
     step4Subtitle:
       'Optional. We’ll fill in past payments since this date so you see what you’ve spent.',
     noPastPayments: 'No past payments will be added.',
+    startFuture: 'The start date can’t be in the future.',
     pastPayments: '{{count}} past payment will be added.',
     pastPayments_plural: '{{count}} past payments will be added.',
     dupTitle: 'You already track {{provider}}',

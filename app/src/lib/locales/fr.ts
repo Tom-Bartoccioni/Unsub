@@ -196,6 +196,7 @@ export const fr = {
     step4Subtitle:
       'Facultatif. On ajoutera les paiements passés depuis cette date pour que vous voyiez ce que vous avez dépensé.',
     noPastPayments: 'Aucun paiement passé ne sera ajouté.',
+    startFuture: 'La date de début ne peut pas être dans le futur.',
     pastPayments: '{{count}} paiement passé sera ajouté.',
     pastPayments_plural: '{{count}} paiements passés seront ajoutés.',
     dupTitle: 'Vous suivez déjà {{provider}}',

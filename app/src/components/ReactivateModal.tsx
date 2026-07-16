@@ -174,6 +174,15 @@ export function ReactivateModal({
     [startDaysInMonth],
   );
 
+  // Block a future start date on the last step.
+  const isStartFuture = useMemo(() => {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const pickedDay = new Date(startedAt);
+    pickedDay.setHours(0, 0, 0, 0);
+    return pickedDay.getTime() > startOfToday.getTime();
+  }, [startedAt]);
+
   const setStartPart = (part: 'y' | 'm' | 'd', value: number) => {
     setStartedAt((cur) => {
       let y = cur.getFullYear();
@@ -183,6 +192,8 @@ export function ReactivateModal({
       if (part === 'm') m = value;
       if (part === 'd') d = value;
       const maxDay = new Date(y, m + 1, 0).getDate();
+      // Keep the picked value; the step validates future dates and blocks the
+      // CTA rather than silently clamping (which desyncs the wheel from the UI).
       return new Date(y, m, Math.min(d, maxDay));
     });
   };
@@ -391,6 +402,9 @@ export function ReactivateModal({
                     onChange={(v) => setStartPart('y', v)}
                   />
                 </View>
+                {isStartFuture ? (
+                  <Text style={styles.futureWarning}>{t('wizard.startFuture')}</Text>
+                ) : null}
               </>
             )}
 
@@ -398,7 +412,11 @@ export function ReactivateModal({
           </ScrollView>
 
           <Pressable
-            style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed, busy && styles.disabled]}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              pressed && styles.pressed,
+              (busy || (step === STEP_COUNT - 1 && isStartFuture)) && styles.disabled,
+            ]}
             onPress={() => {
               if (step < STEP_COUNT - 1) {
                 if (editing) commitAmount();
@@ -407,7 +425,7 @@ export function ReactivateModal({
                 void submit();
               }
             }}
-            disabled={busy}
+            disabled={busy || (step === STEP_COUNT - 1 && isStartFuture)}
           >
             <Text style={styles.primaryButtonText}>
               {step < STEP_COUNT - 1
@@ -526,6 +544,13 @@ function makeStyles(colors: ColorSet) {
       justifyContent: 'center',
     },
     error: { color: colors.danger, fontSize: 13, marginTop: spacing.sm },
+    futureWarning: {
+      color: colors.danger,
+      fontSize: 13,
+      fontWeight: '600',
+      textAlign: 'center',
+      marginTop: spacing.sm,
+    },
     primaryButton: {
       backgroundColor: colors.textPrimary,
       minHeight: 52,

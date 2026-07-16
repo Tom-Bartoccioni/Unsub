@@ -4,18 +4,42 @@
 //
 //   pnpm --filter @unsub/api tsx scripts/seed-paused-sub.ts
 import 'dotenv/config';
+import { and, eq } from 'drizzle-orm';
 import { closeDb, getDb } from '../src/db/client.js';
 import { paymentEvents, subscriptionPeriods, subscriptions, users } from '../src/db/schema.js';
 import { loadEnv } from '../src/env.js';
+
+function flag(name: string): string | undefined {
+  const i = process.argv.indexOf(`--${name}`);
+  if (i >= 0 && process.argv[i + 1]) return process.argv[i + 1];
+  const eq = process.argv.find((a) => a.startsWith(`--${name}=`));
+  return eq ? eq.slice(name.length + 3) : undefined;
+}
 
 async function main(): Promise<void> {
   const env = loadEnv();
   const db = getDb(env.DATABASE_URL);
 
-  const [user] = await db.select().from(users).limit(1);
+  const email = flag('user');
+  const clean = process.argv.includes('--clean');
+  const [user] = email
+    ? await db.select().from(users).where(eq(users.email, email)).limit(1)
+    : await db.select().from(users).limit(1);
   if (!user) {
-    console.error('No users in DB — sign in via the app first.');
+    console.error(email ? `No user with email ${email}.` : 'No users in DB — sign in first.');
     process.exit(1);
+  }
+
+  // --clean removes any prior "Paused Demo" for this user (cascade drops its
+  // periods + events) and exits. Used to undo a mis-targeted seed.
+  if (clean) {
+    const removed = await db
+      .delete(subscriptions)
+      .where(and(eq(subscriptions.userId, user.id), eq(subscriptions.providerKey, 'paused')))
+      .returning({ id: subscriptions.id });
+    console.log(`Removed ${removed.length} "Paused Demo" sub(s) for ${user.email}.`);
+    await closeDb();
+    return;
   }
 
   // Dates: tracked 2025-09-01 → cancelled 2025-12-15, then reactivated

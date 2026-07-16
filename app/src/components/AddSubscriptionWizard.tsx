@@ -717,12 +717,15 @@ function StartedStep({
 }) {
   const { t } = useT();
   // Suggest the start date as one cycle before the next payment: a yearly sub
-  // renewing 4 Aug 2026 most likely started 4 Aug 2025. This is consistent with
-  // the renewal date the user just set, and they can still scroll to adjust.
-  const suggested = useMemo(
-    () => oneCycleBefore(draft.date, draft.frequency),
-    [draft.date, draft.frequency],
-  );
+  // renewing 4 Aug 2026 most likely started 4 Aug 2025. Clamp to today though —
+  // a sub can't have started in the future (e.g. next payment 20 Aug on a
+  // monthly sub added on the 16th would suggest 20 Jul, which is still ahead),
+  // and a future start yields zero backfilled charges + a broken "since" date.
+  const suggested = useMemo(() => {
+    const s = oneCycleBefore(draft.date, draft.frequency);
+    const today = new Date();
+    return s.getTime() > today.getTime() ? today : s;
+  }, [draft.date, draft.frequency]);
   const value = draft.startedAt ?? suggested;
 
   const now = new Date();
@@ -740,6 +743,9 @@ function StartedStep({
       if (part === 'm') m = v;
       if (part === 'd') day = v;
       const maxDay = new Date(y, m + 1, 0).getDate();
+      // Keep the value the user actually picked (even if future); the step
+      // validates it and blocks the CTA rather than silently clamping, which
+      // was confusing (the wheel showed a different day than the summary).
       return { ...prev, startedAt: new Date(y, m, Math.min(day, maxDay)) };
     });
   };
@@ -751,6 +757,16 @@ function StartedStep({
   const skip = () => onSubmitWith(null);
   const confirmAndSubmit = () => onSubmitWith(effectiveStartedAt);
   const confirmAndForce = () => onForceSubmitWith(effectiveStartedAt);
+
+  // Block a future start date: compare at day granularity (a same-day pick is
+  // fine). When future, we show a warning and disable the CTA.
+  const isFuture = useMemo(() => {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const pickedDay = new Date(value);
+    pickedDay.setHours(0, 0, 0, 0);
+    return pickedDay.getTime() > startOfToday.getTime();
+  }, [value]);
 
   const cycles = countCyclesSince(value, draft.frequency);
   const preview = value.toLocaleDateString(undefined, {
@@ -770,10 +786,14 @@ function StartedStep({
         <Text style={styles.stepTitle}>{t('wizard.step4Title')}</Text>
         <Text style={styles.stepSubtitle}>{t('wizard.step4Subtitle')}</Text>
 
-        <View style={styles.startedPreview}>
+        <View style={[styles.startedPreview, isFuture && styles.startedPreviewError]}>
           <Text style={styles.startedPreviewDate}>{preview}</Text>
-          <Text style={styles.startedPreviewMeta}>
-            {cycles === 0 ? t('wizard.noPastPayments') : t('wizard.pastPayments', { count: cycles })}
+          <Text style={[styles.startedPreviewMeta, isFuture && styles.startedPreviewErrorText]}>
+            {isFuture
+              ? t('wizard.startFuture')
+              : cycles === 0
+                ? t('wizard.noPastPayments')
+                : t('wizard.pastPayments', { count: cycles })}
           </Text>
         </View>
 
@@ -810,7 +830,7 @@ function StartedStep({
           <PrimaryButton
             label={submitting ? t('wizard.addingBusy') : t('wizard.addAnyway')}
             onPress={confirmAndForce}
-            disabled={submitting}
+            disabled={submitting || isFuture}
             styles={styles}
           />
         </View>
@@ -819,7 +839,7 @@ function StartedStep({
           <PrimaryButton
             label={submitting ? t('wizard.addingBusy') : t('wizard.addSubscription')}
             onPress={confirmAndSubmit}
-            disabled={submitting}
+            disabled={submitting || isFuture}
             styles={styles}
           />
           <Pressable onPress={skip} style={styles.skipLink}>
@@ -1004,6 +1024,8 @@ function makeStyles(colors: ColorSet) {
     },
     startedPreviewDate: { color: colors.textPrimary, fontSize: 15, fontWeight: '600' },
     startedPreviewMeta: { color: colors.textTertiary, fontSize: 12 },
+    startedPreviewError: { borderColor: colors.danger },
+    startedPreviewErrorText: { color: colors.danger, fontWeight: '600' },
 
     amountRow: {
       flexDirection: 'row',
