@@ -19,7 +19,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.microsoft.com/services',
-    cancelNotes: 'Select Manage next to Game Pass, then Cancel subscription. If bought on console via a store, cancel there.',
+    cancelNotes:
+      'Select Manage next to Game Pass, then Cancel subscription. If bought on console via a store, cancel there.',
   },
   {
     id: 'xbox-game-pass-premium',
@@ -52,9 +53,7 @@ export const GAMING: CatalogService[] = [
     aliases: ['pc game pass', 'game pass pc'],
     domain: 'xbox.com',
     category: 'Gaming',
-    plans: [
-      { name: 'PC', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'PC', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.microsoft.com/services',
@@ -70,7 +69,13 @@ export const GAMING: CatalogService[] = [
     category: 'Gaming',
     plans: [
       { name: 'Essential (monthly)', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Essential (yearly)', amount: 79.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Essential (yearly)',
+        amount: 79.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
@@ -85,7 +90,13 @@ export const GAMING: CatalogService[] = [
     category: 'Gaming',
     plans: [
       { name: 'Extra (monthly)', amount: 14.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Extra (yearly)', amount: 134.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Extra (yearly)',
+        amount: 134.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
@@ -100,7 +111,13 @@ export const GAMING: CatalogService[] = [
     category: 'Gaming',
     plans: [
       { name: 'Premium (monthly)', amount: 16.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Premium (yearly)', amount: 159.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Premium (yearly)',
+        amount: 159.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
@@ -151,7 +168,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.ea.com/manage-membership/cancel',
-    cancelNotes: 'Cancel here if billed by EA directly; Steam/PlayStation/Xbox/Epic/Amazon subscriptions must be cancelled on that platform.',
+    cancelNotes:
+      'Cancel here if billed by EA directly; Steam/PlayStation/Xbox/Epic/Amazon subscriptions must be cancelled on that platform.',
   },
   {
     id: 'ea-play-pro',
@@ -188,7 +206,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.ubisoft.com/subscriptions',
-    cancelNotes: 'Cancel here if billed by Ubisoft directly; console/store subscriptions must be cancelled on that platform.',
+    cancelNotes:
+      'Cancel here if billed by Ubisoft directly; console/store subscriptions must be cancelled on that platform.',
   },
 
   // --- Cloud gaming -------------------------------------------------------------
@@ -205,7 +224,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.nvidia.com',
-    cancelNotes: 'Cancellation is a downgrade to the Free tier under account management; Apple/Google Play plans are cancelled in the store.',
+    cancelNotes:
+      'Cancellation is a downgrade to the Free tier under account management; Apple/Google Play plans are cancelled in the store.',
   },
   {
     id: 'amazon-luna',
@@ -278,7 +298,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.battle.net/subscriptions',
-    cancelNotes: 'Under Games & Subscriptions, cancel WoW recurring billing; the account and characters are preserved.',
+    cancelNotes:
+      'Under Games & Subscriptions, cancel WoW recurring billing; the account and characters are preserved.',
   },
   {
     id: 'final-fantasy-xiv',
@@ -308,7 +329,8 @@ export const GAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.roblox.com/my/account#!/subscriptions',
-    cancelNotes: 'In Settings > Subscriptions, choose Cancel Renewal; iOS/Android purchases must be cancelled in the store.',
+    cancelNotes:
+      'In Settings > Subscriptions, choose Cancel Renewal; iOS/Android purchases must be cancelled in the store.',
   },
   {
     id: 'minecraft-realms-plus',
@@ -329,13 +351,20 @@ export const GAMING: CatalogService[] = [
     category: 'Gaming',
     plans: [
       { name: 'Nitro Basic', amount: 2.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Nitro (monthly)', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Nitro (monthly)',
+        amount: 9.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Nitro (yearly)', amount: 99.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://discord.com/settings/subscriptions',
-    cancelNotes: 'Cancel here for web/desktop-purchased Nitro; iOS/Android purchases must be cancelled in the store.',
+    cancelNotes:
+      'Cancel here for web/desktop-purchased Nitro; iOS/Android purchases must be cancelled in the store.',
   },
   {
     id: 'twitch-turbo',
@@ -345,9 +374,7 @@ export const GAMING: CatalogService[] = [
     aliases: ['twitch turbo', 'turbo'],
     domain: 'twitch.tv',
     category: 'Gaming',
-    plans: [
-      { name: 'Turbo', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Turbo', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
   {
@@ -356,9 +383,7 @@ export const GAMING: CatalogService[] = [
     aliases: ['fortnite crew', 'fortnite', 'crew'],
     domain: 'fortnite.com',
     category: 'Gaming',
-    plans: [
-      { name: 'Crew', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Crew', amount: 11.99, currency: 'EUR', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
 ];

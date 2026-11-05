@@ -58,10 +58,7 @@ export function SubscriptionDetailModal({
   const curated = sub ? curatedBrandColor(sub.provider) : null;
   const logoColor = useLogoColor(sub?.provider);
   const brandColor =
-    curated ??
-    logoColor ??
-    (sub?.category ? categoryColor(sub.category) : null) ??
-    colors.card;
+    curated ?? logoColor ?? (sub?.category ? categoryColor(sub.category) : null) ?? colors.card;
   const isDark = prefs.theme === 'dark';
   const tint = useMemo(() => brandTint(brandColor, isDark), [brandColor, isDark]);
   const accent = useMemo(() => brandAccent(brandColor, isDark), [brandColor, isDark]);
@@ -123,7 +120,10 @@ export function SubscriptionDetailModal({
   // the next period is a "cancelled" gap to mark in the timeline.
   const gaps = useMemo(() => {
     const sorted = [...periods]
-      .map((p) => ({ startedAt: new Date(p.startedAt), endedAt: p.endedAt ? new Date(p.endedAt) : null }))
+      .map((p) => ({
+        startedAt: new Date(p.startedAt),
+        endedAt: p.endedAt ? new Date(p.endedAt) : null,
+      }))
       .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
     const out: { from: Date; to: Date }[] = [];
     for (let i = 0; i < sorted.length - 1; i++) {
@@ -276,11 +276,7 @@ export function SubscriptionDetailModal({
               <Text style={styles.nextPaymentLabel}>{t('detail.nextPayment')}</Text>
               {/* Large hero amount — shrink to fit so a long value ("1 234,56
                   CHF") never overflows the card on narrow phones. */}
-              <Text
-                style={styles.nextPaymentAmount}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
+              <Text style={styles.nextPaymentAmount} numberOfLines={1} adjustsFontSizeToFit>
                 −{formatPrice(sub.amount, sub.currency)}
               </Text>
               <Text style={styles.nextPaymentDate}>

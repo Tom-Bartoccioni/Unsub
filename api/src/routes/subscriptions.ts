@@ -126,7 +126,13 @@ export function makeSubscriptionsRoutes(deps: SubscriptionsRouteDeps) {
       const bySub: Record<
         string,
         {
-          payments: { id: string; chargedAt: string; amount: number; currency: string; source: string }[];
+          payments: {
+            id: string;
+            chargedAt: string;
+            amount: number;
+            currency: string;
+            source: string;
+          }[];
           periods: { startedAt: string; endedAt: string | null }[];
         }
       > = {};

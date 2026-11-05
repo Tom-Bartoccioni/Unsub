@@ -72,7 +72,9 @@ export function UnsubscribeModal({
   const storeUrl = Platform.OS === 'ios' ? APPLE_SUBS_URL : PLAY_SUBS_URL;
   const openStore = () => openUrl(storeUrl);
   const openSearch = () =>
-    openUrl(`https://www.google.com/search?q=${encodeURIComponent(`how to cancel ${provider} subscription`)}`);
+    openUrl(
+      `https://www.google.com/search?q=${encodeURIComponent(`how to cancel ${provider} subscription`)}`,
+    );
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>

@@ -523,55 +523,55 @@ function AmountStep({ draft, setDraft, onNext, styles }: StepProps) {
         <Text style={styles.stepSubtitle}>{t('wizard.step2Subtitle')}</Text>
 
         <View style={styles.amountRow}>
-        <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
-          <Ionicons name="remove" size={24} color={colors.textPrimary} />
-        </Pressable>
+          <Pressable style={styles.stepperButton} onPress={() => nudge(-1)} hitSlop={8}>
+            <Ionicons name="remove" size={24} color={colors.textPrimary} />
+          </Pressable>
 
-        <View style={styles.amountDisplay}>
-          <View style={styles.amountInlineRow}>
-            {editing ? (
-              <TextInput
-                style={styles.amountInput}
-                value={text}
-                onChangeText={setText}
-                onBlur={commit}
-                onSubmitEditing={commit}
-                keyboardType="decimal-pad"
-                autoFocus
-                selectTextOnFocus
-                placeholderTextColor={colors.textTertiary}
-              />
-            ) : (
-              <Pressable
-                onPress={() => {
-                  setText(draft.amount.toFixed(2));
-                  setEditing(true);
-                }}
-              >
-                <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
-              </Pressable>
-            )}
+          <View style={styles.amountDisplay}>
+            <View style={styles.amountInlineRow}>
+              {editing ? (
+                <TextInput
+                  style={styles.amountInput}
+                  value={text}
+                  onChangeText={setText}
+                  onBlur={commit}
+                  onSubmitEditing={commit}
+                  keyboardType="decimal-pad"
+                  autoFocus
+                  selectTextOnFocus
+                  placeholderTextColor={colors.textTertiary}
+                />
+              ) : (
+                <Pressable
+                  onPress={() => {
+                    setText(draft.amount.toFixed(2));
+                    setEditing(true);
+                  }}
+                >
+                  <Text style={styles.amountValue}>{draft.amount.toFixed(2)}</Text>
+                </Pressable>
+              )}
 
-            <View style={styles.currencyWheelWrap}>
-              <WheelPicker<string>
-                values={currencyValues}
-                selected={draft.currency}
-                onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
-                compact
-              />
+              <View style={styles.currencyWheelWrap}>
+                <WheelPicker<string>
+                  values={currencyValues}
+                  selected={draft.currency}
+                  onChange={(c) => setDraft((d) => ({ ...d, currency: c }))}
+                  compact
+                />
+              </View>
             </View>
+            {!editing && (
+              <Text style={styles.amountHint}>
+                {t('wizard.amountHint', { symbol: currencySymbol(draft.currency) })}
+              </Text>
+            )}
           </View>
-          {!editing && (
-            <Text style={styles.amountHint}>
-              {t('wizard.amountHint', { symbol: currencySymbol(draft.currency) })}
-            </Text>
-          )}
-        </View>
 
-        <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
-          <Ionicons name="add" size={24} color={colors.textPrimary} />
-        </Pressable>
-      </View>
+          <Pressable style={styles.stepperButton} onPress={() => nudge(1)} hitSlop={8}>
+            <Ionicons name="add" size={24} color={colors.textPrimary} />
+          </Pressable>
+        </View>
 
         <Text style={styles.amountSectionLabel}>{t('wizard.commonPrices')}</Text>
         <View style={styles.presetRow}>

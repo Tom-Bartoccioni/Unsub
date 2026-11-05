@@ -46,7 +46,10 @@ export function makeCatalogRoutes(deps: CatalogRouteDeps) {
     // skip re-storing when nothing changed. Also set as a weak ETag so a
     // conditional GET can 304.
     fastify.get('/catalog', async (req, reply) => {
-      const [rows, latest] = await Promise.all([deps.store.listAll(), deps.store.latestUpdatedAt()]);
+      const [rows, latest] = await Promise.all([
+        deps.store.listAll(),
+        deps.store.latestUpdatedAt(),
+      ]);
       const version = latest ? latest.toISOString() : null;
       const etag = version ? `W/"${version}"` : undefined;
 

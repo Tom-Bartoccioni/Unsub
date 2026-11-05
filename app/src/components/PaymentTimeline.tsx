@@ -55,7 +55,10 @@ export function buildTimelinePoints(opts: {
     for (const g of gaps) {
       // Marker sits between the last pre-pause charge and the first post-pause
       // one (positioned at the pause midpoint).
-      merged.push({ date: new Date((g.from.getTime() + g.to.getTime()) / 2), kind: 'gap' as const });
+      merged.push({
+        date: new Date((g.from.getTime() + g.to.getTime()) / 2),
+        kind: 'gap' as const,
+      });
     }
     merged.sort((a, b) => a.date.getTime() - b.date.getTime());
 

@@ -462,10 +462,7 @@ export function createDrizzleSubscriptionStore(
         .update(subscriptionPeriods)
         .set({ endedAt: now })
         .where(
-          and(
-            eq(subscriptionPeriods.subscriptionId, row.id),
-            isNull(subscriptionPeriods.endedAt),
-          ),
+          and(eq(subscriptionPeriods.subscriptionId, row.id), isNull(subscriptionPeriods.endedAt)),
         );
       // If the sub was ghosted and reactivated on the SAME day, don't fragment
       // into a new period — just reopen the one that closed today (and refresh
@@ -480,7 +477,8 @@ export function createDrizzleSubscriptionStore(
         .orderBy(desc(subscriptionPeriods.endedAt))
         .limit(1);
       const sameDay =
-        latestClosed?.endedAt != null && startOfUtcDayMs(latestClosed.endedAt) === startOfUtcDayMs(resume);
+        latestClosed?.endedAt != null &&
+        startOfUtcDayMs(latestClosed.endedAt) === startOfUtcDayMs(resume);
       if (sameDay && latestClosed) {
         await db
           .update(subscriptionPeriods)

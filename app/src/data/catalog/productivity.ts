@@ -20,7 +20,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://chatgpt.com/#settings/Subscription',
-    cancelNotes: 'Cancel under Settings > Billing if billed by OpenAI; if you subscribed in the mobile app, cancel via your app store.',
+    cancelNotes:
+      'Cancel under Settings > Billing if billed by OpenAI; if you subscribed in the mobile app, cancel via your app store.',
   },
   {
     id: 'claude-pro',
@@ -36,7 +37,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://claude.ai/settings/billing',
-    cancelNotes: 'Cancel under Settings > Billing if billed by Anthropic; if you subscribed in the mobile app, cancel via your app store.',
+    cancelNotes:
+      'Cancel under Settings > Billing if billed by Anthropic; if you subscribed in the mobile app, cancel via your app store.',
   },
   {
     id: 'google-ai-pro',
@@ -51,7 +53,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://one.google.com/settings',
-    cancelNotes: 'Google AI Pro is managed through Google One; cancel there. If you subscribed via an app store, cancel there instead.',
+    cancelNotes:
+      'Google AI Pro is managed through Google One; cancel there. If you subscribed via an app store, cancel there instead.',
   },
   {
     id: 'perplexity-pro',
@@ -66,7 +69,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.perplexity.ai/settings/account',
-    cancelNotes: 'Cancel under Settings > Manage Subscription if billed by Perplexity; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Settings > Manage Subscription if billed by Perplexity; app-store subscriptions cancel via the store.',
   },
 
   // --- Office / all-in-one suites ---
@@ -83,7 +87,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.microsoft.com/services/microsoft365',
-    cancelNotes: 'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
+    cancelNotes:
+      'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
   },
   {
     id: 'microsoft-365-family',
@@ -98,7 +103,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.microsoft.com/services/microsoft365',
-    cancelNotes: 'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
+    cancelNotes:
+      'Select Manage > Turn off recurring billing (or Cancel subscription); app-store purchases cancel via the store.',
   },
   {
     id: 'google-workspace',
@@ -107,7 +113,13 @@ export const PRODUCTIVITY: CatalogService[] = [
     domain: 'workspace.google.com',
     category: 'Productivity',
     plans: [
-      { name: 'Business Starter', amount: 6.9, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Business Starter',
+        amount: 6.9,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -125,7 +137,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
-    cancelNotes: 'In the app go to Settings > Billing > Change plan and downgrade to Free; only workspace owners can do this.',
+    cancelNotes:
+      'In the app go to Settings > Billing > Change plan and downgrade to Free; only workspace owners can do this.',
   },
   {
     id: 'obsidian-sync',
@@ -233,9 +246,7 @@ export const PRODUCTIVITY: CatalogService[] = [
     aliases: ['make', 'integromat'],
     domain: 'make.com',
     category: 'Productivity',
-    plans: [
-      { name: 'Core', amount: 9, currency: 'USD', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Core', amount: 9, currency: 'USD', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
 
@@ -253,7 +264,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.grammarly.com/subscription',
-    cancelNotes: 'Cancel under Account > Subscription if billed by Grammarly; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Account > Subscription if billed by Grammarly; app-store subscriptions cancel via the store.',
   },
 
   // --- Creative / design ---
@@ -275,13 +287,12 @@ export const PRODUCTIVITY: CatalogService[] = [
     aliases: ['canva'],
     domain: 'canva.com',
     category: 'Productivity',
-    plans: [
-      { name: 'Pro', amount: 12, currency: 'EUR', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Pro', amount: 12, currency: 'EUR', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.canva.com/settings/billing-and-plans',
-    cancelNotes: 'Cancel under Billing & Plans if billed by Canva; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Billing & Plans if billed by Canva; app-store subscriptions cancel via the store.',
   },
   {
     id: 'adobe-creative-cloud',
@@ -290,12 +301,19 @@ export const PRODUCTIVITY: CatalogService[] = [
     domain: 'adobe.com',
     category: 'Productivity',
     plans: [
-      { name: 'Toutes les applications', amount: 78.65, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Toutes les applications',
+        amount: 78.65,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.adobe.com/plans',
-    cancelNotes: 'Select Manage plan > Cancel your plan; early cancellation of an annual plan may incur a fee.',
+    cancelNotes:
+      'Select Manage plan > Cancel your plan; early cancellation of an annual plan may incur a fee.',
   },
   {
     id: 'adobe-photography',
@@ -304,12 +322,19 @@ export const PRODUCTIVITY: CatalogService[] = [
     domain: 'adobe.com',
     category: 'Productivity',
     plans: [
-      { name: 'Formule Photo (1 To)', amount: 23.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Formule Photo (1 To)',
+        amount: 23.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.adobe.com/plans',
-    cancelNotes: 'Select Manage plan > Cancel your plan for the Photography plan; early cancellation of an annual plan may incur a fee.',
+    cancelNotes:
+      'Select Manage plan > Cancel your plan for the Photography plan; early cancellation of an annual plan may incur a fee.',
   },
   {
     id: 'adobe-acrobat-pro',
@@ -428,7 +453,8 @@ export const PRODUCTIVITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://github.com/settings/billing',
-    cancelNotes: 'Under Billing & licensing, use Manage subscription > Cancel subscription; org/enterprise-provided Copilot cannot be self-cancelled.',
+    cancelNotes:
+      'Under Billing & licensing, use Manage subscription > Cancel subscription; org/enterprise-provided Copilot cannot be self-cancelled.',
   },
   {
     id: 'gitlab-premium',
@@ -436,9 +462,7 @@ export const PRODUCTIVITY: CatalogService[] = [
     aliases: ['gitlab'],
     domain: 'gitlab.com',
     category: 'Productivity',
-    plans: [
-      { name: 'Premium', amount: 29, currency: 'USD', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Premium', amount: 29, currency: 'USD', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
   {
@@ -447,9 +471,7 @@ export const PRODUCTIVITY: CatalogService[] = [
     aliases: ['vercel'],
     domain: 'vercel.com',
     category: 'Productivity',
-    plans: [
-      { name: 'Pro', amount: 20, currency: 'USD', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Pro', amount: 20, currency: 'USD', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
   {
@@ -458,9 +480,7 @@ export const PRODUCTIVITY: CatalogService[] = [
     aliases: ['netlify'],
     domain: 'netlify.com',
     category: 'Productivity',
-    plans: [
-      { name: 'Pro', amount: 20, currency: 'USD', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Pro', amount: 20, currency: 'USD', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
 ];

@@ -22,7 +22,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.headspace.com/subscription/manage',
-    cancelNotes: 'Log in on a browser (not the app) and tap Cancel membership; App Store/Google Play subscriptions are cancelled in the store.',
+    cancelNotes:
+      'Log in on a browser (not the app) and tap Cancel membership; App Store/Google Play subscriptions are cancelled in the store.',
   },
   {
     id: 'calm',
@@ -37,7 +38,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.calm.com/',
-    cancelNotes: 'For Calm.com purchases, use Settings > Manage Subscription > Cancel; mobile subscriptions are cancelled in the App Store or Google Play.',
+    cancelNotes:
+      'For Calm.com purchases, use Settings > Manage Subscription > Cancel; mobile subscriptions are cancelled in the App Store or Google Play.',
   },
   // ------------------------------------------------------------- FITNESS APPS
   {
@@ -65,7 +67,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.strava.com/settings/subscription',
-    cancelNotes: 'For website subscriptions, use Settings > My Account > Cancel subscription; store subscriptions must be cancelled in the store.',
+    cancelNotes:
+      'For website subscriptions, use Settings > My Account > Cancel subscription; store subscriptions must be cancelled in the store.',
   },
   {
     id: 'fitbit-premium',
@@ -123,7 +126,13 @@ export const WELLNESS: CatalogService[] = [
     domain: 'onepeloton.com',
     category: 'Wellness',
     plans: [
-      { name: 'App One (annuel)', amount: 129, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'App One (annuel)',
+        amount: 129,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'App One (mensuel)', amount: 12.99, currency: 'EUR', frequency: 'monthly' },
       { name: 'App+ (mensuel)', amount: 24, currency: 'EUR', frequency: 'monthly' },
     ],
@@ -184,7 +193,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://my.basic-fit.com/cancel-membership',
-    cancelNotes: 'Cancel via your My Basic-Fit account; a 4-week notice period applies and the contract minimum term must be met. This is a resiliation, not account deletion.',
+    cancelNotes:
+      'Cancel via your My Basic-Fit account; a 4-week notice period applies and the contract minimum term must be met. This is a resiliation, not account deletion.',
   },
   {
     id: 'fitness-park',
@@ -200,7 +210,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://adherent.fitnesspark.fr/',
-    cancelNotes: 'Cancel in your Espace Adherent via Resilier mon abonnement (a supporting document may be requested); 4-week notice applies. This is a resiliation, not account deletion.',
+    cancelNotes:
+      'Cancel in your Espace Adherent via Resilier mon abonnement (a supporting document may be requested); 4-week notice applies. This is a resiliation, not account deletion.',
   },
   {
     id: 'neoness',
@@ -209,7 +220,7 @@ export const WELLNESS: CatalogService[] = [
     domain: 'neoness.fr',
     category: 'Wellness',
     plans: [
-      { name: 'Standard', amount: 14.90, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: 'Standard', amount: 14.9, currency: 'EUR', frequency: 'monthly', default: true },
       { name: 'Prime', amount: 34.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -255,7 +266,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://tinder.com/app/settings',
-    cancelNotes: 'For tinder.com purchases, use Settings > Manage Payment Account > Cancel; in-app purchases must be cancelled in the App Store or Google Play.',
+    cancelNotes:
+      'For tinder.com purchases, use Settings > Manage Payment Account > Cancel; in-app purchases must be cancelled in the App Store or Google Play.',
   },
   {
     id: 'bumble',
@@ -308,7 +320,8 @@ export const WELLNESS: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.meetic.fr/',
-    cancelNotes: "Log in on a computer, then Parametres du compte > Gerer le compte > Gerer l'abonnement and cancel auto-renewal; app-store subscriptions are cancelled in the store.",
+    cancelNotes:
+      "Log in on a computer, then Parametres du compte > Gerer le compte > Gerer l'abonnement and cancel auto-renewal; app-store subscriptions are cancelled in the store.",
   },
   {
     id: 'grindr',

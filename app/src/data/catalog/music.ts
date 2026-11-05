@@ -14,14 +14,15 @@ export const MUSIC_AUDIO: CatalogService[] = [
     category: 'Music',
     plans: [
       { name: 'Individuel', amount: 12.14, currency: 'EUR', frequency: 'monthly', default: true },
-      { name: 'Duo', amount: 17.20, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Duo', amount: 17.2, currency: 'EUR', frequency: 'monthly' },
       { name: 'Famille', amount: 21.24, currency: 'EUR', frequency: 'monthly' },
       { name: 'Étudiant', amount: 7.07, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.spotify.com/account/subscription/',
-    cancelNotes: 'Cancel under Your Plan > Change Plan; if billed through a third party or store, cancel there.',
+    cancelNotes:
+      'Cancel under Your Plan > Change Plan; if billed through a third party or store, cancel there.',
   },
   {
     id: 'apple-music',
@@ -67,7 +68,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.amazon.com/music/settings',
-    cancelNotes: 'Cancel in Amazon Music Settings if billed by Amazon; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel in Amazon Music Settings if billed by Amazon; app-store subscriptions cancel via the store.',
   },
   {
     id: 'deezer',
@@ -84,7 +86,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.deezer.com/account/subscription',
-    cancelNotes: 'Cancel under Manage my subscription if billed by Deezer; Apple/partner billing must be cancelled with them.',
+    cancelNotes:
+      'Cancel under Manage my subscription if billed by Deezer; Apple/partner billing must be cancelled with them.',
   },
   {
     id: 'qobuz',
@@ -95,13 +98,14 @@ export const MUSIC_AUDIO: CatalogService[] = [
     plans: [
       { name: 'Studio Solo', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
       { name: 'Studio Duo', amount: 19.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Studio Famille', amount: 21.90, currency: 'EUR', frequency: 'monthly' },
+      { name: 'Studio Famille', amount: 21.9, currency: 'EUR', frequency: 'monthly' },
       { name: 'Studio Solo (annuel)', amount: 129.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.qobuz.com/account/subscription',
-    cancelNotes: 'Cancel in your account dashboard if billed by Qobuz; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel in your account dashboard if billed by Qobuz; store subscriptions cancel via the store.',
   },
   {
     id: 'tidal',
@@ -117,7 +121,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.tidal.com/subscription',
-    cancelNotes: 'Cancel under Subscription if billed by TIDAL; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Subscription if billed by TIDAL; app-store subscriptions cancel via the store.',
   },
   {
     id: 'soundcloud',
@@ -132,7 +137,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://soundcloud.com/settings/subscriptions',
-    cancelNotes: 'Cancel on the Subscriptions page in a browser if billed by SoundCloud; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel on the Subscriptions page in a browser if billed by SoundCloud; store subscriptions cancel via the store.',
   },
   {
     id: 'pandora',
@@ -148,7 +154,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.pandora.com/account/subscription',
-    cancelNotes: 'Cancel under Settings > Subscriptions if billed directly; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Settings > Subscriptions if billed directly; store subscriptions cancel via the store.',
   },
   {
     id: 'audible',
@@ -163,7 +170,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.audible.com/account/cancelmembership',
-    cancelNotes: 'Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store.',
   },
   {
     id: 'storytel',
@@ -177,7 +185,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.storytel.com/account/subscription',
-    cancelNotes: 'Cancel under Subscription if you subscribed on the web; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Subscription if you subscribed on the web; store subscriptions cancel via the store.',
   },
   {
     id: 'nextory',
@@ -193,7 +202,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.nextory.com/my-account/subscription',
-    cancelNotes: 'Cancel under Subscription & Payment on My Pages if billed by Nextory; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Subscription & Payment on My Pages if billed by Nextory; store subscriptions cancel via the store.',
   },
   {
     id: 'kobo-plus',
@@ -202,13 +212,20 @@ export const MUSIC_AUDIO: CatalogService[] = [
     domain: 'kobo.com',
     category: 'News',
     plans: [
-      { name: 'Lecture + Écoute', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Lecture + Écoute',
+        amount: 12.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Lecture', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://www.kobo.com/account/subscriptions',
-    cancelNotes: 'Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders).',
+    cancelNotes:
+      'Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders).',
   },
   {
     id: 'podimo',
@@ -222,7 +239,8 @@ export const MUSIC_AUDIO: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://podimo.com/account/subscription',
-    cancelNotes: 'Cancel under My Account > Subscription if billed by Podimo; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under My Account > Subscription if billed by Podimo; store subscriptions cancel via the store.',
   },
   {
     id: 'patreon',
@@ -231,11 +249,12 @@ export const MUSIC_AUDIO: CatalogService[] = [
     domain: 'patreon.com',
     category: 'News',
     plans: [
-      { name: 'Membership', amount: 5.00, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Membership', amount: 5.0, currency: 'USD', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.patreon.com/settings/memberships',
-    cancelNotes: 'Cancel per creator under Settings > Memberships; iOS-app memberships may be billed via Apple and cancelled there.',
+    cancelNotes:
+      'Cancel per creator under Settings > Memberships; iOS-app memberships may be billed via Apple and cancelled there.',
   },
 ];

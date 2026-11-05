@@ -74,15 +74,25 @@ async function main(): Promise<void> {
 
   // Two periods.
   await db.insert(subscriptionPeriods).values([
-    { subscriptionId: sub.id, startedAt: p1Start, endedAt: p1End, amountMinor, currency, frequency },
+    {
+      subscriptionId: sub.id,
+      startedAt: p1Start,
+      endedAt: p1End,
+      amountMinor,
+      currency,
+      frequency,
+    },
     { subscriptionId: sub.id, startedAt: p2Start, endedAt: null, amountMinor, currency, frequency },
   ]);
 
   // Estimated charges: monthly within each period.
   const events: { chargedAt: Date }[] = [];
-  const stepMonth = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()));
-  for (let c = new Date(p1Start); c < p1End; c = stepMonth(c)) events.push({ chargedAt: new Date(c) });
-  for (let c = new Date(p2Start); c < now; c = stepMonth(c)) events.push({ chargedAt: new Date(c) });
+  const stepMonth = (d: Date) =>
+    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()));
+  for (let c = new Date(p1Start); c < p1End; c = stepMonth(c))
+    events.push({ chargedAt: new Date(c) });
+  for (let c = new Date(p2Start); c < now; c = stepMonth(c))
+    events.push({ chargedAt: new Date(c) });
 
   await db.insert(paymentEvents).values(
     events.map((e) => ({
@@ -94,9 +104,7 @@ async function main(): Promise<void> {
     })),
   );
 
-  console.log(
-    `Inserted "Paused Demo" for ${user.email} with 2 periods + ${events.length} events.`,
-  );
+  console.log(`Inserted "Paused Demo" for ${user.email} with 2 periods + ${events.length} events.`);
   await closeDb();
 }
 

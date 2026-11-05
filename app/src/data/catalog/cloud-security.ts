@@ -44,7 +44,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://one.google.com/settings/storage',
-    cancelNotes: 'Open Settings and choose Cancel membership; if you subscribed via Google Play or the App Store, cancel there instead.',
+    cancelNotes:
+      'Open Settings and choose Cancel membership; if you subscribed via Google Play or the App Store, cancel there instead.',
   },
   {
     id: 'dropbox',
@@ -60,7 +61,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.dropbox.com/account/plan',
-    cancelNotes: 'Click Manage account > Cancel plan to downgrade to Basic; mobile-store purchases cancel via the store.',
+    cancelNotes:
+      'Click Manage account > Cancel plan to downgrade to Basic; mobile-store purchases cancel via the store.',
   },
   {
     id: 'onedrive',
@@ -70,7 +72,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     category: 'Cloud',
     plans: [
       { name: 'Microsoft 365 Basic 100 GB', amount: 2.0, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Microsoft 365 Personnel 1 TB', amount: 10.0, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Microsoft 365 Personnel 1 TB',
+        amount: 10.0,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Microsoft 365 Famille 6 TB', amount: 13.0, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -86,12 +94,19 @@ export const CLOUD_SECURITY: CatalogService[] = [
     category: 'Cloud',
     plans: [
       { name: 'Premium 500 GB', amount: 4.99, currency: 'USD', frequency: 'monthly' },
-      { name: 'Premium Plus 2 TB', amount: 9.99, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Premium Plus 2 TB',
+        amount: 9.99,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.pcloud.com/',
-    cancelNotes: 'In account settings, open My Subscription and click Cancel Subscription; App Store/PayPal subscriptions must be cancelled via that provider.',
+    cancelNotes:
+      'In account settings, open My Subscription and click Cancel Subscription; App Store/PayPal subscriptions must be cancelled via that provider.',
   },
   {
     id: 'proton-drive',
@@ -100,12 +115,19 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'proton.me',
     category: 'Cloud',
     plans: [
-      { name: 'Drive Plus 200 GB', amount: 4.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Drive Plus 200 GB',
+        amount: 4.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.proton.me/',
-    cancelNotes: 'In Settings > Subscription, choose Cancel subscription; downgrades to Free at the end of the billing period. Cancel before the renewal date.',
+    cancelNotes:
+      'In Settings > Subscription, choose Cancel subscription; downgrades to Free at the end of the billing period. Cancel before the renewal date.',
   },
   {
     id: 'box',
@@ -114,12 +136,19 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'box.com',
     category: 'Cloud',
     plans: [
-      { name: 'Personal Pro 100 GB', amount: 14.0, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Personal Pro 100 GB',
+        amount: 14.0,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://account.box.com/settings',
-    cancelNotes: 'Cancel under Account Settings > Billing/Plan; some individual plans require emailing cancel@box.com to downgrade at end of term.',
+    cancelNotes:
+      'Cancel under Account Settings > Billing/Plan; some individual plans require emailing cancel@box.com to downgrade at end of term.',
   },
   {
     id: 'mega',
@@ -136,7 +165,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://mega.nz/fm/account/plan',
-    cancelNotes: 'In Settings > Plan, click Cancel Subscription; App Store/Google Play/PayPal subscriptions must be cancelled via that provider.',
+    cancelNotes:
+      'In Settings > Plan, click Cancel Subscription; App Store/Google Play/PayPal subscriptions must be cancelled via that provider.',
   },
   {
     id: 'backblaze',
@@ -146,12 +176,19 @@ export const CLOUD_SECURITY: CatalogService[] = [
     category: 'Cloud',
     plans: [
       { name: 'Personal Backup (monthly)', amount: 9.0, currency: 'USD', frequency: 'monthly' },
-      { name: 'Personal Backup (yearly)', amount: 99.0, currency: 'USD', frequency: 'yearly', default: true },
+      {
+        name: 'Personal Backup (yearly)',
+        amount: 99.0,
+        currency: 'USD',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://secure.backblaze.com/user_signin.htm',
-    cancelNotes: 'There is no single cancel button: for Personal Backup, sign in then delete the backup/license to stop billing; for B2, disable the product under My Settings.',
+    cancelNotes:
+      'There is no single cancel button: for Personal Backup, sign in then delete the backup/license to stop billing; for B2, disable the product under My Settings.',
   },
   {
     id: 'sync-com',
@@ -160,13 +197,20 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'sync.com',
     category: 'Cloud',
     plans: [
-      { name: 'Solo Basic 2 TB', amount: 8.0, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Solo Basic 2 TB',
+        amount: 8.0,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Solo Professional 6 TB', amount: 20.0, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://cp.sync.com/account',
-    cancelNotes: 'Open your current plan tile and choose Cancel Subscription; Sync has no free tier, so this closes the account at the end of the paid term.',
+    cancelNotes:
+      'Open your current plan tile and choose Cancel Subscription; Sync has no free tier, so this closes the account at the end of the paid term.',
   },
   {
     id: 'kdrive',
@@ -181,7 +225,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://manager.infomaniak.com/v3/ng/accounts/select/renewal-management',
-    cancelNotes: 'In the Infomaniak Manager, use Manage renewals to disable automatic renewal; iOS/Android app purchases are managed in the store.',
+    cancelNotes:
+      'In the Infomaniak Manager, use Manage renewals to disable automatic renewal; iOS/Android app purchases are managed in the store.',
   },
 
   // ------------------------------------------------------------- VPN ---------
@@ -199,7 +244,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.nordaccount.com/billing/subscriptions/',
-    cancelNotes: 'In your Nord Account, open Billing > Subscriptions and cancel auto-renewal. Access stays active until the period ends.',
+    cancelNotes:
+      'In your Nord Account, open Billing > Subscriptions and cancel auto-renewal. Access stays active until the period ends.',
   },
   {
     id: 'expressvpn',
@@ -215,7 +261,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.expressvpn.com/sign-in',
-    cancelNotes: 'Sign in, go to My Subscription > Edit subscription settings and select Turn Off Automatic Renewal.',
+    cancelNotes:
+      'Sign in, go to My Subscription > Edit subscription settings and select Turn Off Automatic Renewal.',
   },
   {
     id: 'surfshark',
@@ -224,7 +271,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'surfshark.com',
     category: 'Security',
     plans: [
-      { name: 'Starter (2-yr)', amount: 1.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Starter (2-yr)',
+        amount: 1.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'One (2-yr)', amount: 2.29, currency: 'EUR', frequency: 'monthly' },
       { name: 'One+ (2-yr)', amount: 4.19, currency: 'EUR', frequency: 'monthly' },
     ],
@@ -240,14 +293,21 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'protonvpn.com',
     category: 'Security',
     plans: [
-      { name: 'VPN Plus (2-yr)', amount: 2.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'VPN Plus (2-yr)',
+        amount: 2.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'VPN Plus (1-yr)', amount: 3.99, currency: 'EUR', frequency: 'monthly' },
       { name: 'VPN Plus (monthly)', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.proton.me/',
-    cancelNotes: 'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
+    cancelNotes:
+      'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
   },
   {
     id: 'cyberghost',
@@ -262,7 +322,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.cyberghostvpn.com/',
-    cancelNotes: 'Open your profile > Subscriptions and choose Cancel Subscription to turn off automatic billing.',
+    cancelNotes:
+      'Open your profile > Subscriptions and choose Cancel Subscription to turn off automatic billing.',
   },
   {
     id: 'mullvad',
@@ -275,7 +336,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
-    cancelNotes: 'Mullvad is prepaid with no auto-renewal: simply stop adding time and access ends when your paid time expires.',
+    cancelNotes:
+      'Mullvad is prepaid with no auto-renewal: simply stop adding time and access ends when your paid time expires.',
   },
   {
     id: 'pia-vpn',
@@ -290,7 +352,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.privateinternetaccess.com/account/login',
-    cancelNotes: 'In the Client Control Panel, open Subscription Overview and choose Turn off Auto Renewal.',
+    cancelNotes:
+      'In the Client Control Panel, open Subscription Overview and choose Turn off Auto Renewal.',
   },
   {
     id: 'windscribe',
@@ -337,7 +400,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://vault.bitwarden.com/',
-    cancelNotes: 'In Settings > Subscription, click Cancel Subscription; paid features end at the next charge date.',
+    cancelNotes:
+      'In Settings > Subscription, click Cancel Subscription; paid features end at the next charge date.',
   },
   {
     id: 'dashlane',
@@ -376,13 +440,20 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'nordpass.com',
     category: 'Security',
     plans: [
-      { name: 'Premium (2-yr)', amount: 1.29, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Premium (2-yr)',
+        amount: 1.29,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Premium (1-yr)', amount: 1.69, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.nordaccount.com/billing/subscriptions/',
-    cancelNotes: 'In your Nord Account, open Billing > Subscriptions and cancel NordPass auto-renewal.',
+    cancelNotes:
+      'In your Nord Account, open Billing > Subscriptions and cancel NordPass auto-renewal.',
   },
   {
     id: 'keeper',
@@ -397,7 +468,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://keepersecurity.com/vault/',
-    cancelNotes: 'In Account Settings > Subscriptions, choose Cancel Subscription; Keeper may require contacting support to disable auto-renew.',
+    cancelNotes:
+      'In Account Settings > Subscriptions, choose Cancel Subscription; Keeper may require contacting support to disable auto-renew.',
   },
   {
     id: 'proton-pass',
@@ -424,7 +496,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.proton.me/',
-    cancelNotes: 'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
+    cancelNotes:
+      'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
   },
   {
     id: 'proton-unlimited',
@@ -438,7 +511,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://account.proton.me/',
-    cancelNotes: 'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
+    cancelNotes:
+      'In Settings > Subscription, choose Cancel subscription or Downgrade. Cancel before the renewal date.',
   },
   {
     id: 'tuta',
@@ -493,7 +567,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.norton.com/',
-    cancelNotes: 'In My Subscriptions, select Manage Renewal to turn off auto-renewal. Protection continues to the end of the paid term.',
+    cancelNotes:
+      'In My Subscriptions, select Manage Renewal to turn off auto-renewal. Protection continues to the end of the paid term.',
   },
   {
     id: 'mcafee',
@@ -503,7 +578,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     category: 'Security',
     plans: [
       { name: 'Total Protection Essential', amount: 109.95, currency: 'EUR', frequency: 'yearly' },
-      { name: 'McAfee+ Premium', amount: 129.95, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'McAfee+ Premium',
+        amount: 129.95,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'McAfee+ Advanced', amount: 149.95, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -520,7 +601,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     plans: [
       { name: 'Antivirus Plus', amount: 59.99, currency: 'EUR', frequency: 'yearly' },
       { name: 'Internet Security', amount: 84.99, currency: 'EUR', frequency: 'yearly' },
-      { name: 'Total Security', amount: 69.98, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Total Security',
+        amount: 69.98,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
@@ -541,7 +628,8 @@ export const CLOUD_SECURITY: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://my.kaspersky.com/',
-    cancelNotes: 'In the Subscriptions tab, choose Manage subscription > Cancel subscription to turn off auto-renewal.',
+    cancelNotes:
+      'In the Subscriptions tab, choose Manage subscription > Cancel subscription to turn off auto-renewal.',
   },
   {
     id: 'malwarebytes',
@@ -550,7 +638,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'malwarebytes.com',
     category: 'Security',
     plans: [
-      { name: 'Premium Security', amount: 44.99, currency: 'USD', frequency: 'yearly', default: true },
+      {
+        name: 'Premium Security',
+        amount: 44.99,
+        currency: 'USD',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'Premium + Privacy VPN', amount: 84.99, currency: 'USD', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -565,7 +659,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'avast.com',
     category: 'Security',
     plans: [
-      { name: 'Premium Security (10 devices)', amount: 99.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Premium Security (10 devices)',
+        amount: 99.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'One Ultimate (10 devices)', amount: 139.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -577,7 +677,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'avg.com',
     category: 'Security',
     plans: [
-      { name: 'Internet Security (10 devices)', amount: 99.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Internet Security (10 devices)',
+        amount: 99.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'Ultimate (10 devices)', amount: 139.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -589,7 +695,13 @@ export const CLOUD_SECURITY: CatalogService[] = [
     domain: 'eset.com',
     category: 'Security',
     plans: [
-      { name: 'HOME Security Essential', amount: 49.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'HOME Security Essential',
+        amount: 49.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
       { name: 'HOME Security Premium', amount: 59.99, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',

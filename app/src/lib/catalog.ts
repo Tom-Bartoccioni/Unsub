@@ -6,11 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  CATALOG as BUNDLED,
-  buildSearch,
-  type CatalogService,
-} from '@/data/catalog';
+import { CATALOG as BUNDLED, buildSearch, type CatalogService } from '@/data/catalog';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 // Bumped to v2 when the cache payload gained an etag + the always-revalidate

@@ -2,9 +2,7 @@
   {
     "id": "netflix",
     "name": "Netflix",
-    "aliases": [
-      "netflix"
-    ],
+    "aliases": ["netflix"],
     "domain": "netflix.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -37,11 +35,7 @@
   {
     "id": "disney-plus",
     "name": "Disney+",
-    "aliases": [
-      "disney+",
-      "disney plus",
-      "disneyplus"
-    ],
+    "aliases": ["disney+", "disney plus", "disneyplus"],
     "domain": "disneyplus.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -74,11 +68,7 @@
   {
     "id": "amazon-prime-video",
     "name": "Amazon Prime Video",
-    "aliases": [
-      "prime video",
-      "amazon prime",
-      "prime"
-    ],
+    "aliases": ["prime video", "amazon prime", "prime"],
     "domain": "primevideo.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -111,11 +101,7 @@
   {
     "id": "max",
     "name": "Max",
-    "aliases": [
-      "max",
-      "hbo max",
-      "hbo"
-    ],
+    "aliases": ["max", "hbo max", "hbo"],
     "domain": "hbomax.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -148,11 +134,7 @@
   {
     "id": "apple-tv-plus",
     "name": "Apple TV+",
-    "aliases": [
-      "apple tv+",
-      "apple tv plus",
-      "appletv"
-    ],
+    "aliases": ["apple tv+", "apple tv plus", "appletv"],
     "domain": "tv.apple.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -179,11 +161,7 @@
   {
     "id": "paramount-plus",
     "name": "Paramount+",
-    "aliases": [
-      "paramount+",
-      "paramount plus",
-      "paramountplus"
-    ],
+    "aliases": ["paramount+", "paramount plus", "paramountplus"],
     "domain": "paramountplus.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -210,10 +188,7 @@
   {
     "id": "youtube-premium",
     "name": "YouTube Premium",
-    "aliases": [
-      "youtube premium",
-      "youtube"
-    ],
+    "aliases": ["youtube premium", "youtube"],
     "domain": "youtube.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -246,9 +221,7 @@
   {
     "id": "crunchyroll",
     "name": "Crunchyroll",
-    "aliases": [
-      "crunchyroll"
-    ],
+    "aliases": ["crunchyroll"],
     "domain": "crunchyroll.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -281,10 +254,7 @@
   {
     "id": "adn",
     "name": "ADN",
-    "aliases": [
-      "adn",
-      "animation digital network"
-    ],
+    "aliases": ["adn", "animation digital network"],
     "domain": "animationdigitalnetwork.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -317,11 +287,7 @@
   {
     "id": "canal-plus",
     "name": "Canal+",
-    "aliases": [
-      "canal+",
-      "canal plus",
-      "mycanal"
-    ],
+    "aliases": ["canal+", "canal plus", "mycanal"],
     "domain": "canalplus.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -348,11 +314,7 @@
   {
     "id": "cine-plus-ocs",
     "name": "Ciné+ OCS",
-    "aliases": [
-      "ocs",
-      "cine+ ocs",
-      "cine plus ocs"
-    ],
+    "aliases": ["ocs", "cine+ ocs", "cine plus ocs"],
     "domain": "ocs.fr",
     "category": "Entertainment",
     "brandColor": null,
@@ -373,9 +335,7 @@
   {
     "id": "molotov",
     "name": "Molotov",
-    "aliases": [
-      "molotov"
-    ],
+    "aliases": ["molotov"],
     "domain": "molotov.tv",
     "category": "Entertainment",
     "brandColor": null,
@@ -402,10 +362,7 @@
   {
     "id": "universal-plus",
     "name": "Universal+",
-    "aliases": [
-      "universal+",
-      "universal plus"
-    ],
+    "aliases": ["universal+", "universal plus"],
     "domain": "universalplus.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -426,9 +383,7 @@
   {
     "id": "mubi",
     "name": "MUBI",
-    "aliases": [
-      "mubi"
-    ],
+    "aliases": ["mubi"],
     "domain": "mubi.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -461,9 +416,7 @@
   {
     "id": "shudder",
     "name": "Shudder",
-    "aliases": [
-      "shudder"
-    ],
+    "aliases": ["shudder"],
     "domain": "shudder.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -490,9 +443,7 @@
   {
     "id": "dazn",
     "name": "DAZN",
-    "aliases": [
-      "dazn"
-    ],
+    "aliases": ["dazn"],
     "domain": "dazn.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -525,11 +476,7 @@
   {
     "id": "ligue-1-plus",
     "name": "Ligue 1+",
-    "aliases": [
-      "ligue 1+",
-      "ligue 1 plus",
-      "ligue1+"
-    ],
+    "aliases": ["ligue 1+", "ligue 1 plus", "ligue1+"],
     "domain": "ligue1.plus",
     "category": "Entertainment",
     "brandColor": null,
@@ -556,11 +503,7 @@
   {
     "id": "bein-sports",
     "name": "beIN Sports",
-    "aliases": [
-      "bein sports",
-      "bein",
-      "bein sport"
-    ],
+    "aliases": ["bein sports", "bein", "bein sport"],
     "domain": "beinsports.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -581,10 +524,7 @@
   {
     "id": "rmc-sport",
     "name": "RMC Sport",
-    "aliases": [
-      "rmc sport",
-      "rmc"
-    ],
+    "aliases": ["rmc sport", "rmc"],
     "domain": "rmcsport.bfmtv.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -605,9 +545,7 @@
   {
     "id": "twitch",
     "name": "Twitch",
-    "aliases": [
-      "twitch"
-    ],
+    "aliases": ["twitch"],
     "domain": "twitch.tv",
     "category": "Entertainment",
     "brandColor": null,
@@ -646,9 +584,7 @@
   {
     "id": "hulu",
     "name": "Hulu",
-    "aliases": [
-      "hulu"
-    ],
+    "aliases": ["hulu"],
     "domain": "hulu.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -675,9 +611,7 @@
   {
     "id": "peacock",
     "name": "Peacock",
-    "aliases": [
-      "peacock"
-    ],
+    "aliases": ["peacock"],
     "domain": "peacocktv.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -704,11 +638,7 @@
   {
     "id": "discovery-plus",
     "name": "Discovery+",
-    "aliases": [
-      "discovery+",
-      "discovery plus",
-      "discoveryplus"
-    ],
+    "aliases": ["discovery+", "discovery plus", "discoveryplus"],
     "domain": "discoveryplus.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -735,10 +665,7 @@
   {
     "id": "curiosity-stream",
     "name": "CuriosityStream",
-    "aliases": [
-      "curiosity stream",
-      "curiositystream"
-    ],
+    "aliases": ["curiosity stream", "curiositystream"],
     "domain": "curiositystream.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -771,9 +698,7 @@
   {
     "id": "nebula",
     "name": "Nebula",
-    "aliases": [
-      "nebula"
-    ],
+    "aliases": ["nebula"],
     "domain": "nebula.tv",
     "category": "Entertainment",
     "brandColor": null,
@@ -800,11 +725,7 @@
   {
     "id": "chatgpt-plus",
     "name": "ChatGPT Plus",
-    "aliases": [
-      "chatgpt",
-      "openai",
-      "gpt"
-    ],
+    "aliases": ["chatgpt", "openai", "gpt"],
     "domain": "openai.com",
     "category": "Productivity",
     "brandColor": null,
@@ -831,10 +752,7 @@
   {
     "id": "claude-pro",
     "name": "Claude Pro",
-    "aliases": [
-      "claude",
-      "anthropic"
-    ],
+    "aliases": ["claude", "anthropic"],
     "domain": "claude.com",
     "category": "Productivity",
     "brandColor": null,
@@ -867,12 +785,7 @@
   {
     "id": "google-ai-pro",
     "name": "Google AI Pro",
-    "aliases": [
-      "gemini",
-      "gemini advanced",
-      "google one ai",
-      "google ai"
-    ],
+    "aliases": ["gemini", "gemini advanced", "google one ai", "google ai"],
     "domain": "google.com",
     "category": "Productivity",
     "brandColor": null,
@@ -899,9 +812,7 @@
   {
     "id": "perplexity-pro",
     "name": "Perplexity Pro",
-    "aliases": [
-      "perplexity"
-    ],
+    "aliases": ["perplexity"],
     "domain": "perplexity.ai",
     "category": "Productivity",
     "brandColor": null,
@@ -928,12 +839,7 @@
   {
     "id": "microsoft-365-personal",
     "name": "Microsoft 365 Personnel",
-    "aliases": [
-      "office 365",
-      "microsoft 365",
-      "office",
-      "m365"
-    ],
+    "aliases": ["office 365", "microsoft 365", "office", "m365"],
     "domain": "microsoft.com",
     "category": "Productivity",
     "brandColor": null,
@@ -960,11 +866,7 @@
   {
     "id": "microsoft-365-family",
     "name": "Microsoft 365 Famille",
-    "aliases": [
-      "office 365 family",
-      "microsoft 365 family",
-      "m365 family"
-    ],
+    "aliases": ["office 365 family", "microsoft 365 family", "m365 family"],
     "domain": "microsoft.com",
     "category": "Productivity",
     "brandColor": null,
@@ -991,11 +893,7 @@
   {
     "id": "google-workspace",
     "name": "Google Workspace",
-    "aliases": [
-      "gsuite",
-      "g suite",
-      "workspace"
-    ],
+    "aliases": ["gsuite", "g suite", "workspace"],
     "domain": "workspace.google.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1016,9 +914,7 @@
   {
     "id": "notion-plus",
     "name": "Notion Plus",
-    "aliases": [
-      "notion"
-    ],
+    "aliases": ["notion"],
     "domain": "notion.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1045,9 +941,7 @@
   {
     "id": "obsidian-sync",
     "name": "Obsidian Sync",
-    "aliases": [
-      "obsidian"
-    ],
+    "aliases": ["obsidian"],
     "domain": "obsidian.md",
     "category": "Productivity",
     "brandColor": null,
@@ -1074,9 +968,7 @@
   {
     "id": "evernote",
     "name": "Evernote",
-    "aliases": [
-      "evernote"
-    ],
+    "aliases": ["evernote"],
     "domain": "evernote.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1103,9 +995,7 @@
   {
     "id": "todoist-pro",
     "name": "Todoist Pro",
-    "aliases": [
-      "todoist"
-    ],
+    "aliases": ["todoist"],
     "domain": "todoist.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1132,9 +1022,7 @@
   {
     "id": "trello",
     "name": "Trello",
-    "aliases": [
-      "trello"
-    ],
+    "aliases": ["trello"],
     "domain": "trello.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1161,9 +1049,7 @@
   {
     "id": "linear",
     "name": "Linear",
-    "aliases": [
-      "linear"
-    ],
+    "aliases": ["linear"],
     "domain": "linear.app",
     "category": "Productivity",
     "brandColor": null,
@@ -1190,9 +1076,7 @@
   {
     "id": "airtable",
     "name": "Airtable",
-    "aliases": [
-      "airtable"
-    ],
+    "aliases": ["airtable"],
     "domain": "airtable.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1219,9 +1103,7 @@
   {
     "id": "clickup",
     "name": "ClickUp",
-    "aliases": [
-      "clickup"
-    ],
+    "aliases": ["clickup"],
     "domain": "clickup.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1248,9 +1130,7 @@
   {
     "id": "zapier",
     "name": "Zapier",
-    "aliases": [
-      "zapier"
-    ],
+    "aliases": ["zapier"],
     "domain": "zapier.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1277,10 +1157,7 @@
   {
     "id": "make",
     "name": "Make",
-    "aliases": [
-      "make",
-      "integromat"
-    ],
+    "aliases": ["make", "integromat"],
     "domain": "make.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1301,9 +1178,7 @@
   {
     "id": "grammarly-pro",
     "name": "Grammarly Pro",
-    "aliases": [
-      "grammarly"
-    ],
+    "aliases": ["grammarly"],
     "domain": "grammarly.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1330,9 +1205,7 @@
   {
     "id": "figma-professional",
     "name": "Figma Professional",
-    "aliases": [
-      "figma"
-    ],
+    "aliases": ["figma"],
     "domain": "figma.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1359,9 +1232,7 @@
   {
     "id": "canva-pro",
     "name": "Canva Pro",
-    "aliases": [
-      "canva"
-    ],
+    "aliases": ["canva"],
     "domain": "canva.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1382,11 +1253,7 @@
   {
     "id": "adobe-creative-cloud",
     "name": "Adobe Creative Cloud",
-    "aliases": [
-      "adobe",
-      "creative cloud",
-      "adobe cc"
-    ],
+    "aliases": ["adobe", "creative cloud", "adobe cc"],
     "domain": "adobe.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1407,11 +1274,7 @@
   {
     "id": "adobe-photography",
     "name": "Adobe Photographie",
-    "aliases": [
-      "adobe photography",
-      "lightroom",
-      "photoshop"
-    ],
+    "aliases": ["adobe photography", "lightroom", "photoshop"],
     "domain": "adobe.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1432,11 +1295,7 @@
   {
     "id": "adobe-acrobat-pro",
     "name": "Adobe Acrobat Pro",
-    "aliases": [
-      "acrobat",
-      "adobe acrobat",
-      "pdf"
-    ],
+    "aliases": ["acrobat", "adobe acrobat", "pdf"],
     "domain": "adobe.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1457,9 +1316,7 @@
   {
     "id": "descript",
     "name": "Descript",
-    "aliases": [
-      "descript"
-    ],
+    "aliases": ["descript"],
     "domain": "descript.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1486,9 +1343,7 @@
   {
     "id": "loom",
     "name": "Loom",
-    "aliases": [
-      "loom"
-    ],
+    "aliases": ["loom"],
     "domain": "loom.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1515,9 +1370,7 @@
   {
     "id": "zoom-pro",
     "name": "Zoom Pro",
-    "aliases": [
-      "zoom"
-    ],
+    "aliases": ["zoom"],
     "domain": "zoom.us",
     "category": "Productivity",
     "brandColor": null,
@@ -1544,9 +1397,7 @@
   {
     "id": "slack-pro",
     "name": "Slack Pro",
-    "aliases": [
-      "slack"
-    ],
+    "aliases": ["slack"],
     "domain": "slack.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1573,9 +1424,7 @@
   {
     "id": "miro",
     "name": "Miro",
-    "aliases": [
-      "miro"
-    ],
+    "aliases": ["miro"],
     "domain": "miro.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1602,9 +1451,7 @@
   {
     "id": "superhuman",
     "name": "Superhuman",
-    "aliases": [
-      "superhuman"
-    ],
+    "aliases": ["superhuman"],
     "domain": "superhuman.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1631,9 +1478,7 @@
   {
     "id": "raycast-pro",
     "name": "Raycast Pro",
-    "aliases": [
-      "raycast"
-    ],
+    "aliases": ["raycast"],
     "domain": "raycast.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1660,11 +1505,7 @@
   {
     "id": "github-copilot",
     "name": "GitHub Copilot",
-    "aliases": [
-      "github",
-      "copilot",
-      "github copilot"
-    ],
+    "aliases": ["github", "copilot", "github copilot"],
     "domain": "github.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1697,9 +1538,7 @@
   {
     "id": "gitlab-premium",
     "name": "GitLab Premium",
-    "aliases": [
-      "gitlab"
-    ],
+    "aliases": ["gitlab"],
     "domain": "gitlab.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1720,9 +1559,7 @@
   {
     "id": "vercel-pro",
     "name": "Vercel Pro",
-    "aliases": [
-      "vercel"
-    ],
+    "aliases": ["vercel"],
     "domain": "vercel.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1743,9 +1580,7 @@
   {
     "id": "netlify-pro",
     "name": "Netlify Pro",
-    "aliases": [
-      "netlify"
-    ],
+    "aliases": ["netlify"],
     "domain": "netlify.com",
     "category": "Productivity",
     "brandColor": null,
@@ -1766,9 +1601,7 @@
   {
     "id": "icloud-plus",
     "name": "iCloud+",
-    "aliases": [
-      "icloud"
-    ],
+    "aliases": ["icloud"],
     "domain": "icloud.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1813,10 +1646,7 @@
   {
     "id": "google-one",
     "name": "Google One",
-    "aliases": [
-      "google drive",
-      "googleone"
-    ],
+    "aliases": ["google drive", "googleone"],
     "domain": "one.google.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1849,9 +1679,7 @@
   {
     "id": "dropbox",
     "name": "Dropbox",
-    "aliases": [
-      "dropbox"
-    ],
+    "aliases": ["dropbox"],
     "domain": "dropbox.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1884,11 +1712,7 @@
   {
     "id": "onedrive",
     "name": "Microsoft OneDrive",
-    "aliases": [
-      "onedrive",
-      "microsoft 365",
-      "office 365"
-    ],
+    "aliases": ["onedrive", "microsoft 365", "office 365"],
     "domain": "onedrive.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1921,9 +1745,7 @@
   {
     "id": "pcloud",
     "name": "pCloud",
-    "aliases": [
-      "pcloud"
-    ],
+    "aliases": ["pcloud"],
     "domain": "pcloud.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1950,9 +1772,7 @@
   {
     "id": "proton-drive",
     "name": "Proton Drive",
-    "aliases": [
-      "proton drive"
-    ],
+    "aliases": ["proton drive"],
     "domain": "proton.me",
     "category": "Cloud",
     "brandColor": null,
@@ -1973,9 +1793,7 @@
   {
     "id": "box",
     "name": "Box",
-    "aliases": [
-      "box"
-    ],
+    "aliases": ["box"],
     "domain": "box.com",
     "category": "Cloud",
     "brandColor": null,
@@ -1996,10 +1814,7 @@
   {
     "id": "mega",
     "name": "MEGA",
-    "aliases": [
-      "mega",
-      "mega.nz"
-    ],
+    "aliases": ["mega", "mega.nz"],
     "domain": "mega.io",
     "category": "Cloud",
     "brandColor": null,
@@ -2038,9 +1853,7 @@
   {
     "id": "backblaze",
     "name": "Backblaze",
-    "aliases": [
-      "backblaze"
-    ],
+    "aliases": ["backblaze"],
     "domain": "backblaze.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2067,10 +1880,7 @@
   {
     "id": "sync-com",
     "name": "Sync.com",
-    "aliases": [
-      "sync",
-      "sync.com"
-    ],
+    "aliases": ["sync", "sync.com"],
     "domain": "sync.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2097,10 +1907,7 @@
   {
     "id": "kdrive",
     "name": "kDrive",
-    "aliases": [
-      "kdrive",
-      "infomaniak"
-    ],
+    "aliases": ["kdrive", "infomaniak"],
     "domain": "infomaniak.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2127,10 +1934,7 @@
   {
     "id": "nordvpn",
     "name": "NordVPN",
-    "aliases": [
-      "nord vpn",
-      "nordvpn"
-    ],
+    "aliases": ["nord vpn", "nordvpn"],
     "domain": "nordvpn.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2163,10 +1967,7 @@
   {
     "id": "expressvpn",
     "name": "ExpressVPN",
-    "aliases": [
-      "express vpn",
-      "expressvpn"
-    ],
+    "aliases": ["express vpn", "expressvpn"],
     "domain": "expressvpn.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2199,10 +2000,7 @@
   {
     "id": "surfshark",
     "name": "Surfshark",
-    "aliases": [
-      "surf shark",
-      "surfshark"
-    ],
+    "aliases": ["surf shark", "surfshark"],
     "domain": "surfshark.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2235,10 +2033,7 @@
   {
     "id": "protonvpn",
     "name": "Proton VPN",
-    "aliases": [
-      "proton vpn",
-      "protonvpn"
-    ],
+    "aliases": ["proton vpn", "protonvpn"],
     "domain": "protonvpn.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2271,10 +2066,7 @@
   {
     "id": "cyberghost",
     "name": "CyberGhost",
-    "aliases": [
-      "cyber ghost",
-      "cyberghost"
-    ],
+    "aliases": ["cyber ghost", "cyberghost"],
     "domain": "cyberghostvpn.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2301,9 +2093,7 @@
   {
     "id": "mullvad",
     "name": "Mullvad",
-    "aliases": [
-      "mullvad"
-    ],
+    "aliases": ["mullvad"],
     "domain": "mullvad.net",
     "category": "Cloud",
     "brandColor": null,
@@ -2324,10 +2114,7 @@
   {
     "id": "pia-vpn",
     "name": "Private Internet Access",
-    "aliases": [
-      "pia",
-      "private internet access"
-    ],
+    "aliases": ["pia", "private internet access"],
     "domain": "privateinternetaccess.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2354,9 +2141,7 @@
   {
     "id": "windscribe",
     "name": "Windscribe",
-    "aliases": [
-      "windscribe"
-    ],
+    "aliases": ["windscribe"],
     "domain": "windscribe.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2383,10 +2168,7 @@
   {
     "id": "1password",
     "name": "1Password",
-    "aliases": [
-      "1password",
-      "onepassword"
-    ],
+    "aliases": ["1password", "onepassword"],
     "domain": "1password.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2413,9 +2195,7 @@
   {
     "id": "bitwarden",
     "name": "Bitwarden Premium",
-    "aliases": [
-      "bitwarden"
-    ],
+    "aliases": ["bitwarden"],
     "domain": "bitwarden.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2442,9 +2222,7 @@
   {
     "id": "dashlane",
     "name": "Dashlane",
-    "aliases": [
-      "dashlane"
-    ],
+    "aliases": ["dashlane"],
     "domain": "dashlane.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2471,10 +2249,7 @@
   {
     "id": "lastpass",
     "name": "LastPass",
-    "aliases": [
-      "last pass",
-      "lastpass"
-    ],
+    "aliases": ["last pass", "lastpass"],
     "domain": "lastpass.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2501,10 +2276,7 @@
   {
     "id": "nordpass",
     "name": "NordPass",
-    "aliases": [
-      "nord pass",
-      "nordpass"
-    ],
+    "aliases": ["nord pass", "nordpass"],
     "domain": "nordpass.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2531,9 +2303,7 @@
   {
     "id": "keeper",
     "name": "Keeper",
-    "aliases": [
-      "keeper"
-    ],
+    "aliases": ["keeper"],
     "domain": "keepersecurity.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2560,9 +2330,7 @@
   {
     "id": "proton-pass",
     "name": "Proton Pass",
-    "aliases": [
-      "proton pass"
-    ],
+    "aliases": ["proton pass"],
     "domain": "proton.me",
     "category": "Cloud",
     "brandColor": null,
@@ -2583,10 +2351,7 @@
   {
     "id": "proton-mail",
     "name": "Proton Mail",
-    "aliases": [
-      "protonmail",
-      "proton mail"
-    ],
+    "aliases": ["protonmail", "proton mail"],
     "domain": "proton.me",
     "category": "Cloud",
     "brandColor": null,
@@ -2607,10 +2372,7 @@
   {
     "id": "proton-unlimited",
     "name": "Proton Unlimited",
-    "aliases": [
-      "proton",
-      "proton unlimited"
-    ],
+    "aliases": ["proton", "proton unlimited"],
     "domain": "proton.me",
     "category": "Cloud",
     "brandColor": null,
@@ -2631,10 +2393,7 @@
   {
     "id": "tuta",
     "name": "Tuta",
-    "aliases": [
-      "tutanota",
-      "tuta"
-    ],
+    "aliases": ["tutanota", "tuta"],
     "domain": "tuta.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2661,10 +2420,7 @@
   {
     "id": "mailbox-org",
     "name": "Mailbox.org",
-    "aliases": [
-      "mailbox",
-      "mailbox.org"
-    ],
+    "aliases": ["mailbox", "mailbox.org"],
     "domain": "mailbox.org",
     "category": "Cloud",
     "brandColor": null,
@@ -2697,10 +2453,7 @@
   {
     "id": "fastmail",
     "name": "Fastmail",
-    "aliases": [
-      "fast mail",
-      "fastmail"
-    ],
+    "aliases": ["fast mail", "fastmail"],
     "domain": "fastmail.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2733,9 +2486,7 @@
   {
     "id": "norton-360",
     "name": "Norton 360",
-    "aliases": [
-      "norton"
-    ],
+    "aliases": ["norton"],
     "domain": "norton.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2762,10 +2513,7 @@
   {
     "id": "mcafee",
     "name": "McAfee",
-    "aliases": [
-      "mcafee",
-      "mcafee+"
-    ],
+    "aliases": ["mcafee", "mcafee+"],
     "domain": "mcafee.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2798,9 +2546,7 @@
   {
     "id": "bitdefender",
     "name": "Bitdefender",
-    "aliases": [
-      "bitdefender"
-    ],
+    "aliases": ["bitdefender"],
     "domain": "bitdefender.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2833,9 +2579,7 @@
   {
     "id": "kaspersky",
     "name": "Kaspersky",
-    "aliases": [
-      "kaspersky"
-    ],
+    "aliases": ["kaspersky"],
     "domain": "kaspersky.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2868,9 +2612,7 @@
   {
     "id": "malwarebytes",
     "name": "Malwarebytes",
-    "aliases": [
-      "malwarebytes"
-    ],
+    "aliases": ["malwarebytes"],
     "domain": "malwarebytes.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2897,9 +2639,7 @@
   {
     "id": "avast",
     "name": "Avast",
-    "aliases": [
-      "avast"
-    ],
+    "aliases": ["avast"],
     "domain": "avast.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2926,9 +2666,7 @@
   {
     "id": "avg",
     "name": "AVG",
-    "aliases": [
-      "avg"
-    ],
+    "aliases": ["avg"],
     "domain": "avg.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2955,10 +2693,7 @@
   {
     "id": "eset",
     "name": "ESET",
-    "aliases": [
-      "eset",
-      "nod32"
-    ],
+    "aliases": ["eset", "nod32"],
     "domain": "eset.com",
     "category": "Cloud",
     "brandColor": null,
@@ -2985,10 +2720,7 @@
   {
     "id": "le-monde",
     "name": "Le Monde",
-    "aliases": [
-      "le monde",
-      "lemonde"
-    ],
+    "aliases": ["le monde", "lemonde"],
     "domain": "lemonde.fr",
     "category": "News",
     "brandColor": null,
@@ -3009,10 +2741,7 @@
   {
     "id": "le-figaro",
     "name": "Le Figaro",
-    "aliases": [
-      "le figaro",
-      "figaro"
-    ],
+    "aliases": ["le figaro", "figaro"],
     "domain": "lefigaro.fr",
     "category": "News",
     "brandColor": null,
@@ -3033,11 +2762,7 @@
   {
     "id": "liberation",
     "name": "Libération",
-    "aliases": [
-      "liberation",
-      "libe",
-      "libé"
-    ],
+    "aliases": ["liberation", "libe", "libé"],
     "domain": "liberation.fr",
     "category": "News",
     "brandColor": null,
@@ -3064,11 +2789,7 @@
   {
     "id": "lequipe",
     "name": "L'Équipe",
-    "aliases": [
-      "lequipe",
-      "l'equipe",
-      "equipe"
-    ],
+    "aliases": ["lequipe", "l'equipe", "equipe"],
     "domain": "lequipe.fr",
     "category": "News",
     "brandColor": null,
@@ -3089,9 +2810,7 @@
   {
     "id": "mediapart",
     "name": "Mediapart",
-    "aliases": [
-      "mediapart"
-    ],
+    "aliases": ["mediapart"],
     "domain": "mediapart.fr",
     "category": "News",
     "brandColor": null,
@@ -3118,11 +2837,7 @@
   {
     "id": "les-echos",
     "name": "Les Échos",
-    "aliases": [
-      "les echos",
-      "lesechos",
-      "echos"
-    ],
+    "aliases": ["les echos", "lesechos", "echos"],
     "domain": "lesechos.fr",
     "category": "News",
     "brandColor": null,
@@ -3149,10 +2864,7 @@
   {
     "id": "le-parisien",
     "name": "Le Parisien",
-    "aliases": [
-      "le parisien",
-      "parisien"
-    ],
+    "aliases": ["le parisien", "parisien"],
     "domain": "leparisien.fr",
     "category": "News",
     "brandColor": null,
@@ -3173,10 +2885,7 @@
   {
     "id": "la-croix",
     "name": "La Croix",
-    "aliases": [
-      "la croix",
-      "lacroix"
-    ],
+    "aliases": ["la croix", "lacroix"],
     "domain": "la-croix.com",
     "category": "News",
     "brandColor": null,
@@ -3197,10 +2906,7 @@
   {
     "id": "telerama",
     "name": "Télérama",
-    "aliases": [
-      "telerama",
-      "télérama"
-    ],
+    "aliases": ["telerama", "télérama"],
     "domain": "telerama.fr",
     "category": "News",
     "brandColor": null,
@@ -3221,10 +2927,7 @@
   {
     "id": "courrier-international",
     "name": "Courrier International",
-    "aliases": [
-      "courrier international",
-      "courrier"
-    ],
+    "aliases": ["courrier international", "courrier"],
     "domain": "courrierinternational.com",
     "category": "News",
     "brandColor": null,
@@ -3245,12 +2948,7 @@
   {
     "id": "lobs",
     "name": "L'Obs",
-    "aliases": [
-      "lobs",
-      "l'obs",
-      "nouvel obs",
-      "le nouvel obs"
-    ],
+    "aliases": ["lobs", "l'obs", "nouvel obs", "le nouvel obs"],
     "domain": "nouvelobs.com",
     "category": "News",
     "brandColor": null,
@@ -3283,10 +2981,7 @@
   {
     "id": "le-point",
     "name": "Le Point",
-    "aliases": [
-      "le point",
-      "lepoint"
-    ],
+    "aliases": ["le point", "lepoint"],
     "domain": "lepoint.fr",
     "category": "News",
     "brandColor": null,
@@ -3307,11 +3002,7 @@
   {
     "id": "alternatives-economiques",
     "name": "Alternatives Économiques",
-    "aliases": [
-      "alternatives economiques",
-      "alter eco",
-      "alternatives éco"
-    ],
+    "aliases": ["alternatives economiques", "alter eco", "alternatives éco"],
     "domain": "alternatives-economiques.fr",
     "category": "News",
     "brandColor": null,
@@ -3332,11 +3023,7 @@
   {
     "id": "le-canard-enchaine",
     "name": "Le Canard enchaîné",
-    "aliases": [
-      "le canard enchaine",
-      "canard enchaine",
-      "le canard"
-    ],
+    "aliases": ["le canard enchaine", "canard enchaine", "le canard"],
     "domain": "lecanardenchaine.fr",
     "category": "News",
     "brandColor": null,
@@ -3357,11 +3044,7 @@
   {
     "id": "le-monde-diplomatique",
     "name": "Le Monde diplomatique",
-    "aliases": [
-      "le monde diplomatique",
-      "diplo",
-      "monde diplo"
-    ],
+    "aliases": ["le monde diplomatique", "diplo", "monde diplo"],
     "domain": "monde-diplomatique.fr",
     "category": "News",
     "brandColor": null,
@@ -3382,11 +3065,7 @@
   {
     "id": "nyt",
     "name": "The New York Times",
-    "aliases": [
-      "nyt",
-      "new york times",
-      "nytimes"
-    ],
+    "aliases": ["nyt", "new york times", "nytimes"],
     "domain": "nytimes.com",
     "category": "News",
     "brandColor": null,
@@ -3413,10 +3092,7 @@
   {
     "id": "the-economist",
     "name": "The Economist",
-    "aliases": [
-      "the economist",
-      "economist"
-    ],
+    "aliases": ["the economist", "economist"],
     "domain": "economist.com",
     "category": "News",
     "brandColor": null,
@@ -3443,10 +3119,7 @@
   {
     "id": "financial-times",
     "name": "Financial Times",
-    "aliases": [
-      "financial times",
-      "ft"
-    ],
+    "aliases": ["financial times", "ft"],
     "domain": "ft.com",
     "category": "News",
     "brandColor": null,
@@ -3467,10 +3140,7 @@
   {
     "id": "the-guardian",
     "name": "The Guardian",
-    "aliases": [
-      "the guardian",
-      "guardian"
-    ],
+    "aliases": ["the guardian", "guardian"],
     "domain": "theguardian.com",
     "category": "News",
     "brandColor": null,
@@ -3491,11 +3161,7 @@
   {
     "id": "washington-post",
     "name": "The Washington Post",
-    "aliases": [
-      "washington post",
-      "wapo",
-      "the washington post"
-    ],
+    "aliases": ["washington post", "wapo", "the washington post"],
     "domain": "washingtonpost.com",
     "category": "News",
     "brandColor": null,
@@ -3516,10 +3182,7 @@
   {
     "id": "wsj",
     "name": "The Wall Street Journal",
-    "aliases": [
-      "wsj",
-      "wall street journal"
-    ],
+    "aliases": ["wsj", "wall street journal"],
     "domain": "wsj.com",
     "category": "News",
     "brandColor": null,
@@ -3540,9 +3203,7 @@
   {
     "id": "wired",
     "name": "Wired",
-    "aliases": [
-      "wired"
-    ],
+    "aliases": ["wired"],
     "domain": "wired.com",
     "category": "News",
     "brandColor": null,
@@ -3569,10 +3230,7 @@
   {
     "id": "the-atlantic",
     "name": "The Atlantic",
-    "aliases": [
-      "the atlantic",
-      "atlantic"
-    ],
+    "aliases": ["the atlantic", "atlantic"],
     "domain": "theatlantic.com",
     "category": "News",
     "brandColor": null,
@@ -3593,9 +3251,7 @@
   {
     "id": "bloomberg",
     "name": "Bloomberg",
-    "aliases": [
-      "bloomberg"
-    ],
+    "aliases": ["bloomberg"],
     "domain": "bloomberg.com",
     "category": "News",
     "brandColor": null,
@@ -3622,9 +3278,7 @@
   {
     "id": "substack",
     "name": "Substack",
-    "aliases": [
-      "substack"
-    ],
+    "aliases": ["substack"],
     "domain": "substack.com",
     "category": "News",
     "brandColor": null,
@@ -3645,9 +3299,7 @@
   {
     "id": "medium",
     "name": "Medium",
-    "aliases": [
-      "medium"
-    ],
+    "aliases": ["medium"],
     "domain": "medium.com",
     "category": "News",
     "brandColor": null,
@@ -3674,9 +3326,7 @@
   {
     "id": "blinkist",
     "name": "Blinkist",
-    "aliases": [
-      "blinkist"
-    ],
+    "aliases": ["blinkist"],
     "domain": "blinkist.com",
     "category": "News",
     "brandColor": null,
@@ -3697,9 +3347,7 @@
   {
     "id": "readly",
     "name": "Readly",
-    "aliases": [
-      "readly"
-    ],
+    "aliases": ["readly"],
     "domain": "readly.com",
     "category": "News",
     "brandColor": null,
@@ -3720,10 +3368,7 @@
   {
     "id": "cafeyn",
     "name": "Cafeyn",
-    "aliases": [
-      "cafeyn",
-      "lekiosk"
-    ],
+    "aliases": ["cafeyn", "lekiosk"],
     "domain": "cafeyn.co",
     "category": "News",
     "brandColor": null,
@@ -3750,11 +3395,7 @@
   {
     "id": "kindle-unlimited",
     "name": "Kindle Unlimited",
-    "aliases": [
-      "kindle unlimited",
-      "kindle",
-      "abonnement kindle"
-    ],
+    "aliases": ["kindle unlimited", "kindle", "abonnement kindle"],
     "domain": "amazon.fr",
     "category": "News",
     "brandColor": null,
@@ -3775,10 +3416,7 @@
   {
     "id": "kobo-plus",
     "name": "Kobo Plus",
-    "aliases": [
-      "kobo plus",
-      "kobo"
-    ],
+    "aliases": ["kobo plus", "kobo"],
     "domain": "kobo.com",
     "category": "News",
     "brandColor": null,
@@ -3805,9 +3443,7 @@
   {
     "id": "audible",
     "name": "Audible",
-    "aliases": [
-      "audible"
-    ],
+    "aliases": ["audible"],
     "domain": "audible.fr",
     "category": "News",
     "brandColor": null,
@@ -3834,10 +3470,7 @@
   {
     "id": "amazon-prime",
     "name": "Amazon Prime",
-    "aliases": [
-      "amazon prime",
-      "prime"
-    ],
+    "aliases": ["amazon prime", "prime"],
     "domain": "amazon.fr",
     "category": "Other",
     "brandColor": null,
@@ -3870,11 +3503,7 @@
   {
     "id": "fnac-plus",
     "name": "Fnac+",
-    "aliases": [
-      "fnac+",
-      "fnac plus",
-      "carte fnac"
-    ],
+    "aliases": ["fnac+", "fnac plus", "carte fnac"],
     "domain": "fnac.com",
     "category": "Other",
     "brandColor": null,
@@ -3895,11 +3524,7 @@
   {
     "id": "cdiscount-a-volonte",
     "name": "Cdiscount à volonté",
-    "aliases": [
-      "cdiscount",
-      "cdav",
-      "cdiscount a volonte"
-    ],
+    "aliases": ["cdiscount", "cdav", "cdiscount a volonte"],
     "domain": "cdiscount.com",
     "category": "Other",
     "brandColor": null,
@@ -3920,10 +3545,7 @@
   {
     "id": "costco",
     "name": "Costco",
-    "aliases": [
-      "costco",
-      "costco membre privilège"
-    ],
+    "aliases": ["costco", "costco membre privilège"],
     "domain": "costco.fr",
     "category": "Other",
     "brandColor": null,
@@ -3944,11 +3566,7 @@
   {
     "id": "free-mobile",
     "name": "Free Mobile",
-    "aliases": [
-      "free",
-      "free mobile",
-      "forfait free"
-    ],
+    "aliases": ["free", "free mobile", "forfait free"],
     "domain": "free.fr",
     "category": "Other",
     "brandColor": null,
@@ -3975,11 +3593,7 @@
   {
     "id": "sosh",
     "name": "Sosh",
-    "aliases": [
-      "sosh",
-      "orange sosh",
-      "forfait sosh"
-    ],
+    "aliases": ["sosh", "orange sosh", "forfait sosh"],
     "domain": "sosh.fr",
     "category": "Other",
     "brandColor": null,
@@ -4000,11 +3614,7 @@
   {
     "id": "red-by-sfr",
     "name": "RED by SFR",
-    "aliases": [
-      "red",
-      "red by sfr",
-      "sfr red"
-    ],
+    "aliases": ["red", "red by sfr", "sfr red"],
     "domain": "red-by-sfr.fr",
     "category": "Other",
     "brandColor": null,
@@ -4025,12 +3635,7 @@
   {
     "id": "b-and-you",
     "name": "B&You",
-    "aliases": [
-      "b&you",
-      "byou",
-      "bouygues b&you",
-      "forfait bouygues"
-    ],
+    "aliases": ["b&you", "byou", "bouygues b&you", "forfait bouygues"],
     "domain": "bouyguestelecom.fr",
     "category": "Other",
     "brandColor": null,
@@ -4051,10 +3656,7 @@
   {
     "id": "prixtel",
     "name": "Prixtel",
-    "aliases": [
-      "prixtel",
-      "forfait prixtel"
-    ],
+    "aliases": ["prixtel", "forfait prixtel"],
     "domain": "prixtel.com",
     "category": "Other",
     "brandColor": null,
@@ -4075,10 +3677,7 @@
   {
     "id": "hellofresh",
     "name": "HelloFresh",
-    "aliases": [
-      "hellofresh",
-      "hello fresh"
-    ],
+    "aliases": ["hellofresh", "hello fresh"],
     "domain": "hellofresh.fr",
     "category": "Other",
     "brandColor": null,
@@ -4099,10 +3698,7 @@
   {
     "id": "quitoque",
     "name": "Quitoque",
-    "aliases": [
-      "quitoque",
-      "qui toque"
-    ],
+    "aliases": ["quitoque", "qui toque"],
     "domain": "quitoque.fr",
     "category": "Other",
     "brandColor": null,
@@ -4123,11 +3719,7 @@
   {
     "id": "uber-one",
     "name": "Uber One",
-    "aliases": [
-      "uber one",
-      "uber eats plus",
-      "uberone"
-    ],
+    "aliases": ["uber one", "uber eats plus", "uberone"],
     "domain": "uber.com",
     "category": "Other",
     "brandColor": null,
@@ -4154,10 +3746,7 @@
   {
     "id": "deliveroo-plus",
     "name": "Deliveroo Plus",
-    "aliases": [
-      "deliveroo plus",
-      "deliveroo"
-    ],
+    "aliases": ["deliveroo plus", "deliveroo"],
     "domain": "deliveroo.fr",
     "category": "Other",
     "brandColor": null,
@@ -4184,11 +3773,7 @@
   {
     "id": "navigo-mois",
     "name": "Navigo Mois",
-    "aliases": [
-      "navigo",
-      "pass navigo",
-      "forfait navigo"
-    ],
+    "aliases": ["navigo", "pass navigo", "forfait navigo"],
     "domain": "iledefrance-mobilites.fr",
     "category": "Other",
     "brandColor": null,
@@ -4209,12 +3794,7 @@
   {
     "id": "sncf-max-jeune",
     "name": "SNCF Max Jeune",
-    "aliases": [
-      "max jeune",
-      "tgvmax",
-      "sncf max",
-      "abonnement max jeune"
-    ],
+    "aliases": ["max jeune", "tgvmax", "sncf max", "abonnement max jeune"],
     "domain": "sncf-connect.com",
     "category": "Other",
     "brandColor": null,
@@ -4235,11 +3815,7 @@
   {
     "id": "sncf-avantage-jeune",
     "name": "SNCF Avantage Jeune",
-    "aliases": [
-      "carte avantage",
-      "avantage jeune",
-      "carte avantage jeune"
-    ],
+    "aliases": ["carte avantage", "avantage jeune", "carte avantage jeune"],
     "domain": "sncf-connect.com",
     "category": "Other",
     "brandColor": null,
@@ -4260,11 +3836,7 @@
   {
     "id": "sncf-liberte",
     "name": "SNCF Carte Liberté",
-    "aliases": [
-      "carte liberté",
-      "liberte",
-      "sncf liberté"
-    ],
+    "aliases": ["carte liberté", "liberte", "sncf liberté"],
     "domain": "sncf-connect.com",
     "category": "Other",
     "brandColor": null,
@@ -4285,11 +3857,7 @@
   {
     "id": "velib",
     "name": "Vélib'",
-    "aliases": [
-      "velib",
-      "vélib'",
-      "velib metropole"
-    ],
+    "aliases": ["velib", "vélib'", "velib metropole"],
     "domain": "velib-metropole.fr",
     "category": "Other",
     "brandColor": null,
@@ -4316,11 +3884,7 @@
   {
     "id": "dott",
     "name": "Dott",
-    "aliases": [
-      "dott",
-      "pass dott",
-      "trottinette dott"
-    ],
+    "aliases": ["dott", "pass dott", "trottinette dott"],
     "domain": "ridedott.com",
     "category": "Other",
     "brandColor": null,
@@ -4341,9 +3905,7 @@
   {
     "id": "patreon",
     "name": "Patreon",
-    "aliases": [
-      "patreon"
-    ],
+    "aliases": ["patreon"],
     "domain": "patreon.com",
     "category": "Other",
     "brandColor": null,
@@ -4364,11 +3926,7 @@
   {
     "id": "linkedin-premium",
     "name": "LinkedIn Premium",
-    "aliases": [
-      "linkedin premium",
-      "linkedin",
-      "premium career"
-    ],
+    "aliases": ["linkedin premium", "linkedin", "premium career"],
     "domain": "linkedin.com",
     "category": "Productivity",
     "brandColor": null,
@@ -4395,11 +3953,7 @@
   {
     "id": "duolingo",
     "name": "Duolingo",
-    "aliases": [
-      "duolingo",
-      "super duolingo",
-      "duolingo max"
-    ],
+    "aliases": ["duolingo", "super duolingo", "duolingo max"],
     "domain": "duolingo.com",
     "category": "Other",
     "brandColor": null,
@@ -4426,9 +3980,7 @@
   {
     "id": "babbel",
     "name": "Babbel",
-    "aliases": [
-      "babbel"
-    ],
+    "aliases": ["babbel"],
     "domain": "babbel.com",
     "category": "Other",
     "brandColor": null,
@@ -4455,9 +4007,7 @@
   {
     "id": "busuu",
     "name": "Busuu",
-    "aliases": [
-      "busuu"
-    ],
+    "aliases": ["busuu"],
     "domain": "busuu.com",
     "category": "Other",
     "brandColor": null,
@@ -4478,10 +4028,7 @@
   {
     "id": "rosetta-stone",
     "name": "Rosetta Stone",
-    "aliases": [
-      "rosetta stone",
-      "rosetta"
-    ],
+    "aliases": ["rosetta stone", "rosetta"],
     "domain": "rosettastone.com",
     "category": "Other",
     "brandColor": null,
@@ -4502,9 +4049,7 @@
   {
     "id": "headspace",
     "name": "Headspace",
-    "aliases": [
-      "headspace"
-    ],
+    "aliases": ["headspace"],
     "domain": "headspace.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4537,9 +4082,7 @@
   {
     "id": "calm",
     "name": "Calm",
-    "aliases": [
-      "calm"
-    ],
+    "aliases": ["calm"],
     "domain": "calm.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4566,11 +4109,7 @@
   {
     "id": "apple-fitness-plus",
     "name": "Apple Fitness+",
-    "aliases": [
-      "apple fitness",
-      "fitness+",
-      "fitness plus"
-    ],
+    "aliases": ["apple fitness", "fitness+", "fitness plus"],
     "domain": "apple.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4597,9 +4136,7 @@
   {
     "id": "strava",
     "name": "Strava",
-    "aliases": [
-      "strava"
-    ],
+    "aliases": ["strava"],
     "domain": "strava.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4626,11 +4163,7 @@
   {
     "id": "fitbit-premium",
     "name": "Fitbit Premium",
-    "aliases": [
-      "fitbit",
-      "fitbit premium",
-      "google health premium"
-    ],
+    "aliases": ["fitbit", "fitbit premium", "google health premium"],
     "domain": "fitbit.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4657,9 +4190,7 @@
   {
     "id": "whoop",
     "name": "Whoop",
-    "aliases": [
-      "whoop"
-    ],
+    "aliases": ["whoop"],
     "domain": "whoop.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4692,11 +4223,7 @@
   {
     "id": "garmin-connect-plus",
     "name": "Garmin Connect+",
-    "aliases": [
-      "garmin",
-      "garmin connect",
-      "connect+"
-    ],
+    "aliases": ["garmin", "garmin connect", "connect+"],
     "domain": "garmin.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4723,10 +4250,7 @@
   {
     "id": "myfitnesspal",
     "name": "MyFitnessPal Premium",
-    "aliases": [
-      "myfitnesspal",
-      "mfp"
-    ],
+    "aliases": ["myfitnesspal", "mfp"],
     "domain": "myfitnesspal.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4753,10 +4277,7 @@
   {
     "id": "peloton-app",
     "name": "Peloton App",
-    "aliases": [
-      "peloton",
-      "peloton app"
-    ],
+    "aliases": ["peloton", "peloton app"],
     "domain": "onepeloton.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4789,9 +4310,7 @@
   {
     "id": "freeletics",
     "name": "Freeletics",
-    "aliases": [
-      "freeletics"
-    ],
+    "aliases": ["freeletics"],
     "domain": "freeletics.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4818,9 +4337,7 @@
   {
     "id": "centr",
     "name": "Centr",
-    "aliases": [
-      "centr"
-    ],
+    "aliases": ["centr"],
     "domain": "centr.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4847,10 +4364,7 @@
   {
     "id": "down-dog",
     "name": "Down Dog",
-    "aliases": [
-      "down dog",
-      "downdog"
-    ],
+    "aliases": ["down dog", "downdog"],
     "domain": "downdogapp.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4877,11 +4391,7 @@
   {
     "id": "basic-fit",
     "name": "Basic-Fit",
-    "aliases": [
-      "basic-fit",
-      "basic fit",
-      "basicfit"
-    ],
+    "aliases": ["basic-fit", "basic fit", "basicfit"],
     "domain": "basic-fit.com",
     "category": "Wellness",
     "brandColor": null,
@@ -4914,10 +4424,7 @@
   {
     "id": "fitness-park",
     "name": "Fitness Park",
-    "aliases": [
-      "fitness park",
-      "fitnesspark"
-    ],
+    "aliases": ["fitness park", "fitnesspark"],
     "domain": "fitnesspark.fr",
     "category": "Wellness",
     "brandColor": null,
@@ -4950,9 +4457,7 @@
   {
     "id": "neoness",
     "name": "Neoness",
-    "aliases": [
-      "neoness"
-    ],
+    "aliases": ["neoness"],
     "domain": "neoness.fr",
     "category": "Wellness",
     "brandColor": null,
@@ -4979,10 +4484,7 @@
   {
     "id": "keep-cool",
     "name": "Keep Cool",
-    "aliases": [
-      "keep cool",
-      "keepcool"
-    ],
+    "aliases": ["keep cool", "keepcool"],
     "domain": "keepcool.fr",
     "category": "Wellness",
     "brandColor": null,
@@ -5015,11 +4517,7 @@
   {
     "id": "on-air-fitness",
     "name": "On Air",
-    "aliases": [
-      "on air",
-      "onair",
-      "on air fitness"
-    ],
+    "aliases": ["on air", "onair", "on air fitness"],
     "domain": "onair-fitness.fr",
     "category": "Wellness",
     "brandColor": null,
@@ -5052,9 +4550,7 @@
   {
     "id": "tinder",
     "name": "Tinder",
-    "aliases": [
-      "tinder"
-    ],
+    "aliases": ["tinder"],
     "domain": "tinder.com",
     "category": "Wellness",
     "brandColor": null,
@@ -5087,9 +4583,7 @@
   {
     "id": "bumble",
     "name": "Bumble",
-    "aliases": [
-      "bumble"
-    ],
+    "aliases": ["bumble"],
     "domain": "bumble.com",
     "category": "Wellness",
     "brandColor": null,
@@ -5116,9 +4610,7 @@
   {
     "id": "hinge",
     "name": "Hinge",
-    "aliases": [
-      "hinge"
-    ],
+    "aliases": ["hinge"],
     "domain": "hinge.co",
     "category": "Wellness",
     "brandColor": null,
@@ -5145,9 +4637,7 @@
   {
     "id": "happn",
     "name": "Happn",
-    "aliases": [
-      "happn"
-    ],
+    "aliases": ["happn"],
     "domain": "happn.com",
     "category": "Wellness",
     "brandColor": null,
@@ -5168,9 +4658,7 @@
   {
     "id": "meetic",
     "name": "Meetic",
-    "aliases": [
-      "meetic"
-    ],
+    "aliases": ["meetic"],
     "domain": "meetic.fr",
     "category": "Wellness",
     "brandColor": null,
@@ -5197,9 +4685,7 @@
   {
     "id": "grindr",
     "name": "Grindr",
-    "aliases": [
-      "grindr"
-    ],
+    "aliases": ["grindr"],
     "domain": "grindr.com",
     "category": "Wellness",
     "brandColor": null,
@@ -5226,9 +4712,7 @@
   {
     "id": "fruitz",
     "name": "Fruitz",
-    "aliases": [
-      "fruitz"
-    ],
+    "aliases": ["fruitz"],
     "domain": "fruitz.io",
     "category": "Wellness",
     "brandColor": null,
@@ -5255,12 +4739,7 @@
   {
     "id": "xbox-game-pass-ultimate",
     "name": "Xbox Game Pass Ultimate",
-    "aliases": [
-      "game pass",
-      "xbox game pass",
-      "gamepass",
-      "gp ultimate"
-    ],
+    "aliases": ["game pass", "xbox game pass", "gamepass", "gp ultimate"],
     "domain": "xbox.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5281,10 +4760,7 @@
   {
     "id": "xbox-game-pass-premium",
     "name": "Xbox Game Pass Premium",
-    "aliases": [
-      "game pass premium",
-      "xbox premium"
-    ],
+    "aliases": ["game pass premium", "xbox premium"],
     "domain": "xbox.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5305,11 +4781,7 @@
   {
     "id": "xbox-game-pass-essential",
     "name": "Xbox Game Pass Essential",
-    "aliases": [
-      "game pass essential",
-      "xbox core",
-      "game pass core"
-    ],
+    "aliases": ["game pass essential", "xbox core", "game pass core"],
     "domain": "xbox.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5330,10 +4802,7 @@
   {
     "id": "pc-game-pass",
     "name": "PC Game Pass",
-    "aliases": [
-      "pc game pass",
-      "game pass pc"
-    ],
+    "aliases": ["pc game pass", "game pass pc"],
     "domain": "xbox.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5354,12 +4823,7 @@
   {
     "id": "playstation-plus-essential",
     "name": "PlayStation Plus Essential",
-    "aliases": [
-      "ps plus",
-      "psn",
-      "ps+",
-      "playstation plus"
-    ],
+    "aliases": ["ps plus", "psn", "ps+", "playstation plus"],
     "domain": "playstation.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5386,10 +4850,7 @@
   {
     "id": "playstation-plus-extra",
     "name": "PlayStation Plus Extra",
-    "aliases": [
-      "ps plus extra",
-      "ps+ extra"
-    ],
+    "aliases": ["ps plus extra", "ps+ extra"],
     "domain": "playstation.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5416,10 +4877,7 @@
   {
     "id": "playstation-plus-premium",
     "name": "PlayStation Plus Premium",
-    "aliases": [
-      "ps plus premium",
-      "ps+ premium"
-    ],
+    "aliases": ["ps plus premium", "ps+ premium"],
     "domain": "playstation.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5446,11 +4904,7 @@
   {
     "id": "nintendo-switch-online",
     "name": "Nintendo Switch Online",
-    "aliases": [
-      "nso",
-      "switch online",
-      "nintendo online"
-    ],
+    "aliases": ["nso", "switch online", "nintendo online"],
     "domain": "nintendo.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5477,11 +4931,7 @@
   {
     "id": "nintendo-switch-online-expansion",
     "name": "Nintendo Switch Online + Expansion Pack",
-    "aliases": [
-      "nso expansion pack",
-      "switch online expansion",
-      "nso plus"
-    ],
+    "aliases": ["nso expansion pack", "switch online expansion", "nso plus"],
     "domain": "nintendo.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5508,11 +4958,7 @@
   {
     "id": "ea-play",
     "name": "EA Play",
-    "aliases": [
-      "ea play",
-      "ea access",
-      "origin access"
-    ],
+    "aliases": ["ea play", "ea access", "origin access"],
     "domain": "ea.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5539,10 +4985,7 @@
   {
     "id": "ea-play-pro",
     "name": "EA Play Pro",
-    "aliases": [
-      "ea play pro",
-      "origin access premier"
-    ],
+    "aliases": ["ea play pro", "origin access premier"],
     "domain": "ea.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5569,11 +5012,7 @@
   {
     "id": "ubisoft-plus-classics",
     "name": "Ubisoft+ Classics",
-    "aliases": [
-      "ubisoft plus classics",
-      "ubisoft+ classics",
-      "uplay classics"
-    ],
+    "aliases": ["ubisoft plus classics", "ubisoft+ classics", "uplay classics"],
     "domain": "ubisoft.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5594,11 +5033,7 @@
   {
     "id": "ubisoft-plus-premium",
     "name": "Ubisoft+ Premium",
-    "aliases": [
-      "ubisoft plus",
-      "ubisoft+",
-      "uplay plus"
-    ],
+    "aliases": ["ubisoft plus", "ubisoft+", "uplay plus"],
     "domain": "ubisoft.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5619,11 +5054,7 @@
   {
     "id": "geforce-now",
     "name": "GeForce NOW",
-    "aliases": [
-      "geforce now",
-      "gfn",
-      "nvidia cloud gaming"
-    ],
+    "aliases": ["geforce now", "gfn", "nvidia cloud gaming"],
     "domain": "nvidia.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5650,12 +5081,7 @@
   {
     "id": "amazon-luna",
     "name": "Amazon Luna",
-    "aliases": [
-      "luna",
-      "luna premium",
-      "luna+",
-      "amazon luna"
-    ],
+    "aliases": ["luna", "luna premium", "luna+", "amazon luna"],
     "domain": "luna.amazon.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5676,10 +5102,7 @@
   {
     "id": "apple-arcade",
     "name": "Apple Arcade",
-    "aliases": [
-      "apple arcade",
-      "arcade"
-    ],
+    "aliases": ["apple arcade", "arcade"],
     "domain": "apple.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5700,10 +5123,7 @@
   {
     "id": "google-play-pass",
     "name": "Google Play Pass",
-    "aliases": [
-      "play pass",
-      "google play pass"
-    ],
+    "aliases": ["play pass", "google play pass"],
     "domain": "play.google.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5730,11 +5150,7 @@
   {
     "id": "humble-choice",
     "name": "Humble Choice",
-    "aliases": [
-      "humble choice",
-      "humble monthly",
-      "humble bundle"
-    ],
+    "aliases": ["humble choice", "humble monthly", "humble bundle"],
     "domain": "humblebundle.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5761,12 +5177,7 @@
   {
     "id": "world-of-warcraft",
     "name": "World of Warcraft",
-    "aliases": [
-      "wow",
-      "battle.net",
-      "blizzard",
-      "world of warcraft"
-    ],
+    "aliases": ["wow", "battle.net", "blizzard", "world of warcraft"],
     "domain": "worldofwarcraft.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5787,12 +5198,7 @@
   {
     "id": "final-fantasy-xiv",
     "name": "Final Fantasy XIV",
-    "aliases": [
-      "ffxiv",
-      "ff14",
-      "final fantasy 14",
-      "final fantasy xiv"
-    ],
+    "aliases": ["ffxiv", "ff14", "final fantasy 14", "final fantasy xiv"],
     "domain": "finalfantasyxiv.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5819,11 +5225,7 @@
   {
     "id": "roblox-premium",
     "name": "Roblox Premium",
-    "aliases": [
-      "roblox premium",
-      "roblox",
-      "robux"
-    ],
+    "aliases": ["roblox premium", "roblox", "robux"],
     "domain": "roblox.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5856,11 +5258,7 @@
   {
     "id": "minecraft-realms-plus",
     "name": "Minecraft Realms Plus",
-    "aliases": [
-      "minecraft realms",
-      "realms plus",
-      "minecraft realms plus"
-    ],
+    "aliases": ["minecraft realms", "realms plus", "minecraft realms plus"],
     "domain": "minecraft.net",
     "category": "Entertainment",
     "brandColor": null,
@@ -5881,11 +5279,7 @@
   {
     "id": "discord-nitro",
     "name": "Discord Nitro",
-    "aliases": [
-      "discord nitro",
-      "nitro",
-      "discord"
-    ],
+    "aliases": ["discord nitro", "nitro", "discord"],
     "domain": "discord.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5918,10 +5312,7 @@
   {
     "id": "twitch-turbo",
     "name": "Twitch Turbo",
-    "aliases": [
-      "twitch turbo",
-      "turbo"
-    ],
+    "aliases": ["twitch turbo", "turbo"],
     "domain": "twitch.tv",
     "category": "Entertainment",
     "brandColor": null,
@@ -5942,11 +5333,7 @@
   {
     "id": "fortnite-crew",
     "name": "Fortnite Crew",
-    "aliases": [
-      "fortnite crew",
-      "fortnite",
-      "crew"
-    ],
+    "aliases": ["fortnite crew", "fortnite", "crew"],
     "domain": "fortnite.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -5967,9 +5354,7 @@
   {
     "id": "spotify",
     "name": "Spotify",
-    "aliases": [
-      "spotify"
-    ],
+    "aliases": ["spotify"],
     "domain": "spotify.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6008,10 +5393,7 @@
   {
     "id": "apple-music",
     "name": "Apple Music",
-    "aliases": [
-      "apple music",
-      "applemusic"
-    ],
+    "aliases": ["apple music", "applemusic"],
     "domain": "music.apple.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6044,11 +5426,7 @@
   {
     "id": "youtube-music",
     "name": "YouTube Music",
-    "aliases": [
-      "youtube music",
-      "yt music",
-      "youtube premium"
-    ],
+    "aliases": ["youtube music", "yt music", "youtube premium"],
     "domain": "music.youtube.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6081,10 +5459,7 @@
   {
     "id": "amazon-music-unlimited",
     "name": "Amazon Music Unlimited",
-    "aliases": [
-      "amazon music",
-      "amazon music unlimited"
-    ],
+    "aliases": ["amazon music", "amazon music unlimited"],
     "domain": "music.amazon.fr",
     "category": "Entertainment",
     "brandColor": null,
@@ -6117,9 +5492,7 @@
   {
     "id": "deezer",
     "name": "Deezer",
-    "aliases": [
-      "deezer"
-    ],
+    "aliases": ["deezer"],
     "domain": "deezer.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6158,9 +5531,7 @@
   {
     "id": "qobuz",
     "name": "Qobuz",
-    "aliases": [
-      "qobuz"
-    ],
+    "aliases": ["qobuz"],
     "domain": "qobuz.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6199,9 +5570,7 @@
   {
     "id": "tidal",
     "name": "Tidal",
-    "aliases": [
-      "tidal"
-    ],
+    "aliases": ["tidal"],
     "domain": "tidal.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6234,11 +5603,7 @@
   {
     "id": "soundcloud",
     "name": "SoundCloud",
-    "aliases": [
-      "soundcloud",
-      "soundcloud go",
-      "soundcloud go+"
-    ],
+    "aliases": ["soundcloud", "soundcloud go", "soundcloud go+"],
     "domain": "soundcloud.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6265,9 +5630,7 @@
   {
     "id": "pandora",
     "name": "Pandora",
-    "aliases": [
-      "pandora"
-    ],
+    "aliases": ["pandora"],
     "domain": "pandora.com",
     "category": "Entertainment",
     "brandColor": null,
@@ -6300,9 +5663,7 @@
   {
     "id": "storytel",
     "name": "Storytel",
-    "aliases": [
-      "storytel"
-    ],
+    "aliases": ["storytel"],
     "domain": "storytel.com",
     "category": "News",
     "brandColor": null,
@@ -6323,9 +5684,7 @@
   {
     "id": "nextory",
     "name": "Nextory",
-    "aliases": [
-      "nextory"
-    ],
+    "aliases": ["nextory"],
     "domain": "nextory.com",
     "category": "News",
     "brandColor": null,
@@ -6358,9 +5717,7 @@
   {
     "id": "podimo",
     "name": "Podimo",
-    "aliases": [
-      "podimo"
-    ],
+    "aliases": ["podimo"],
     "domain": "podimo.com",
     "category": "News",
     "brandColor": null,

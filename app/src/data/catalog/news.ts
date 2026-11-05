@@ -172,9 +172,7 @@ export const NEWS_READING: CatalogService[] = [
     aliases: ['le monde diplomatique', 'diplo', 'monde diplo'],
     domain: 'monde-diplomatique.fr',
     category: 'News',
-    plans: [
-      { name: 'Numérique', amount: 6, currency: 'EUR', frequency: 'monthly', default: true },
-    ],
+    plans: [{ name: 'Numérique', amount: 6, currency: 'EUR', frequency: 'monthly', default: true }],
     pricesUpdatedAt: '2026-07',
   },
 
@@ -210,7 +208,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'ft.com',
     category: 'News',
     plans: [
-      { name: 'Standard Digital', amount: 468, currency: 'GBP', frequency: 'yearly', default: true },
+      {
+        name: 'Standard Digital',
+        amount: 468,
+        currency: 'GBP',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -221,7 +225,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'theguardian.com',
     category: 'News',
     plans: [
-      { name: 'All-access digital', amount: 16.5, currency: 'GBP', frequency: 'monthly', default: true },
+      {
+        name: 'All-access digital',
+        amount: 16.5,
+        currency: 'GBP',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -232,7 +242,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'washingtonpost.com',
     category: 'News',
     plans: [
-      { name: 'Digital (4-weekly)', amount: 12, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Digital (4-weekly)',
+        amount: 12,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -255,7 +271,13 @@ export const NEWS_READING: CatalogService[] = [
     category: 'News',
     plans: [
       { name: 'Digital', amount: 2.99, currency: 'USD', frequency: 'monthly' },
-      { name: 'Digital Annual', amount: 29.99, currency: 'USD', frequency: 'yearly', default: true },
+      {
+        name: 'Digital Annual',
+        amount: 29.99,
+        currency: 'USD',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -266,7 +288,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'theatlantic.com',
     category: 'News',
     plans: [
-      { name: 'Digital Annual', amount: 89.99, currency: 'USD', frequency: 'yearly', default: true },
+      {
+        name: 'Digital Annual',
+        amount: 89.99,
+        currency: 'USD',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -277,7 +305,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'bloomberg.com',
     category: 'News',
     plans: [
-      { name: 'Digital All Access', amount: 34.99, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Digital All Access',
+        amount: 34.99,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Digital Annual', amount: 415, currency: 'USD', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
@@ -315,7 +349,13 @@ export const NEWS_READING: CatalogService[] = [
     domain: 'blinkist.com',
     category: 'News',
     plans: [
-      { name: 'Premium Annual', amount: 99.99, currency: 'EUR', frequency: 'yearly', default: true },
+      {
+        name: 'Premium Annual',
+        amount: 99.99,
+        currency: 'EUR',
+        frequency: 'yearly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
   },
@@ -366,7 +406,8 @@ export const NEWS_READING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://www.kobo.com/account/subscriptions',
-    cancelNotes: 'Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders).',
+    cancelNotes:
+      'Manage under My Account > My Subscriptions on kobo.com (not manageable in the iOS app or on eReaders).',
   },
   {
     id: 'audible',
@@ -381,6 +422,7 @@ export const NEWS_READING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.audible.com/account/cancelmembership',
-    cancelNotes: 'Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Account Details in a browser if billed by Audible; app-store subscriptions cancel via the store.',
   },
 ];

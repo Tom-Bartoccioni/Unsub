@@ -133,15 +133,9 @@ export function ReactivateModal({
     [],
   );
 
-  const years = useMemo(
-    () => Array.from({ length: 6 }, (_, i) => date.getFullYear() + i),
-    [date],
-  );
+  const years = useMemo(() => Array.from({ length: 6 }, (_, i) => date.getFullYear() + i), [date]);
   const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  const days = useMemo(
-    () => Array.from({ length: daysInMonth }, (_, i) => i + 1),
-    [daysInMonth],
-  );
+  const days = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => i + 1), [daysInMonth]);
 
   const setPart = (part: 'y' | 'm' | 'd', value: number) => {
     setDateAuto(false); // explicit user choice — stop auto-deriving from cadence
@@ -164,11 +158,7 @@ export function ReactivateModal({
     () => Array.from({ length: 16 }, (_, i) => now.getFullYear() - i),
     [now],
   );
-  const startDaysInMonth = new Date(
-    startedAt.getFullYear(),
-    startedAt.getMonth() + 1,
-    0,
-  ).getDate();
+  const startDaysInMonth = new Date(startedAt.getFullYear(), startedAt.getMonth() + 1, 0).getDate();
   const startDays = useMemo(
     () => Array.from({ length: startDaysInMonth }, (_, i) => i + 1),
     [startDaysInMonth],
@@ -270,10 +260,7 @@ export function ReactivateModal({
             </Pressable>
             <View style={styles.progress}>
               {Array.from({ length: STEP_COUNT }).map((_, i) => (
-                <View
-                  key={i}
-                  style={[styles.progressDot, i <= step && styles.progressDotActive]}
-                />
+                <View key={i} style={[styles.progressDot, i <= step && styles.progressDotActive]} />
               ))}
             </View>
             <View style={styles.topButton} />
@@ -296,7 +283,11 @@ export function ReactivateModal({
               <>
                 <Text style={styles.sectionLabel}>{t('reactivate.priceLabel')}</Text>
                 <View style={styles.amountRow}>
-                  <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.max(0, Math.round((a - 1) * 100) / 100))} hitSlop={8}>
+                  <Pressable
+                    style={styles.stepper}
+                    onPress={() => setAmount((a) => Math.max(0, Math.round((a - 1) * 100) / 100))}
+                    hitSlop={8}
+                  >
                     <Ionicons name="remove" size={22} color={colors.textPrimary} />
                   </Pressable>
                   <View style={styles.amountDisplay}>
@@ -332,7 +323,11 @@ export function ReactivateModal({
                       />
                     </View>
                   </View>
-                  <Pressable style={styles.stepper} onPress={() => setAmount((a) => Math.round((a + 1) * 100) / 100)} hitSlop={8}>
+                  <Pressable
+                    style={styles.stepper}
+                    onPress={() => setAmount((a) => Math.round((a + 1) * 100) / 100)}
+                    hitSlop={8}
+                  >
                     <Ionicons name="add" size={22} color={colors.textPrimary} />
                   </Pressable>
                 </View>

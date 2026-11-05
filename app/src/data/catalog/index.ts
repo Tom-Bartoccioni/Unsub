@@ -108,7 +108,8 @@ export function buildSearch(services: CatalogService[]): CatalogSearch {
       let score = 0;
       if (nName === q) score = 100;
       else if (nName.startsWith(q)) score = 80;
-      else if (hay.includes(` ${q}`) || hay.startsWith(q)) score = 60; // word-boundary
+      else if (hay.includes(` ${q}`) || hay.startsWith(q))
+        score = 60; // word-boundary
       else if (hay.includes(q)) score = 40;
       if (score > 0) scored.push({ svc, score });
     }

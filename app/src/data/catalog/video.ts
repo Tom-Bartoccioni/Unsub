@@ -45,12 +45,13 @@ export const VIDEO_STREAMING: CatalogService[] = [
     plans: [
       { name: 'Prime Video', amount: 3.99, currency: 'EUR', frequency: 'monthly', default: true },
       { name: 'Amazon Prime (complet)', amount: 6.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Amazon Prime (annuel)', amount: 69.90, currency: 'EUR', frequency: 'yearly' },
+      { name: 'Amazon Prime (annuel)', amount: 69.9, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.amazon.com/gp/video/settings',
-    cancelNotes: 'Manage under Prime Video Account & Settings; add-ons bought via an app store must be cancelled there.',
+    cancelNotes:
+      'Manage under Prime Video Account & Settings; add-ons bought via an app store must be cancelled there.',
   },
   {
     id: 'max',
@@ -66,7 +67,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://auth.max.com/product',
-    cancelNotes: 'Cancel via Max.com > profile > Subscription > Manage Subscription; if billed through a store or provider, cancel there.',
+    cancelNotes:
+      'Cancel via Max.com > profile > Subscription > Manage Subscription; if billed through a store or provider, cancel there.',
   },
   {
     id: 'apple-tv-plus',
@@ -76,7 +78,7 @@ export const VIDEO_STREAMING: CatalogService[] = [
     category: 'Entertainment',
     plans: [
       { name: 'Mensuel', amount: 9.99, currency: 'EUR', frequency: 'monthly', default: true },
-      { name: 'Annuel', amount: 99.00, currency: 'EUR', frequency: 'yearly' },
+      { name: 'Annuel', amount: 99.0, currency: 'EUR', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'store',
@@ -94,7 +96,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.paramountplus.com/account/',
-    cancelNotes: 'Cancel on the account page if you subscribed on the web; otherwise cancel via your app store or provider.',
+    cancelNotes:
+      'Cancel on the account page if you subscribed on the web; otherwise cancel via your app store or provider.',
   },
   {
     id: 'youtube-premium',
@@ -126,7 +129,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.crunchyroll.com/account/membership',
-    cancelNotes: 'Cancel here if you subscribed on crunchyroll.com; store or console subscriptions must be cancelled there.',
+    cancelNotes:
+      'Cancel here if you subscribed on crunchyroll.com; store or console subscriptions must be cancelled there.',
   },
   {
     id: 'adn',
@@ -142,7 +146,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://animationdigitalnetwork.com/account/subscription',
-    cancelNotes: 'On the web, open your Abonnement space and turn off auto-renewal; mobile-app subscriptions are cancelled via the store.',
+    cancelNotes:
+      'On the web, open your Abonnement space and turn off auto-renewal; mobile-app subscriptions are cancelled via the store.',
   },
   {
     id: 'canal-plus',
@@ -157,7 +162,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://www.canalplus.com/compte/',
-    cancelNotes: 'In your espace client, go to Abonnement > Mes demarches > Resilier; committed plans require notice before the renewal date.',
+    cancelNotes:
+      'In your espace client, go to Abonnement > Mes demarches > Resilier; committed plans require notice before the renewal date.',
   },
   {
     id: 'cine-plus-ocs',
@@ -166,12 +172,19 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'ocs.fr',
     category: 'Entertainment',
     plans: [
-      { name: 'Bouquet Ciné+ OCS', amount: 12.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Bouquet Ciné+ OCS',
+        amount: 12.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://www.canalplus.com/compte/',
-    cancelNotes: 'Cine+ OCS is billed by Canal+; cancel in your Canal+ account under Mon compte, or via your partner operator if subscribed through one.',
+    cancelNotes:
+      'Cine+ OCS is billed by Canal+; cancel in your Canal+ account under Mon compte, or via your partner operator if subscribed through one.',
   },
   {
     id: 'molotov',
@@ -186,7 +199,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.molotov.tv/account',
-    cancelNotes: 'Disable the paid option under account settings if billed by Molotov; Apple/Google/Amazon billing must be cancelled on that platform.',
+    cancelNotes:
+      'Disable the paid option under account settings if billed by Molotov; Apple/Google/Amazon billing must be cancelled on that platform.',
   },
   {
     id: 'universal-plus',
@@ -200,7 +214,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://web.play.universalplus.com/',
-    cancelNotes: 'Cancel in the Mi cuenta section of the web app if billed directly; through a TV/ISP provider, cancel with them.',
+    cancelNotes:
+      'Cancel in the Mi cuenta section of the web app if billed directly; through a TV/ISP provider, cancel with them.',
   },
   {
     id: 'mubi',
@@ -216,7 +231,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://mubi.com/settings/subscription',
-    cancelNotes: 'Cancel in subscription settings if you subscribed on the web; store subscriptions are cancelled via the store.',
+    cancelNotes:
+      'Cancel in subscription settings if you subscribed on the web; store subscriptions are cancelled via the store.',
   },
   {
     id: 'shudder',
@@ -231,7 +247,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.shudder.com/account',
-    cancelNotes: 'Cancel under Membership Settings if billed by Shudder; via Roku/Amazon/app store, cancel there.',
+    cancelNotes:
+      'Cancel under Membership Settings if billed by Shudder; via Roku/Amazon/app store, cancel there.',
   },
   {
     id: 'dazn',
@@ -240,14 +257,26 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'dazn.com',
     category: 'Entertainment',
     plans: [
-      { name: 'Super Sports (engagement 12 mois)', amount: 14.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Unlimited (engagement 12 mois)', amount: 19.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Super Sports (engagement 12 mois)',
+        amount: 14.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+      },
+      {
+        name: 'Unlimited (engagement 12 mois)',
+        amount: 19.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Unlimited (sans engagement)', amount: 39.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.dazn.com/account',
-    cancelNotes: 'Cancel under My Account > Manage Subscription if billed by DAZN; third-party billing must be cancelled with that provider.',
+    cancelNotes:
+      'Cancel under My Account > Manage Subscription if billed by DAZN; third-party billing must be cancelled with that provider.',
   },
   {
     id: 'ligue-1-plus',
@@ -257,12 +286,19 @@ export const VIDEO_STREAMING: CatalogService[] = [
     category: 'Entertainment',
     plans: [
       { name: 'Pass mobile', amount: 14.99, currency: 'EUR', frequency: 'monthly' },
-      { name: 'Pass classique', amount: 19.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Pass classique',
+        amount: 19.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://plus.ligue1.com/',
-    cancelNotes: 'If you subscribed on the web, cancel under the Subscription tab of your Ligue 1+ account; store subscriptions cancel via the store.',
+    cancelNotes:
+      'If you subscribed on the web, cancel under the Subscription tab of your Ligue 1+ account; store subscriptions cancel via the store.',
   },
   {
     id: 'bein-sports',
@@ -271,12 +307,19 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'beinsports.com',
     category: 'Entertainment',
     plans: [
-      { name: 'beIN Sports Connect', amount: 15.00, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'beIN Sports Connect',
+        amount: 15.0,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'web',
     cancelUrl: 'https://www.beinsports.com/france/compte/',
-    cancelNotes: 'For beIN Sports Connect, cancel under Mes offres with the Me desabonner button (available in the 30 days before renewal).',
+    cancelNotes:
+      'For beIN Sports Connect, cancel under Mes offres with the Me desabonner button (available in the 30 days before renewal).',
   },
   {
     id: 'rmc-sport',
@@ -285,12 +328,13 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'rmcsport.bfmtv.com',
     category: 'Entertainment',
     plans: [
-      { name: '100% digital', amount: 19.00, currency: 'EUR', frequency: 'monthly', default: true },
+      { name: '100% digital', amount: 19.0, currency: 'EUR', frequency: 'monthly', default: true },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.rmcsport.tv/aide/compte-et-offres/comment-resilier-mon-abonnement.html',
-    cancelNotes: 'For RMC Sport 100% Digital, cancel in your Espace Client under Mes offres actuelles > Resilier; Apple/SFR/RED billing cancels with them.',
+    cancelNotes:
+      'For RMC Sport 100% Digital, cancel in your Espace Client under Mes offres actuelles > Resilier; Apple/SFR/RED billing cancels with them.',
   },
   {
     id: 'twitch',
@@ -299,14 +343,21 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'twitch.tv',
     category: 'Entertainment',
     plans: [
-      { name: 'Abonnement chaîne Tier 1', amount: 4.99, currency: 'EUR', frequency: 'monthly', default: true },
+      {
+        name: 'Abonnement chaîne Tier 1',
+        amount: 4.99,
+        currency: 'EUR',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Abonnement chaîne Tier 2', amount: 9.99, currency: 'EUR', frequency: 'monthly' },
       { name: 'Twitch Turbo', amount: 11.99, currency: 'EUR', frequency: 'monthly' },
       { name: 'Abonnement chaîne Tier 3', amount: 24.99, currency: 'EUR', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'store',
-    cancelNotes: 'Twitch subscriptions are managed per channel; on mobile they are billed through your app store.',
+    cancelNotes:
+      'Twitch subscriptions are managed per channel; on mobile they are billed through your app store.',
   },
   // --- US-only services (USD) ---
   {
@@ -322,7 +373,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://secure.hulu.com/account',
-    cancelNotes: 'Cancel under Your Subscription in a browser; if billed by a third party, cancel with them.',
+    cancelNotes:
+      'Cancel under Your Subscription in a browser; if billed by a third party, cancel with them.',
   },
   {
     id: 'peacock',
@@ -331,13 +383,20 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'peacocktv.com',
     category: 'Entertainment',
     plans: [
-      { name: 'Premium (with ads)', amount: 10.99, currency: 'USD', frequency: 'monthly', default: true },
+      {
+        name: 'Premium (with ads)',
+        amount: 10.99,
+        currency: 'USD',
+        frequency: 'monthly',
+        default: true,
+      },
       { name: 'Premium Plus', amount: 16.99, currency: 'USD', frequency: 'monthly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.peacocktv.com/account/plans',
-    cancelNotes: 'Cancel under Plans & Payments if billed by Peacock; store or provider subscriptions cancel there.',
+    cancelNotes:
+      'Cancel under Plans & Payments if billed by Peacock; store or provider subscriptions cancel there.',
   },
   {
     id: 'discovery-plus',
@@ -352,7 +411,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://www.discoveryplus.com/account',
-    cancelNotes: 'Cancel on the Manage Your Account page if billed by discovery+; store/provider subscriptions cancel there.',
+    cancelNotes:
+      'Cancel on the Manage Your Account page if billed by discovery+; store/provider subscriptions cancel there.',
   },
   {
     id: 'curiosity-stream',
@@ -368,7 +428,8 @@ export const VIDEO_STREAMING: CatalogService[] = [
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://curiositystream.com/account',
-    cancelNotes: 'Cancel under Plan and Payment > Manage Plan if billed directly; store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel under Plan and Payment > Manage Plan if billed directly; store subscriptions cancel via the store.',
   },
   {
     id: 'nebula',
@@ -377,12 +438,13 @@ export const VIDEO_STREAMING: CatalogService[] = [
     domain: 'nebula.tv',
     category: 'Entertainment',
     plans: [
-      { name: 'Mensuel', amount: 6.00, currency: 'USD', frequency: 'monthly', default: true },
-      { name: 'Annuel', amount: 60.00, currency: 'USD', frequency: 'yearly' },
+      { name: 'Mensuel', amount: 6.0, currency: 'USD', frequency: 'monthly', default: true },
+      { name: 'Annuel', amount: 60.0, currency: 'USD', frequency: 'yearly' },
     ],
     pricesUpdatedAt: '2026-07',
     billing: 'both',
     cancelUrl: 'https://nebula.tv/settings/subscription/plan/cancel',
-    cancelNotes: 'Cancel in account settings if you subscribed on nebula.tv; app-store subscriptions cancel via the store.',
+    cancelNotes:
+      'Cancel in account settings if you subscribed on nebula.tv; app-store subscriptions cancel via the store.',
   },
 ];

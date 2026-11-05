@@ -103,7 +103,8 @@ export const en = {
   },
   unsubscribe: {
     title: 'Cancel {{provider}}',
-    subtitle: 'We marked it as ghosted here. Finish cancelling on their side so you’re not charged again.',
+    subtitle:
+      'We marked it as ghosted here. Finish cancelling on their side so you’re not charged again.',
     openCancelPage: 'Open cancellation page',
     openStore: 'Manage in the store',
     orCancelInStore: 'Or cancel in the store',
