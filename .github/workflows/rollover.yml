@@ -50,6 +50,22 @@ jobs:
           UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
           UNSUB_ROLLOVER_TOKEN: ${{ secrets.UNSUB_ROLLOVER_TOKEN }}
 
+      - name: Wake the API (Render free tier cold start)
+        # Render spins the free instance down after 15 min idle and answers
+        # 503 while it boots (~40 s). Poll /health until it is up so the
+        # admin call below does not fail on a cold start.
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl --silent --output /dev/null --max-time 20 -w '%{http_code}' "${UNSUB_API_URL%/}/health" || true)
+            echo "attempt $i: /health -> HTTP ${code:-000}"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::API did not come up after 2 minutes"
+          exit 1
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
+
       - name: POST /admin/rollover
         run: |
           set -euo pipefail

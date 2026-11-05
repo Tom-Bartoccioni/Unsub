@@ -3,6 +3,7 @@ import { buildApp } from '../app.js';
 import type { TokenVerifier } from '../firebase.js';
 import type { UserStore } from '../db/users.js';
 import type { UserRow } from '../db/schema.js';
+import type { PushTokenStore } from '../db/push-tokens.js';
 
 function inMemoryUsers(): UserStore {
   const byUid = new Map<string, UserRow>();
@@ -19,6 +20,7 @@ function inMemoryUsers(): UserStore {
         firebaseUid,
         email,
         createdAt: new Date('2026-04-25T00:00:00.000Z'),
+        timezone: null,
       };
       byUid.set(firebaseUid, row);
       return row;
@@ -26,8 +28,28 @@ function inMemoryUsers(): UserStore {
     async findByFirebaseUid(firebaseUid) {
       return byUid.get(firebaseUid) ?? null;
     },
+    async setTimezone(userId, timezone) {
+      const row = [...byUid.values()].find((u) => u.id === userId);
+      if (!row) return null;
+      const updated = { ...row, timezone };
+      byUid.set(row.firebaseUid, updated);
+      return updated;
+    },
+    async listAll() {
+      return [...byUid.values()];
+    },
   };
 }
+
+// /me routes are only mounted when their deps are provided (see buildApp),
+// so the test wires a no-op push-token store alongside the user store.
+const pushTokens: PushTokenStore = {
+  upsert: async () => {
+    throw new Error('not used in this test');
+  },
+  listByUserId: async () => [],
+  deleteByToken: async () => false,
+};
 
 const verifier: TokenVerifier = async (token) => {
   if (token === 'good') return { uid: 'firebase-uid-1', email: 'alice@example.com' };
@@ -39,7 +61,7 @@ let users: UserStore;
 
 beforeEach(async () => {
   users = inMemoryUsers();
-  app = await buildApp({ logger: false, verifier, users });
+  app = await buildApp({ logger: false, verifier, users, me: { users, pushTokens } });
 });
 
 afterAll(async () => {

@@ -4,9 +4,21 @@
 
 > Kill your subscription ghosts before they haunt your wallet.
 
-A fintech-driven subscription management app that uses virtual cards to give users one-click control over their recurring expenses.
+A mobile subscription tracker: add the services you pay for from a curated brand catalog, see what they cost per month and per year, follow every past and upcoming payment on a timeline, and get a push notification the day before a charge hits.
 
-See [PRD.md](PRD.md) for the product spec and [ROADMAP.md](ROADMAP.md) for delivery status.
+**What is live today (free tier):**
+
+- Sign-up / sign-in with Firebase (email + password, Google)
+- Add, edit, cancel and reactivate subscriptions, with trial and cancelled states
+- Brand catalog with logos and categories, amount formatting per currency
+- Dashboard: monthly / yearly totals, spending donut, stats by category
+- Payment timeline per subscription, estimated past payments, daily rollover job
+- Native push notifications before each renewal (Expo push, hourly cron, per-user timezone)
+- i18n (English, French, Spanish, Italian)
+
+**What is deferred (premium track, not in the app):** Gmail inbox scanning (shipped on the API, hidden in the UI), bank scanning, virtual cards / kill switch, ghost detection. The reasoning behind the pivot is in [free_roadmap.md](free_roadmap.md); the original product spec is in [PRD.md](PRD.md).
+
+**Stack:** Expo / React Native (expo-router) · Fastify + TypeScript · Drizzle ORM on Postgres (Neon) · Firebase Auth · Expo Push · GitHub Actions crons · Render.
 
 ## Repo layout
 
@@ -108,7 +120,7 @@ OAuth client config; `app.json` wires it via `android.googleServicesFile`.
 - **Push (FCM v1):** upload a Firebase Admin service-account key to your Expo
   project (expo.dev → project → credentials) so Expo can deliver to FCM v1.
 - **Native Google sign-in:** the debug-keystore SHA-1 must be registered in Firebase
-  (Project settings → Android app → *Add fingerprint*), then re-download
+  (Project settings → Android app → _Add fingerprint_), then re-download
   `google-services.json`. The app reads the web OAuth client id from that file at
   runtime. Get the SHA-1 with:
 
@@ -207,6 +219,8 @@ EXPO_PUBLIC_API_URL=http://localhost:3000
 
 ## Status
 
-**Free MVP in progress.** Manual subscription tracker + cost rollups + (soon) pre-charge notifications. See [free_roadmap.md](free_roadmap.md) for the live task board.
+**Free tier shipped** (manual tracker, cost rollups, payment timeline, native push before renewals). Current work is polish and small UX items tracked in [free_roadmap.md](free_roadmap.md).
 
-The Gmail scraping pipeline shipped in Phase 1 (OAuth, parser, persistence) is **kept but UI-gated** — backend routes exist, frontend doesn't expose them. It will resurface in a future premium tier alongside virtual cards. Historical context in [ROADMAP.md](ROADMAP.md).
+The Gmail scraping pipeline built in Phase 1 (OAuth, parser, persistence) is **kept but UI-gated**: backend routes exist, the app does not expose them. It would resurface in a premium tier alongside virtual cards, which were never started because Stripe Issuing requires KYC / Treasury setup. Historical context in [ROADMAP.md](ROADMAP.md).
+
+> Scheduled workflows: GitHub disables cron workflows after 60 days without a commit. If the hourly notifications or the daily rollover stop firing, re-enable them from the Actions tab.

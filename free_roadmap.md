@@ -37,9 +37,9 @@ Same conventions as [ROADMAP.md](ROADMAP.md): `[ ]` todo · `[~]` in progress ·
 
 ## Current Focus
 
-- **Active phase:** Phase F1 — Manual tracker polish (F0 done)
-- **Next task:** `F1-T01` — "Mark as cancelled" button in the inline edit form
-- **Last updated:** 2026-04-26
+- **Status (2026-11-05):** Phase F3 (native push + hourly cron) is **shipped**: `push_tokens` and `user_timezone` migrations, `POST /me/push-tokens`, `POST /admin/notify-renewals`, `notify-renewals.yml` (hourly) and `rollover.yml` (daily). Parts of F1 are in (currency formatting via `Intl.NumberFormat`, cancelled state, reactivate flow). The checkboxes below have not been flipped one by one; treat this note as the source of truth.
+- **Next:** remaining F1 / F2 polish items, then a hosted web build of the app as a public demo.
+- **Last updated:** 2026-11-05
 
 ---
 
