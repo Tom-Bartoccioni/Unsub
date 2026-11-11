@@ -6,6 +6,12 @@
 
 A mobile subscription tracker: add the services you pay for from a curated brand catalog, see what they cost per month and per year, follow every past and upcoming payment on a timeline, and get a push notification the day before a charge hits.
 
+## 🌐 Try it
+
+**Web demo: https://tom-bartoccioni.github.io/Unsub/** (same code as the mobile app, built for the web and served from GitHub Pages, backed by the staging API on Render).
+
+Sign up with any email and password, then add a few subscriptions from the catalog. Data lives on the staging database; nothing is charged, nothing is sent to anyone. Push notifications and native Google sign-in need the Android build.
+
 **What is live today (free tier):**
 
 - Sign-up / sign-in with Firebase (email + password, Google)
