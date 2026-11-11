@@ -52,7 +52,8 @@
       "expo-localization"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "baseUrl": "/Unsub"
     },
     "extra": {
       "router": {},

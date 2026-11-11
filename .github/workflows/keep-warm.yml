@@ -1,0 +1,33 @@
+name: Keep API warm
+
+# The API runs on Render's free tier, which spins the instance down after
+# 15 minutes without traffic and takes ~40 s to wake up. Pinging /health
+# every 10 minutes keeps it responsive for the public web demo.
+#
+# Uses the same UNSUB_API_URL repo secret as the renewal crons.
+#
+# Note: GitHub disables scheduled workflows after 60 days without a commit.
+# Re-enable it from the Actions tab if the demo starts cold-starting again.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: GET /health
+        run: |
+          code=$(curl --silent --output /dev/null --max-time 60 -w '%{http_code}' "${UNSUB_API_URL%/}/health" || true)
+          echo "/health -> HTTP ${code:-000}"
+          # A cold start can still answer 503 on the very first hit; the
+          # request itself is what wakes the instance, so do not fail the job.
+        env:
+          UNSUB_API_URL: ${{ secrets.UNSUB_API_URL }}
